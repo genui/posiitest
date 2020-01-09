@@ -21,7 +21,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
-      <Link color="inherit" href="https://posii.ai">
+      <Link color="inherit" to="/">
         POSII
       </Link>{" "}
       {new Date().getFullYear()}
@@ -47,16 +47,21 @@ const useStyles = makeStyles({
   }
 });
 
-export default function SignIn() {
+export default function SignUp() {
+  const createNewUser = ({ email, password, username }) => {
+    firebase.createUser({ email, password }, { username, email });
+  };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const classes = useStyles();
   const firebase = useFirebase();
   const auth = useSelector(state => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
       console.log(auth);
-      return <Redirect to="/" />;
+      return <Redirect to="/protected" />;
     }
   }
   const handleEmailChange = event => {
@@ -69,9 +74,19 @@ export default function SignIn() {
     console.log("PASSWORD" + event.target.value);
   };
 
-  const handleSignIn = () => {
-    firebase.login({ email: email, password: password });
+  const handleUsernameChange = event => {
+    setUsername(event.target.value);
+    console.log("Username" + event.target.value);
   };
+
+  const handleSubmit = () => {
+    createNewUser({
+      email: email,
+      password: password,
+      username: username
+    });
+  };
+
   return (
     <Grow in={true} timeout={{ enter: 1000 }}>
       <Container component="main" maxWidth="xs">
@@ -81,7 +96,7 @@ export default function SignIn() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            ログイン
+            ユーザー登録
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -108,15 +123,26 @@ export default function SignIn() {
               autoComplete="current-password"
               onChange={handlePasswordChange}
             />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="username"
+              label="ユーザー名(半角英数字)"
+              type="name"
+              id="username"
+              onChange={handleUsernameChange}
+            />
             <Button
               type="button"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={handleSignIn}
+              onClick={handleSubmit}
             >
-              ログインする
+              登録する
             </Button>
             <Grid container>
               <Grid item xs>
@@ -129,8 +155,8 @@ export default function SignIn() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/signup" variant="body2" className={classes.link}>
-                  会員登録はこちら
+                <Link href="/signin" variant="body2" className={classes.link}>
+                  ログインはこちら
                 </Link>
               </Grid>
             </Grid>

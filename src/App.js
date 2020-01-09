@@ -3,7 +3,8 @@ import { Provider } from "react-redux";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
-import "firebase/firestore"; // make sure you add this for firestore
+import "firebase/firestore";
+import "firebase/storage";
 import {
   ReactReduxFirebaseProvider,
   isLoaded,
@@ -15,11 +16,15 @@ import configureStore from "./store";
 import { firebase as fbConfig, reduxFirebase as rfConfig } from "./config";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
-import Protected from "./components/Protected";
+import ProfileEdit from "./components/ProfileEdit";
+import TopPage from "./components/TopPage";
+import UploadTest from "./components/UploadTest";
 import Header from "./components/Header";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
+import { makeStyles } from "@material-ui/core/styles";
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -34,7 +39,6 @@ firebase.firestore();
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector(state => state.firebase.auth);
-  console.log(auth);
   return (
     <Route
       {...rest}
@@ -54,6 +58,29 @@ function PrivateRoute({ children, ...rest }) {
   );
 }
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: "flex",
+    "& > * + *": {
+      marginLeft: theme.spacing(2)
+    }
+  }
+}));
+
+function AuthIsLoaded({ children }) {
+  const classes = useStyles();
+  const auth = useSelector(state => state.firebase.auth);
+  if (!isLoaded(auth))
+    return (
+      <div>
+        <MuiThemeProvider theme={theme}>
+          <Header />
+        </MuiThemeProvider>
+      </div>
+    );
+  return children;
+}
+
 function App() {
   return (
     <Provider store={store}>
@@ -64,16 +91,25 @@ function App() {
         createFirestoreInstance={createFirestoreInstance}
       >
         <BrowserRouter>
-          <MuiThemeProvider theme={theme}>
-            <Header />
-            <Switch>
-              <Route path="/signin" component={SignIn} />
-              <Route path="/password_reminder" component={PasswordReminder} />
-              <PrivateRoute path="/protected">
-                <Protected />
-              </PrivateRoute>
-            </Switch>
-          </MuiThemeProvider>
+          <AuthIsLoaded>
+            <MuiThemeProvider theme={theme}>
+              <Header />
+              <Switch>
+                <Route path="/signin" component={SignIn} />
+                <Route path="/signup" component={SignUp} />
+                <Route path="/password_reminder" component={PasswordReminder} />
+                <PrivateRoute exact path="/">
+                  <TopPage />
+                </PrivateRoute>
+                <PrivateRoute path="/profile_edit">
+                  <ProfileEdit />
+                </PrivateRoute>
+                <PrivateRoute path="/upload">
+                  <UploadTest />
+                </PrivateRoute>
+              </Switch>
+            </MuiThemeProvider>
+          </AuthIsLoaded>
         </BrowserRouter>
       </ReactReduxFirebaseProvider>
     </Provider>
