@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase } from "react-redux-firebase";
 import { useSelector } from "react-redux";
@@ -14,6 +14,8 @@ import Container from "@material-ui/core/Container";
 import Grow from "@material-ui/core/Grow";
 import Logo from "../images/logo.jpg";
 import { isLoaded } from "react-redux-firebase";
+import { useDropzone } from "react-dropzone";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 function Copyright() {
   return (
@@ -36,9 +38,8 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center"
   },
   large: {
-    marginTop: 30,
-    width: theme.spacing(10),
-    height: theme.spacing(10),
+    width: theme.spacing(13),
+    height: theme.spacing(13),
     "&:hover": {
       cursor: "pointer",
       opacity: 0.5
@@ -54,6 +55,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ProfileEdit() {
+  const fileInput = useRef(null);
   const classes = useStyles();
   const firebase = useFirebase();
   const profile = useSelector(state => state.firebase.profile);
@@ -64,6 +66,49 @@ export default function ProfileEdit() {
 
   const handleDisplayNameChange = event => {
     setDisplayName(event.target.value);
+  };
+
+  const handleClick = () => {
+    fileInput.current.click();
+  };
+
+  const handleAvaterChange = event => {
+    const file = event.target.files;
+    const filePath = "avatars";
+    function splitExt(filename) {
+      return filename.split(/\.(?=[^.]+$)/);
+    }
+    function thumbnailName(filename) {
+      const filePre = splitExt(filename);
+      return `${filePre[0]}_200x200.${filePre[1]}`;
+    }
+    const date = new Date();
+    const a = date.getTime();
+    const b = Math.floor(a / 1000);
+    const storageRef = firebase.storage().ref(filePath);
+    const filePre = `${b}-${profile.username}`;
+    const fileName = file[0].name;
+    const imageRef = `${filePre}-${fileName}`;
+
+    const fileRef = storageRef
+      .child(imageRef)
+      .put(file[0])
+      .then(snapshot => {
+        const uploadedPath = `thumbnails/${filePre}-${thumbnailName(fileName)}`;
+        console.log(snapshot.state);
+        console.log(uploadedPath);
+        setTimeout(() => {
+          const url = storageRef
+            .child(uploadedPath)
+            .getDownloadURL()
+            .then(function(url) {
+              console.log(url);
+              firebase.updateProfile({
+                avatar: url
+              });
+            });
+        }, 5000);
+      });
   };
 
   const handleProfileTextChange = event => {
@@ -96,13 +141,24 @@ export default function ProfileEdit() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              プロフィール編集
+              プロフィール編集 - {profile.username}
             </Typography>
-            <Avatar
-              alt="profile image"
-              src={`${profile.avatar}`}
-              className={classes.large}
-            />
+            <Button onClick={() => handleClick()}>
+              <Avatar
+                alt="profile image"
+                src={`${profile.avatar}`}
+                className={classes.large}
+              />
+              <input
+                type="file"
+                id="avaterForm"
+                onChange={handleAvaterChange}
+                ref={fileInput}
+                style={{
+                  display: "none"
+                }}
+              />
+            </Button>
             <form className={classes.form} noValidate>
               <TextField
                 variant="outlined"

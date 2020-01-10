@@ -29,6 +29,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function TopPage() {
   const firebase = useFirebase();
+  const db = firebase.firestore();
+  db.collection("users")
+    .where("username", "==", "itoyohei")
+    .get()
+    .then(querySnapshot => {
+      const items = querySnapshot.docs.map(doc => doc.data());
+      console.log(items);
+    });
   const classes = useStyles();
   const profile = useSelector(state => state.firebase.profile);
 
