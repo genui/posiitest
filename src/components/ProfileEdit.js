@@ -15,7 +15,7 @@ import Grow from "@material-ui/core/Grow";
 import Logo from "../images/logo.jpg";
 import { isLoaded } from "react-redux-firebase";
 import { useDropzone } from "react-dropzone";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 function Copyright() {
   return (
@@ -63,6 +63,7 @@ export default function ProfileEdit() {
   const [displayName, setDisplayName] = useState("");
   const [profileText, setProfileText] = useState("");
   const [msg, setMsg] = useState("");
+  const [uploaded, setUploaded] = useState(true);
 
   const handleDisplayNameChange = event => {
     setDisplayName(event.target.value);
@@ -73,6 +74,7 @@ export default function ProfileEdit() {
   };
 
   const handleAvaterChange = event => {
+    setUploaded(false);
     const file = event.target.files;
     const filePath = "avatars";
     function splitExt(filename) {
@@ -82,33 +84,38 @@ export default function ProfileEdit() {
       const filePre = splitExt(filename);
       return `${filePre[0]}_200x200.${filePre[1]}`;
     }
-    const date = new Date();
-    const a = date.getTime();
-    const b = Math.floor(a / 1000);
-    const storageRef = firebase.storage().ref(filePath);
-    const filePre = `${b}-${profile.username}`;
-    const fileName = file[0].name;
-    const imageRef = `${filePre}-${fileName}`;
+    if (file[0].name) {
+      const date = new Date();
+      const a = date.getTime();
+      const b = Math.floor(a / 1000);
+      const storageRef = firebase.storage().ref(filePath);
+      const filePre = `${b}-${profile.username}`;
+      const fileName = file[0].name;
+      const imageRef = `${filePre}-${fileName}`;
 
-    const fileRef = storageRef
-      .child(imageRef)
-      .put(file[0])
-      .then(snapshot => {
-        const uploadedPath = `thumbnails/${filePre}-${thumbnailName(fileName)}`;
-        console.log(snapshot.state);
-        console.log(uploadedPath);
-        setTimeout(() => {
-          const url = storageRef
-            .child(uploadedPath)
-            .getDownloadURL()
-            .then(function(url) {
-              console.log(url);
-              firebase.updateProfile({
-                avatar: url
+      const fileRef = storageRef
+        .child(imageRef)
+        .put(file[0])
+        .then(snapshot => {
+          const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+            fileName
+          )}`;
+          console.log(snapshot.state);
+          console.log(uploadedPath);
+          setTimeout(() => {
+            const url = storageRef
+              .child(uploadedPath)
+              .getDownloadURL()
+              .then(function(url) {
+                console.log(url);
+                firebase.updateProfile({
+                  avatar: url
+                });
+                setUploaded(true);
               });
-            });
-        }, 5000);
-      });
+          }, 5000);
+        });
+    }
   };
 
   const handleProfileTextChange = event => {
@@ -144,11 +151,18 @@ export default function ProfileEdit() {
               プロフィール編集 - {profile.username}
             </Typography>
             <Button onClick={() => handleClick()}>
-              <Avatar
-                alt="profile image"
-                src={`${profile.avatar}`}
-                className={classes.large}
-              />
+              {uploaded ? (
+                <Avatar
+                  alt="profile image"
+                  src={`${profile.avatar}`}
+                  className={classes.large}
+                />
+              ) : (
+                <div>
+                  <CircularProgress />
+                  <p>アップロードしています...</p>
+                </div>
+              )}
               <input
                 type="file"
                 id="avaterForm"

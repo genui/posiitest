@@ -20,6 +20,7 @@ import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
 import ProfileEdit from "./components/ProfileEdit";
 import TopPage from "./components/TopPage";
+import UserPage from "./components/UserPage";
 import UploadTest from "./components/UploadTest";
 import Header from "./components/Header";
 import { MuiThemeProvider } from "@material-ui/core/styles";
@@ -106,6 +107,9 @@ function App() {
                 </PrivateRoute>
                 <PrivateRoute path="/upload">
                   <UploadTest />
+                </PrivateRoute>
+                <PrivateRoute path="/user/:username">
+                  <UserPage />
                 </PrivateRoute>
               </Switch>
             </MuiThemeProvider>
