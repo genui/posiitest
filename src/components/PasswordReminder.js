@@ -5,6 +5,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -109,6 +110,18 @@ export default function PasswordReminder() {
           >
             パスワードを再発行する
           </Button>
+          <Grid container>
+            <Grid item xs>
+              <Link href="/signin" variant="body2" className={classes.link}>
+                ログインはこちら
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link href="/signup" variant="body2" className={classes.link}>
+                会員登録はこちら
+              </Link>
+            </Grid>
+          </Grid>
         </form>
       </div>
       <Box mt={8}>

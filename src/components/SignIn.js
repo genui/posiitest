@@ -95,6 +95,7 @@ export default function SignIn() {
               autoComplete="email"
               autoFocus
               onChange={handleEmailChange}
+              autocapitalize="off"
             />
             <TextField
               variant="outlined"
