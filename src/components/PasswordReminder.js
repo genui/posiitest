@@ -11,6 +11,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { useFirebase } from "react-redux-firebase";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 
 function Copyright() {
   return (
@@ -77,53 +79,60 @@ export default function PasswordReminder() {
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          パスワード再発行
-        </Typography>
-        <p>パスワードを再発行する場合、メールアドレスを入力してください。</p>
-        <form className={classes.form}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="メールアドレス"
-            name="email"
-            value={email}
-            onChange={EmailChange}
-            autoComplete="email"
-            autoFocus
-          />
-          <p>{message}</p>
-          <Button
-            type="button"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-            onClick={handlePasswordReminder}
-          >
-            パスワードを再発行する
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="/signin" variant="body2" className={classes.link}>
-                ログインはこちら
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link href="/signup" variant="body2" className={classes.link}>
-                会員登録はこちら
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
+      <Card
+        className={classes.card}
+        variant="outlined"
+        style={{ marginTop: 30, marginBottom: 30 }}
+      >
+        <CardContent>
+          <div className={classes.paper}>
+            <Typography component="h1" variant="h5">
+              パスワード再発行
+            </Typography>
+            <p>
+              パスワードを再発行する場合、メールアドレスを入力してください。
+            </p>
+            <form className={classes.form}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="メールアドレス"
+                name="email"
+                value={email}
+                onChange={EmailChange}
+                autoComplete="email"
+                autoFocus
+              />
+              <p>{message}</p>
+              <Button
+                type="button"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={handlePasswordReminder}
+              >
+                パスワードを再発行する
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="/signin" variant="body2" className={classes.link}>
+                    ログインはこちら
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href="/signup" variant="body2" className={classes.link}>
+                    会員登録はこちら
+                  </Link>
+                </Grid>
+              </Grid>
+            </form>
+          </div>
+        </CardContent>
+      </Card>
       <Box mt={8}>
         <Copyright />
       </Box>

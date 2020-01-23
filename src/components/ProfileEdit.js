@@ -12,10 +12,10 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Grow from "@material-ui/core/Grow";
-import Logo from "../images/logo.jpg";
 import { isLoaded } from "react-redux-firebase";
-import { useDropzone } from "react-dropzone";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 
 function Copyright() {
   return (
@@ -141,85 +141,90 @@ export default function ProfileEdit() {
   if (isLoaded(profile)) {
     return (
       <Grow in={true} timeout={{ enter: 1000 }}>
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="sm">
           <CssBaseline />
-          <div className={classes.paper}>
-            <Avatar src={Logo} className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              プロフィール編集 - {profile.username}
-            </Typography>
-            <Button onClick={() => handleClick()}>
-              {uploaded ? (
-                <Avatar
-                  alt="profile image"
-                  src={`${profile.avatar}`}
-                  className={classes.large}
-                />
-              ) : (
-                <div>
-                  <CircularProgress />
-                  <p>アップロードしています...</p>
-                </div>
-              )}
-              <input
-                type="file"
-                id="avaterForm"
-                onChange={handleAvaterChange}
-                ref={fileInput}
-                style={{
-                  display: "none"
-                }}
-              />
-            </Button>
-            <form className={classes.form} noValidate>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="displayName"
-                label="表示名"
-                type="name"
-                id="displayName"
-                InputLabelProps={{
-                  shrink: true
-                }}
-                defaultValue={profile.displayName}
-                onChange={handleDisplayNameChange}
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="profile"
-                label="プロフィール本文"
-                type="name"
-                id="profile"
-                InputLabelProps={{
-                  shrink: true
-                }}
-                defaultValue={profile.profileText}
-                onChange={handleProfileTextChange}
-                multiline={true}
-                rows={10}
-                rowsMax={10}
-              />
-              {msg}
-              <Button
-                type="button"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                onClick={handleSubmit}
-              >
-                登録する
-              </Button>
-            </form>
-          </div>
+          <Card
+            className={classes.card}
+            variant="outlined"
+            style={{ marginTop: 30, marginBottom: 30 }}
+          >
+            <CardContent>
+              <div className={classes.paper}>
+                <Typography component="h1" variant="h5">
+                  編集 {profile.username}
+                </Typography>
+                <Button onClick={() => handleClick()}>
+                  {uploaded ? (
+                    <Avatar
+                      alt="profile image"
+                      src={`${profile.avatar}`}
+                      className={classes.large}
+                    />
+                  ) : (
+                    <div>
+                      <CircularProgress />
+                      <p>アップロードしています...</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="avaterForm"
+                    onChange={handleAvaterChange}
+                    ref={fileInput}
+                    style={{
+                      display: "none"
+                    }}
+                  />
+                </Button>
+                <form className={classes.form} noValidate>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="displayName"
+                    label="表示名"
+                    type="name"
+                    id="displayName"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    defaultValue={profile.displayName}
+                    onChange={handleDisplayNameChange}
+                  />
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="profile"
+                    label="プロフィール本文"
+                    type="name"
+                    id="profile"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    defaultValue={profile.profileText}
+                    onChange={handleProfileTextChange}
+                    multiline={true}
+                    rows={10}
+                    rowsMax={10}
+                  />
+                  {msg}
+                  <Button
+                    type="button"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={handleSubmit}
+                  >
+                    更新
+                  </Button>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
           <Box mt={8}>
             <Copyright />
           </Box>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import logo_off from "../../images/logo_off.png";
+import logo from "../../images/logo.png";
 import SignInMenu from "./SignInMenu";
 import SignedInMenu from "./SignedInMenu";
 import { isLoaded } from "react-redux-firebase";
@@ -35,11 +35,15 @@ function Header() {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <AppBar position="static" color="primary">
+      <AppBar
+        position="static"
+        color="primary"
+        style={{ backgroundColor: "#FFF", borderBottom: "solid 5px #fa9200" }}
+      >
         <Toolbar>
           <Typography variant="title" color="inherit" className={classes.flex}>
             <Link to="/" className={classes.link}>
-              <img src={logo_off} style={{ height: 40 }} />
+              <img src={logo} style={{ height: 40 }} />
             </Link>
           </Typography>
           {links}
