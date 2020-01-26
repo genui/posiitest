@@ -2,22 +2,20 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase } from "react-redux-firebase";
 import { useSelector } from "react-redux";
-import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Grow from "@material-ui/core/Grow";
-import Logo from "../images/logo.png";
 import { isLoaded } from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 function Copyright() {
   return (
@@ -55,6 +53,7 @@ export default function SignUp() {
       .createUser({ email, password }, { username, displayName, email })
       .catch(function(error) {
         setMsg("入力内容が正しくありません。");
+        setLoaded(true);
       });
   };
 
@@ -63,6 +62,8 @@ export default function SignUp() {
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [msg, setMsg] = useState("");
+  const [loaded, setLoaded] = useState(true);
+  const [usernameMsg, setUsernameMsg] = useState("");
   const classes = useStyles();
   const firebase = useFirebase();
   const auth = useSelector(state => state.firebase.auth);
@@ -73,17 +74,14 @@ export default function SignUp() {
   }
   const handleEmailChange = event => {
     setEmail(event.target.value);
-    console.log("EMAIL" + event.target.value);
   };
 
   const handlePasswordChange = event => {
     setPassword(event.target.value);
-    console.log("PASSWORD" + event.target.value);
   };
 
   const handleUsernameChange = event => {
     setUsername(event.target.value);
-    console.log("Username" + event.target.value);
   };
 
   const handleDisplayNameChange = event => {
@@ -91,12 +89,24 @@ export default function SignUp() {
   };
 
   const handleSubmit = () => {
-    createNewUser({
-      email: email,
-      password: password,
-      username: username,
-      displayName: displayName
-    });
+    const regex = /^[0-9a-z]+$/;
+    if (regex.test(username) !== true) {
+      setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
+    } else {
+      setUsernameMsg("");
+    }
+    setLoaded(false);
+    if (username == "" || displayName == "" || !regex.test(username)) {
+      setMsg("正しい情報を入力してください。");
+      setLoaded(true);
+    } else {
+      createNewUser({
+        email: email,
+        password: password,
+        username: username,
+        displayName: displayName
+      });
+    }
   };
 
   return (
@@ -149,7 +159,13 @@ export default function SignUp() {
                   type="name"
                   id="username"
                   onChange={handleUsernameChange}
+                  inputProps={{
+                    maxLength: 20
+                  }}
                 />
+                <div style={{ textAlign: "center" }}>
+                  {usernameMsg && usernameMsg}
+                </div>
                 <TextField
                   variant="outlined"
                   margin="normal"
@@ -159,19 +175,29 @@ export default function SignUp() {
                   label="表示名"
                   type="name"
                   id="displayName"
+                  maxlength="20"
                   onChange={handleDisplayNameChange}
+                  inputProps={{
+                    maxLength: 20
+                  }}
                 />
                 <div style={{ textAlign: "center" }}>{msg}</div>
-                <Button
-                  type="button"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  onClick={handleSubmit}
-                >
-                  登録する
-                </Button>
+                {loaded ? (
+                  <Button
+                    type="button"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={handleSubmit}
+                  >
+                    登録する
+                  </Button>
+                ) : (
+                  <div style={{ textAlign: "center" }}>
+                    <CircularProgress style={{ textAlign: "center" }} />
+                  </div>
+                )}
                 <Grid container>
                   <Grid item xs>
                     <Link

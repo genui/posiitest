@@ -59,10 +59,11 @@ export default function ProfileEdit() {
   const classes = useStyles();
   const firebase = useFirebase();
   const profile = useSelector(state => state.firebase.profile);
-
+  const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [profileText, setProfileText] = useState("");
   const [msg, setMsg] = useState("");
+  const [usernameMsg, setUsernameMsg] = useState("");
   const [uploaded, setUploaded] = useState(true);
 
   const handleDisplayNameChange = event => {
@@ -100,14 +101,11 @@ export default function ProfileEdit() {
           const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
             fileName
           )}`;
-          console.log(snapshot.state);
-          console.log(uploadedPath);
           setTimeout(() => {
             const url = storageRef
               .child(uploadedPath)
               .getDownloadURL()
               .then(function(url) {
-                console.log(url);
                 firebase.updateProfile({
                   avatar: url
                 });
@@ -121,12 +119,30 @@ export default function ProfileEdit() {
   const handleProfileTextChange = event => {
     setProfileText(event.target.value);
   };
+
+  const handleUsernameChange = event => {
+    setUsername(event.target.value);
+  };
+
   const handleSubmit = () => {
+    const regex = /^[0-9a-z]+$/;
+
     if (displayName !== "") {
       firebase.updateProfile({
         displayName: displayName
       });
       setMsg("プロフィールを更新しました");
+    }
+
+    if (username !== "" && regex.test(username) === true) {
+      firebase.updateProfile({
+        username: username
+      });
+      setMsg("プロフィールを更新しました");
+      setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
+    }
+    if (regex.test(username) !== true) {
+      setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
     }
 
     if (profileText !== "") {
@@ -135,7 +151,6 @@ export default function ProfileEdit() {
       });
       setMsg("プロフィールを更新しました");
     }
-    console.log("updated");
   };
 
   if (isLoaded(profile)) {
@@ -150,9 +165,6 @@ export default function ProfileEdit() {
           >
             <CardContent>
               <div className={classes.paper}>
-                <Typography component="h1" variant="h5">
-                  編集 {profile.username}
-                </Typography>
                 <Button onClick={() => handleClick()}>
                   {uploaded ? (
                     <Avatar
@@ -182,12 +194,36 @@ export default function ProfileEdit() {
                     margin="normal"
                     required
                     fullWidth
+                    name="username"
+                    label="ユーザー名(半角英数字)"
+                    type="name"
+                    id="username"
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    inputProps={{
+                      maxLength: 20
+                    }}
+                    defaultValue={profile.username}
+                    onChange={handleUsernameChange}
+                  />
+                  <div style={{ textAlign: "center" }}>
+                    {usernameMsg && usernameMsg}
+                  </div>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
                     name="displayName"
                     label="表示名"
                     type="name"
                     id="displayName"
                     InputLabelProps={{
                       shrink: true
+                    }}
+                    inputProps={{
+                      maxLength: 20
                     }}
                     defaultValue={profile.displayName}
                     onChange={handleDisplayNameChange}
@@ -209,8 +245,11 @@ export default function ProfileEdit() {
                     multiline={true}
                     rows={10}
                     rowsMax={10}
+                    inputProps={{
+                      maxLength: 200
+                    }}
                   />
-                  {msg}
+                  <div style={{ textAlign: "center" }}>{msg}</div>
                   <Button
                     type="button"
                     fullWidth
