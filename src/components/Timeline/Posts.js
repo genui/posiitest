@@ -1,4 +1,4 @@
-import React, { userState } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase, isLoaded, isEmpty } from "react-redux-firebase";
 import { useSelector } from "react-redux";
@@ -10,7 +10,6 @@ import CardActions from "@material-ui/core/CardActions";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import { red } from "@material-ui/core/colors";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import Comment from "@material-ui/icons/Comment";
@@ -23,8 +22,10 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 
 import Badge from "@material-ui/core/Badge";
-
 import Comments from "./Comments";
+import Snackbar from "@material-ui/core/Snackbar";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import axios from "axios";
 
 const useStyles = makeStyles(theme => ({
   media: {
@@ -52,6 +53,9 @@ const useStyles = makeStyles(theme => ({
   },
   liked: {
     color: "#fa9200"
+  },
+  snackbar: {
+    backgroundColor: "#fa9200"
   }
 }));
 
@@ -71,7 +75,7 @@ function PostLike(props) {
   const db = firebase.firestore();
   const auth = useSelector(state => state.firebase.auth);
   firebase.firestore();
-  const [liked, setLiked] = React.useState("");
+  const [liked, setLiked] = useState("");
   const likeChange = () => {
     if (props.id !== "") {
       db.collection("posts")
@@ -131,8 +135,15 @@ export default function Posts(props) {
   const db = firebase.firestore();
   const auth = useSelector(state => state.firebase.auth);
 
-  const [PostDeleteId, setPostDeleteId] = React.useState("");
-  const [OpenDelete, setOpenDelete] = React.useState(false);
+  const [PostDeleteId, setPostDeleteId] = useState("");
+  const [OpenDelete, setOpenDelete] = useState(false);
+  const [openSnack, setOpenSnack] = useState(false);
+  const [snackMsg, setSnackMsg] = useState(false);
+
+  const handleSnackClose = () => {
+    setOpenSnack(false);
+  };
+
   const handleClickOpenDelete = event => {
     setPostDeleteId(event.currentTarget.id);
     setOpenDelete(true);
@@ -148,7 +159,8 @@ export default function Posts(props) {
         .doc(PostDeleteId)
         .delete()
         .then(function() {
-          console.log("Document successfully deleted!");
+          setSnackMsg("投稿を削除しました。");
+          setOpenSnack(true);
         })
         .catch(function(error) {
           console.error("Error removing document: ", error);
@@ -158,6 +170,7 @@ export default function Posts(props) {
     }
   };
 
+  const [posted, setPosted] = useState(true);
   const [commentOpen, setCommentOpen] = React.useState(false);
   const [addCommentId, setAddCommentId] = React.useState("");
   const [commentContent, setCommentContent] = React.useState("");
@@ -187,20 +200,36 @@ export default function Posts(props) {
       addCommentId !== "" &&
       commentContent !== ""
     ) {
-      db.collection("posts")
-        .doc(addCommentId)
-        .collection("comments")
-        .add({
-          uid: auth.uid,
-          avatar: profile.avatar,
-          displayName: profile.displayName,
-          username: profile.username,
-          content: commentContent,
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-          likeCount: 0
-        });
-      setCommentContent("");
-      setCommentOpen(false);
+      setPosted(false);
+      const params = { text: commentContent };
+      const url = "http://153.121.44.164:8080/";
+      axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+
+      axios.get(url, { params }).then(results => {
+        if (results.data.result === "5" || results.data.result === "4") {
+          setOpenSnack(true);
+          setSnackMsg("ポジティブな投稿をお願いします。");
+          setPosted(true);
+        } else {
+          db.collection("posts")
+            .doc(addCommentId)
+            .collection("comments")
+            .add({
+              uid: auth.uid,
+              avatar: profile.avatar,
+              displayName: profile.displayName,
+              username: profile.username,
+              content: commentContent,
+              createTime: firebase.firestore.FieldValue.serverTimestamp(),
+              likeCount: 0
+            });
+          setCommentContent("");
+          setPosted(true);
+          setCommentOpen(false);
+          setSnackMsg("ポジティブなコメントありがとうございます。");
+          setOpenSnack(true);
+        }
+      });
     }
   };
 
@@ -296,11 +325,33 @@ export default function Posts(props) {
           <Button onClick={handleCommentClose} color="primary">
             戻る
           </Button>
-          <Button onClick={handleCommentContentSubmit} color="primary">
-            投稿
-          </Button>
+          {posted ? (
+            <Button onClick={handleCommentContentSubmit} color="primary">
+              投稿
+            </Button>
+          ) : (
+            <Button color="primary">
+              AI判定中 <CircularProgress size={15} />
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center"
+        }}
+        open={openSnack}
+        onClose={handleSnackClose}
+        autoHideDuration={5000}
+        message={<span>{snackMsg}</span>}
+        ContentProps={{
+          classes: {
+            root: classes.snackbar
+          }
+        }}
+      />
     </div>
   );
 }

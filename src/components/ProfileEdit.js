@@ -134,15 +134,17 @@ export default function ProfileEdit() {
       setMsg("プロフィールを更新しました");
     }
 
-    if (username !== "" && regex.test(username) === true) {
-      firebase.updateProfile({
-        username: username
-      });
-      setMsg("プロフィールを更新しました");
-      setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
-    }
-    if (regex.test(username) !== true) {
-      setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
+    if (username !== "") {
+      if (regex.test(username) === true) {
+        firebase.updateProfile({
+          username: username
+        });
+        setMsg("プロフィールを更新しました");
+      } else {
+        if (regex.test(username) !== true) {
+          setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
+        }
+      }
     }
 
     if (profileText !== "") {

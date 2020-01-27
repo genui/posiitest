@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   useFirebase,
@@ -24,6 +24,7 @@ import Button from "@material-ui/core/Button";
 import CardContent from "@material-ui/core/CardContent";
 
 import Badge from "@material-ui/core/Badge";
+import Snackbar from "@material-ui/core/Snackbar";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -88,6 +89,9 @@ const useStyles = makeStyles(theme => ({
     verticalAlign: "top",
     paddingTop: 5,
     paddingRight: 5
+  },
+  snackbar: {
+    backgroundColor: "#fa9200"
   },
   postButtons: {
     display: "flex",
@@ -184,6 +188,7 @@ export default function Comments(props) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   const auth = useSelector(state => state.firebase.auth);
+  const classes = useStyles();
   firebase.firestore();
   useFirestoreConnect([
     {
@@ -200,6 +205,14 @@ export default function Comments(props) {
   );
   const [CommentDeleteId, setCommentDeleteId] = React.useState("");
   const [OpenDelete, setOpenDelete] = React.useState(false);
+
+  const [openSnack, setOpenSnack] = useState(false);
+  const [snackMsg, setSnackMsg] = useState(false);
+
+  const handleSnackClose = () => {
+    setOpenSnack(false);
+  };
+
   const handleClickOpenDelete = event => {
     setCommentDeleteId(event.currentTarget.id);
     setOpenDelete(true);
@@ -217,7 +230,8 @@ export default function Comments(props) {
         .doc(CommentDeleteId)
         .delete()
         .then(function() {
-          console.log("Document successfully deleted!");
+          setSnackMsg("コメントを削除しました。");
+          setOpenSnack(true);
         })
         .catch(function(error) {
           console.error("Error removing document: ", error);
@@ -328,6 +342,21 @@ export default function Comments(props) {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center"
+        }}
+        open={openSnack}
+        onClose={handleSnackClose}
+        autoHideDuration={5000}
+        message={<span>{snackMsg}</span>}
+        ContentProps={{
+          classes: {
+            root: classes.snackbar
+          }
+        }}
+      />
     </div>
   );
 }

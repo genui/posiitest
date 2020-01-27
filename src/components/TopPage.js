@@ -14,6 +14,8 @@ import { isLoaded, isEmpty } from "react-redux-firebase";
 import Grow from "@material-ui/core/Grow";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Posts from "./Timeline/Posts";
+import axios from "axios";
+import Snackbar from "@material-ui/core/Snackbar";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -73,6 +75,9 @@ const useStyles = makeStyles(theme => ({
   liked: {
     color: "#fa9200"
   },
+  snackbar: {
+    backgroundColor: "#fa9200"
+  },
   postButtons: {
     display: "flex",
     flexFlow: "wrap",
@@ -108,6 +113,7 @@ export default function TopPage() {
   const posts = useSelector(state => state.firestore.ordered.posts);
   const auth = useSelector(state => state.firebase.auth);
   const profile = useSelector(state => state.firebase.profile);
+  const [openSnack, setOpenSnack] = useState(false);
   const [content, setContent] = useState("");
   const [postImage, setPostImage] = useState("");
   const [posted, setPosted] = useState(true);
@@ -129,75 +135,95 @@ export default function TopPage() {
   const handleContentSubmit = () => {
     if (content !== "") {
       setPosted(false);
-      if (postImage.name) {
-        const filePath = "postImage";
-        const date = new Date();
-        const a = date.getTime();
-        const b = Math.floor(a / 1000);
-        const storageRef = firebase.storage().ref(filePath);
-        const filePre = `${b}-${profile.username}`;
-        const fileName = postImage.name;
-        const imageRef = `${filePre}-${fileName}`;
+      const params = { text: content };
+      const url = "http://153.121.44.164:8080/";
+      axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
-        const fileRef = storageRef
-          .child(imageRef)
-          .put(postImage)
-          .then(snapshot => {
-            const uploadedPath = `${filePre}-${fileName}`;
-            setTimeout(() => {
-              const url = storageRef
-                .child(uploadedPath)
-                .getDownloadURL()
-                .then(function(url) {
-                  db.collection("posts").add({
-                    uid: auth.uid,
-                    avatar: profile.avatar,
-                    displayName: profile.displayName,
-                    postImage: url,
-                    username: profile.username,
-                    content: content,
-                    createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    likeCount: 0
-                  });
-                  setPosted(true);
-                  setContent("");
-                  setPostImage("");
-                  setPostMsg("");
-                });
-            }, 5000);
-          })
-          .catch(error => {
+      axios
+        .get(url, { params })
+        .then(results => {
+          if (results.data.result === "5" || results.data.result === "4") {
+            setOpenSnack(true);
+            setPostMsg("ポジティブな投稿をお願いします。");
             setPosted(true);
-            setPostImage("");
-            setPostMsg("10MB以下の画像をお願いします。");
-          });
-      } else {
-        db.collection("posts").add({
-          uid: auth.uid,
-          avatar: profile.avatar,
-          displayName: profile.displayName,
-          username: profile.username,
-          content: content,
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-          likeCount: 0
+          } else {
+            setPosted(false);
+            if (postImage.name) {
+              const filePath = "postImage";
+              const date = new Date();
+              const a = date.getTime();
+              const b = Math.floor(a / 1000);
+              const storageRef = firebase.storage().ref(filePath);
+              const filePre = `${b}-${profile.username}`;
+              const fileName = postImage.name;
+              const imageRef = `${filePre}-${fileName}`;
+
+              const fileRef = storageRef
+                .child(imageRef)
+                .put(postImage)
+                .then(snapshot => {
+                  const uploadedPath = `${filePre}-${fileName}`;
+                  setTimeout(() => {
+                    const url = storageRef
+                      .child(uploadedPath)
+                      .getDownloadURL()
+                      .then(function(url) {
+                        db.collection("posts").add({
+                          uid: auth.uid,
+                          avatar: profile.avatar,
+                          displayName: profile.displayName,
+                          postImage: url,
+                          username: profile.username,
+                          content: content,
+                          createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                          likeCount: 0
+                        });
+                        setPosted(true);
+                        setContent("");
+                        setPostImage("");
+                        setPostMsg("投稿が完了しました。");
+                        setOpenSnack(true);
+                      });
+                  }, 5000);
+                })
+                .catch(error => {
+                  setPosted(true);
+                  setPostImage("");
+                  setPostMsg("10MB以下の画像をお願いします。");
+                  setOpenSnack(true);
+                });
+            } else {
+              db.collection("posts").add({
+                uid: auth.uid,
+                avatar: profile.avatar,
+                displayName: profile.displayName,
+                username: profile.username,
+                content: content,
+                createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                likeCount: 0
+              });
+              setPosted(true);
+              setContent("");
+              setPostMsg("投稿が完了しました。");
+              setOpenSnack(true);
+              setPostImage("");
+            }
+          }
+        })
+        .catch(error => {
+          alert(error);
         });
-        setPosted(true);
-        setContent("");
-        setPostMsg("");
-        setPostImage("");
-      }
     }
   };
 
-
+  const handleSnackClose = () => {
+    setOpenSnack(false);
+  };
 
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
-        <Card
-          className={classes.card}
-          style={{ marginBottom: 30 }}
-        >
+        <Card className={classes.card} style={{ marginBottom: 30 }}>
           <CardContent>
             <Grid container spacing={3}>
               <Grid item xs="2">
@@ -240,7 +266,6 @@ export default function TopPage() {
                       <AddAPhoto className={classes.camera} />
                       <span style={{ verticalAlign: "middle", fontSize: 14 }}>
                         {postImage.name}
-                        {postMsg}
                       </span>
                     </Grid>
                     <Grid
@@ -259,7 +284,10 @@ export default function TopPage() {
                           投稿
                         </Button>
                       ) : (
-                        <CircularProgress />
+                        <div>
+                          <CircularProgress />
+                          <div style={{ fontSize: 12 }}>AI判定中</div>
+                        </div>
                       )}
                     </Grid>
                   </Grid>
@@ -292,6 +320,21 @@ export default function TopPage() {
           ))
         )}
       </Container>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center"
+        }}
+        open={openSnack}
+        onClose={handleSnackClose}
+        autoHideDuration={5000}
+        message={<span>{postMsg}</span>}
+        ContentProps={{
+          classes: {
+            root: classes.snackbar
+          }
+        }}
+      />
     </div>
   );
 }
