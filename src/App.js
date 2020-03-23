@@ -23,6 +23,13 @@ import TopPage from "./components/TopPage";
 import UserPage from "./components/UserPage";
 import UploadTest from "./components/UploadTest";
 import Header from "./components/Header";
+import Communities from "./components/Communities";
+import CommunitiesNew from "./components/CommunitiesNew";
+import CommunitiesEdit from "./components/CommunitiesEdit";
+import PostDetail from "./components/PostDetail";
+import CommunityPostDetail from "./components/CommunityPostDetail";
+import CommunitiesTimeline from "./components/CommunitiesTimeline";
+import Notifications from "./components/Notifications";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
 import { makeStyles } from "@material-ui/core/styles";
@@ -102,10 +109,34 @@ function App() {
                 <PrivateRoute exact path="/">
                   <TopPage />
                 </PrivateRoute>
-                <PrivateRoute path="/profile_edit">
+                <PrivateRoute exact path="/posts/:postId">
+                  <PostDetail />
+                </PrivateRoute>
+                <PrivateRoute exact path="/notifications">
+                  <Notifications />
+                </PrivateRoute>
+                <PrivateRoute exact path="/communities">
+                  <Communities />
+                </PrivateRoute>
+                <PrivateRoute
+                  exact
+                  path="/communities/:communityId/posts/:postId"
+                >
+                  <CommunityPostDetail />
+                </PrivateRoute>
+                <PrivateRoute exact path="/communities/new">
+                  <CommunitiesNew />
+                </PrivateRoute>
+                <PrivateRoute exact path="/communities/edit/:communityId">
+                  <CommunitiesEdit />
+                </PrivateRoute>
+                <PrivateRoute exact path="/communities/:communityId">
+                  <CommunitiesTimeline />
+                </PrivateRoute>
+                <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
                 </PrivateRoute>
-                <PrivateRoute path="/upload">
+                <PrivateRoute exact path="/upload">
                   <UploadTest />
                 </PrivateRoute>
                 <PrivateRoute path="/user/:username">

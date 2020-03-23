@@ -8,7 +8,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Grow from "@material-ui/core/Grow";
@@ -16,6 +15,7 @@ import { isLoaded } from "react-redux-firebase";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import Snackbar from "@material-ui/core/Snackbar";
 
 function Copyright() {
   return (
@@ -51,6 +51,9 @@ const useStyles = makeStyles(theme => ({
   submit: {
     marginTop: 20,
     marginBottom: 20
+  },
+  snackbar: {
+    backgroundColor: "#fa9200"
   }
 }));
 
@@ -65,9 +68,15 @@ export default function ProfileEdit() {
   const [msg, setMsg] = useState("");
   const [usernameMsg, setUsernameMsg] = useState("");
   const [uploaded, setUploaded] = useState(true);
+  const [openSnack, setOpenSnack] = useState(false);
+  const [snackMsg, setSnackMsg] = useState(false);
 
   const handleDisplayNameChange = event => {
     setDisplayName(event.target.value);
+  };
+
+  const handleSnackClose = () => {
+    setOpenSnack(false);
   };
 
   const handleClick = () => {
@@ -131,7 +140,8 @@ export default function ProfileEdit() {
       firebase.updateProfile({
         displayName: displayName
       });
-      setMsg("プロフィールを更新しました");
+      setSnackMsg("プロフィールを更新しました");
+      setOpenSnack(true);
     }
 
     if (username !== "") {
@@ -139,7 +149,8 @@ export default function ProfileEdit() {
         firebase.updateProfile({
           username: username
         });
-        setMsg("プロフィールを更新しました");
+        setSnackMsg("プロフィールを更新しました");
+        setOpenSnack(true);
       } else {
         if (regex.test(username) !== true) {
           setUsernameMsg("ユーザー名は半角小文字英数字でお願いします。");
@@ -151,126 +162,144 @@ export default function ProfileEdit() {
       firebase.updateProfile({
         profileText: profileText
       });
-      setMsg("プロフィールを更新しました");
+      setSnackMsg("プロフィールを更新しました");
+      setOpenSnack(true);
     }
   };
 
   if (isLoaded(profile)) {
     return (
-      <Grow in={true} timeout={{ enter: 1000 }}>
-        <Container component="main" maxWidth="sm">
-          <CssBaseline />
-          <Card
-            className={classes.card}
-            variant="outlined"
-            style={{ marginTop: 30, marginBottom: 30 }}
-          >
-            <CardContent>
-              <div className={classes.paper}>
-                <Button onClick={() => handleClick()}>
-                  {uploaded ? (
-                    <Avatar
-                      alt="profile image"
-                      src={`${profile.avatar}`}
-                      className={classes.large}
+      <div>
+        <Grow in={true} timeout={{ enter: 1000 }}>
+          <Container component="main" maxWidth="sm">
+            <CssBaseline />
+            <Card
+              className={classes.card}
+              variant="outlined"
+              style={{ marginTop: 30, marginBottom: 30 }}
+            >
+              <CardContent>
+                <div className={classes.paper}>
+                  <Button onClick={() => handleClick()}>
+                    {uploaded ? (
+                      <Avatar
+                        alt="profile image"
+                        src={`${profile.avatar}`}
+                        className={classes.large}
+                      />
+                    ) : (
+                      <div>
+                        <CircularProgress />
+                        <p>アップロードしています...</p>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="avaterForm"
+                      onChange={handleAvaterChange}
+                      ref={fileInput}
+                      style={{
+                        display: "none"
+                      }}
                     />
-                  ) : (
-                    <div>
-                      <CircularProgress />
-                      <p>アップロードしています...</p>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    id="avaterForm"
-                    onChange={handleAvaterChange}
-                    ref={fileInput}
-                    style={{
-                      display: "none"
-                    }}
-                  />
-                </Button>
-                <form className={classes.form} noValidate>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="username"
-                    label="ユーザー名(半角英数字)"
-                    type="name"
-                    id="username"
-                    InputLabelProps={{
-                      shrink: true
-                    }}
-                    inputProps={{
-                      maxLength: 20
-                    }}
-                    defaultValue={profile.username}
-                    onChange={handleUsernameChange}
-                  />
-                  <div style={{ textAlign: "center" }}>
-                    {usernameMsg && usernameMsg}
-                  </div>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="displayName"
-                    label="表示名"
-                    type="name"
-                    id="displayName"
-                    InputLabelProps={{
-                      shrink: true
-                    }}
-                    inputProps={{
-                      maxLength: 20
-                    }}
-                    defaultValue={profile.displayName}
-                    onChange={handleDisplayNameChange}
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="profile"
-                    label="プロフィール本文"
-                    type="name"
-                    id="profile"
-                    InputLabelProps={{
-                      shrink: true
-                    }}
-                    defaultValue={profile.profileText}
-                    onChange={handleProfileTextChange}
-                    multiline={true}
-                    rows={10}
-                    rowsMax={10}
-                    inputProps={{
-                      maxLength: 200
-                    }}
-                  />
-                  <div style={{ textAlign: "center" }}>{msg}</div>
-                  <Button
-                    type="button"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={handleSubmit}
-                  >
-                    更新
                   </Button>
-                </form>
-              </div>
-            </CardContent>
-          </Card>
-          <Box mt={8}>
-            <Copyright />
-          </Box>
-        </Container>
-      </Grow>
+                  <form className={classes.form} noValidate>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      required
+                      fullWidth
+                      name="username"
+                      label="ユーザー名(半角英数字)"
+                      type="name"
+                      id="username"
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                      inputProps={{
+                        maxLength: 20
+                      }}
+                      defaultValue={profile.username}
+                      onChange={handleUsernameChange}
+                    />
+                    <div style={{ textAlign: "center" }}>
+                      {usernameMsg && usernameMsg}
+                    </div>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      required
+                      fullWidth
+                      name="displayName"
+                      label="表示名"
+                      type="name"
+                      id="displayName"
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                      inputProps={{
+                        maxLength: 20
+                      }}
+                      defaultValue={profile.displayName}
+                      onChange={handleDisplayNameChange}
+                    />
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      required
+                      fullWidth
+                      name="profile"
+                      label="プロフィール本文"
+                      type="name"
+                      id="profile"
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                      defaultValue={profile.profileText}
+                      onChange={handleProfileTextChange}
+                      multiline={true}
+                      rows={10}
+                      rowsMax={10}
+                      inputProps={{
+                        maxLength: 200
+                      }}
+                    />
+                    <div style={{ textAlign: "center" }}>{msg}</div>
+                    <Button
+                      type="button"
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                      onClick={handleSubmit}
+                    >
+                      更新
+                    </Button>
+                  </form>
+                </div>
+              </CardContent>
+            </Card>
+            <Box mt={8}>
+              <Copyright />
+            </Box>
+          </Container>
+        </Grow>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center"
+          }}
+          open={openSnack}
+          onClose={handleSnackClose}
+          autoHideDuration={5000}
+          message={<span>{snackMsg}</span>}
+          ContentProps={{
+            classes: {
+              root: classes.snackbar
+            }
+          }}
+        />
+      </div>
     );
   } else {
     return <div></div>;

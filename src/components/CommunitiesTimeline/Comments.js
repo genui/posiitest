@@ -26,7 +26,6 @@ import CardContent from "@material-ui/core/CardContent";
 
 import Badge from "@material-ui/core/Badge";
 import Snackbar from "@material-ui/core/Snackbar";
-
 import Linkify from "material-ui-linkify";
 
 const useStyles = makeStyles(theme => ({
@@ -111,11 +110,6 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     marginTop: 20,
     marginBottom: 20
-  },
-  body2: {
-    "& a;link": {
-      fontSize: 30
-    }
   }
 }));
 
@@ -138,7 +132,9 @@ function CommentLike(props) {
   const [liked, setLiked] = React.useState("");
   const likeChange = () => {
     if (props.id !== "") {
-      db.collection("posts")
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(props.postId)
         .collection("comments")
         .doc(props.id)
@@ -159,7 +155,9 @@ function CommentLike(props) {
   };
   const handleClickCommentLike = event => {
     if (props.id !== "" && liked === false) {
-      db.collection("posts")
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(props.postId)
         .collection("comments")
         .doc(props.id)
@@ -285,6 +283,8 @@ function CommentReportButton(props) {
 }
 
 export default function Comments(props) {
+  const communityId = props.communityId;
+  const id = props.id;
   const firebase = useFirebase();
   const db = firebase.firestore();
   const auth = useSelector(state => state.firebase.auth);
@@ -292,10 +292,13 @@ export default function Comments(props) {
   firebase.firestore();
   useFirestoreConnect([
     {
-      collection: "posts",
-      doc: props.id,
-      subcollections: [{ collection: "comments" }],
-      orderBy: ["createTime", "asc"],
+      collection: "communities",
+      doc: props.communityId,
+      subcollections: [
+        { collection: "posts", doc: props.id },
+        { collection: "comments" }
+      ],
+      orderBy: ["createTime", "desc"],
       storeAs: `comments-${props.id}`
     }
   ]);
@@ -304,11 +307,7 @@ export default function Comments(props) {
     state => state.firestore.ordered[`comments-${props.id}`]
   );
   const [CommentDeleteId, setCommentDeleteId] = React.useState("");
-  const [commentContent, setCommentContent] = React.useState("");
   const [OpenDelete, setOpenDelete] = React.useState(false);
-
-  const [CommentReportId, setCommentReportId] = React.useState("");
-  const [OpenReport, setOpenReport] = React.useState(false);
 
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
@@ -328,7 +327,9 @@ export default function Comments(props) {
 
   const commentDelete = () => {
     if (CommentDeleteId !== "" && !isEmpty(CommentDeleteId)) {
-      db.collection("posts")
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(props.id)
         .collection("comments")
         .doc(CommentDeleteId)
@@ -344,7 +345,6 @@ export default function Comments(props) {
       setOpenDelete(false);
     }
   };
-
   return (
     <div>
       {!isLoaded(comments) ? (
@@ -395,7 +395,6 @@ export default function Comments(props) {
                       component="body2"
                       gutterBottom
                       style={{ whiteSpace: "pre-line" }}
-                      className="body2"
                     >
                       <Linkify>{comment.content}</Linkify>
                     </Typography>
@@ -406,6 +405,7 @@ export default function Comments(props) {
                     <CommentLike
                       postId={props.id}
                       id={comment.id}
+                      communityId={props.communityId}
                       likeCount={comment.likeCount}
                     />
                   </IconButton>
@@ -453,7 +453,6 @@ export default function Comments(props) {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Snackbar
         anchorOrigin={{
           vertical: "top",

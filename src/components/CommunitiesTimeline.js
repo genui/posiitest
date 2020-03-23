@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import PromiseValue from "promise-value";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase, useFirestoreConnect } from "react-redux-firebase";
 import { useSelector } from "react-redux";
@@ -14,9 +13,12 @@ import { AddAPhoto } from "@material-ui/icons";
 import { isLoaded, isEmpty } from "react-redux-firebase";
 import Grow from "@material-ui/core/Grow";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Posts from "./Timeline/Posts";
+import Posts from "./CommunitiesTimeline/Posts";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
+import { useParams } from "react-router-dom";
+import CardMedia from "@material-ui/core/CardMedia";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -97,48 +99,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function TopPage() {
+export default function CommunitiesTimeline() {
+  let { communityId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
-
   firebase.firestore();
-
   useFirestoreConnect([
     {
-      collection: "posts",
-      orderBy: ["createTime", "desc"]
+      collection: "communities",
+      doc: communityId,
+      subcollections: [{ collection: "posts" }],
+      orderBy: ["createTime", "desc"],
+      storeAs: `posts-${communityId}`
     }
   ]);
 
-  const posts = useSelector(state => state.firestore.ordered.posts);
-  console.log(posts);
-
-  /*
-  const [posts, setPosts] = useState();
-
-  db.collection("posts")
-    .orderBy("createTime", "desc")
-    .get()
-    .then(snapshot => {
-      let data = snapshot.docs.map(doc => doc.data());
-      setPosts(data);
-    });
-
-  console.log(posts);
-  */
-
-  /*
-  const [lastVisible, setLastVisible] = useState("");
-  db.collection("posts")
-    .orderBy("createTime", "desc")
-    .limit(5)
-    .get()
-    .then(snapshot => {
-      setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-    });
-  console.log(lastVisible);]
-  */
+  const posts = useSelector(
+    state => state.firestore.ordered[`posts-${communityId}`]
+  );
 
   const auth = useSelector(state => state.firebase.auth);
   const profile = useSelector(state => state.firebase.profile);
@@ -147,7 +126,37 @@ export default function TopPage() {
   const [postImage, setPostImage] = useState("");
   const [posted, setPosted] = useState(true);
   const [postMsg, setPostMsg] = useState("");
+  const [communityName, setCommunityName] = useState("");
+  const [communityText, setCommunityText] = useState("");
+  const [communityPublic, setCommunityPublic] = useState(true);
+  const [communityRole, setCommunityRole] = useState("");
+  const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
+
+  db.collection("communities")
+    .doc(communityId)
+    .get()
+    .then(function(doc) {
+      setCommunityName(doc.data().name);
+      setCommunityText(doc.data().text);
+      setCommunityPublic(doc.data().public);
+    });
+
+  db.collection("communities")
+    .doc(communityId)
+    .collection("members")
+    .doc(auth.uid)
+    .get()
+    .then(function(doc) {
+      if (doc.data()) {
+        setCommunityRole(doc.data().role);
+      }
+      if (communityPublic === true || communityRole === "member") {
+        setCommunityDisplay(true);
+      } else {
+        setCommunityDisplay(false);
+      }
+    });
 
   const handleContentChange = event => {
     setContent(event.target.value);
@@ -206,20 +215,23 @@ export default function TopPage() {
                       .child(uploadedPath)
                       .getDownloadURL()
                       .then(function(url) {
-                        db.collection("posts").add({
-                          uid: auth.uid,
-                          avatar: profile.avatar,
-                          displayName: profile.displayName,
-                          postImage: url,
-                          username: profile.username,
-                          content: content,
-                          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                          likeCount: 0
-                        });
+                        db.collection("communities")
+                          .doc(communityId)
+                          .collection("posts")
+                          .add({
+                            uid: auth.uid,
+                            avatar: profile.avatar,
+                            displayName: profile.displayName,
+                            postImage: url,
+                            username: profile.username,
+                            content: content,
+                            createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                            likeCount: 0
+                          });
                         setPosted(true);
                         setContent("");
                         setPostImage("");
-                        setPostMsg("ポジティブな投稿をありがとうございます。");
+                        setPostMsg("投稿が完了しました。");
                         setOpenSnack(true);
                       });
                   }, 5000);
@@ -231,15 +243,18 @@ export default function TopPage() {
                   setOpenSnack(true);
                 });
             } else {
-              db.collection("posts").add({
-                uid: auth.uid,
-                avatar: profile.avatar,
-                displayName: profile.displayName,
-                username: profile.username,
-                content: content,
-                createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                likeCount: 0
-              });
+              db.collection("communities")
+                .doc(communityId)
+                .collection("posts")
+                .add({
+                  uid: auth.uid,
+                  avatar: profile.avatar,
+                  displayName: profile.displayName,
+                  username: profile.username,
+                  content: content,
+                  createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                  likeCount: 0
+                });
               setPosted(true);
               setContent("");
               setPostMsg("投稿が完了しました。");
@@ -261,90 +276,101 @@ export default function TopPage() {
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
-        <Button
-          type="button"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-          href="/communities"
-          style={{ marginBottom: 30 }}
-        >
-          コミュニティへ参加する
-        </Button>
-        <Card className={classes.card} style={{ marginBottom: 30 }}>
+        <Card style={{ marginBottom: 20 }}>
           <CardContent>
-            <Grid container spacing={3}>
-              <Grid item xs="2">
-                <Avatar
-                  aria-label="recipe"
-                  src={`${profile.avatar}`}
-                  className={classes.middle}
-                  style={{ marginTop: 30 }}
-                />
-              </Grid>
-              <Grid item xs="10" style={{ marginTop: 20 }}>
-                <TextField
-                  id="standard-basic"
-                  label="投稿"
-                  fullWidth
-                  multiline={true}
-                  rows={1}
-                  rowsMax={5}
-                  onChange={handleContentChange}
-                  value={content}
-                />
-                <div>
-                  <Grid container spacing={3}>
-                    <Grid
-                      item
-                      xs="8"
-                      sm="6"
-                      style={{ marginTop: 20 }}
-                      onClick={handleImageClick}
-                    >
-                      <input
-                        type="file"
-                        id="imageForm"
-                        onChange={handleImageChange}
-                        ref={fileInput}
-                        style={{
-                          display: "none"
-                        }}
-                      />
-                      <AddAPhoto className={classes.camera} />
-                      <span style={{ verticalAlign: "middle", fontSize: 14 }}>
-                        {postImage.name}
-                      </span>
-                    </Grid>
-                    <Grid
-                      item
-                      xs="4"
-                      sm="6"
-                      style={{ marginTop: 20, textAlign: "right" }}
-                    >
-                      {posted ? (
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="primary"
-                          onClick={handleContentSubmit}
-                        >
-                          投稿
-                        </Button>
-                      ) : (
-                        <div>
-                          <CircularProgress />
-                          <div style={{ fontSize: 12 }}>AI判定中</div>
-                        </div>
-                      )}
-                    </Grid>
-                  </Grid>
-                </div>
-              </Grid>
-            </Grid>
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="h2"
+              style={{ color: "#000" }}
+            >
+              {communityName}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="p">
+              {communityText}
+            </Typography>
+            {!communityPublic && (
+              <Typography variant="body2" color="textSecondary" component="p">
+                ※このページは非公開です。
+              </Typography>
+            )}
           </CardContent>
         </Card>
+        {communityDisplay && (
+          <Card className={classes.card} style={{ marginBottom: 30 }}>
+            <CardContent>
+              <Grid container spacing={3}>
+                <Grid item xs="2">
+                  <Avatar
+                    aria-label="recipe"
+                    src={`${profile.avatar}`}
+                    className={classes.middle}
+                    style={{ marginTop: 30 }}
+                  />
+                </Grid>
+                <Grid item xs="10" style={{ marginTop: 20 }}>
+                  <TextField
+                    id="standard-basic"
+                    label="投稿"
+                    fullWidth
+                    multiline={true}
+                    rows={1}
+                    rowsMax={5}
+                    onChange={handleContentChange}
+                    value={content}
+                  />
+                  <div>
+                    <Grid container spacing={3}>
+                      <Grid
+                        item
+                        xs="8"
+                        sm="6"
+                        style={{ marginTop: 20 }}
+                        onClick={handleImageClick}
+                      >
+                        <input
+                          type="file"
+                          id="imageForm"
+                          onChange={handleImageChange}
+                          ref={fileInput}
+                          style={{
+                            display: "none"
+                          }}
+                        />
+                        <AddAPhoto className={classes.camera} />
+                        <span style={{ verticalAlign: "middle", fontSize: 14 }}>
+                          {postImage.name}
+                        </span>
+                      </Grid>
+                      <Grid
+                        item
+                        xs="4"
+                        sm="6"
+                        style={{ marginTop: 20, textAlign: "right" }}
+                      >
+                        {posted ? (
+                          <Button
+                            type="button"
+                            variant="contained"
+                            color="primary"
+                            onClick={handleContentSubmit}
+                          >
+                            投稿
+                          </Button>
+                        ) : (
+                          <div>
+                            <CircularProgress />
+                            <div style={{ fontSize: 12 }}>AI判定中</div>
+                          </div>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </div>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        )}
 
         {!isLoaded(posts) ? (
           <div></div>
@@ -356,6 +382,7 @@ export default function TopPage() {
               <Grow in={true} timeout={{ enter: 1000 }}>
                 <Posts
                   id={post.id}
+                  communityId={communityId}
                   uid={post.uid}
                   createTime={post.createTime}
                   avatar={post.avatar}

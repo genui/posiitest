@@ -7,6 +7,7 @@ import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
+import { useParams } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -17,6 +18,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Posts from "./Timeline/Posts";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
+import CardHeader from "@material-ui/core/CardHeader";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -97,7 +99,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function TopPage() {
+export default function PostDetail() {
+  let { postId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
@@ -107,38 +110,11 @@ export default function TopPage() {
   useFirestoreConnect([
     {
       collection: "posts",
-      orderBy: ["createTime", "desc"]
+      doc: postId
     }
   ]);
 
   const posts = useSelector(state => state.firestore.ordered.posts);
-  console.log(posts);
-
-  /*
-  const [posts, setPosts] = useState();
-
-  db.collection("posts")
-    .orderBy("createTime", "desc")
-    .get()
-    .then(snapshot => {
-      let data = snapshot.docs.map(doc => doc.data());
-      setPosts(data);
-    });
-
-  console.log(posts);
-  */
-
-  /*
-  const [lastVisible, setLastVisible] = useState("");
-  db.collection("posts")
-    .orderBy("createTime", "desc")
-    .limit(5)
-    .get()
-    .then(snapshot => {
-      setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-    });
-  console.log(lastVisible);]
-  */
 
   const auth = useSelector(state => state.firebase.auth);
   const profile = useSelector(state => state.firebase.profile);
@@ -267,89 +243,21 @@ export default function TopPage() {
           variant="contained"
           color="primary"
           className={classes.submit}
-          href="/communities"
+          href="/"
           style={{ marginBottom: 30 }}
         >
-          コミュニティへ参加する
+          トップページへ
         </Button>
-        <Card className={classes.card} style={{ marginBottom: 30 }}>
-          <CardContent>
-            <Grid container spacing={3}>
-              <Grid item xs="2">
-                <Avatar
-                  aria-label="recipe"
-                  src={`${profile.avatar}`}
-                  className={classes.middle}
-                  style={{ marginTop: 30 }}
-                />
-              </Grid>
-              <Grid item xs="10" style={{ marginTop: 20 }}>
-                <TextField
-                  id="standard-basic"
-                  label="投稿"
-                  fullWidth
-                  multiline={true}
-                  rows={1}
-                  rowsMax={5}
-                  onChange={handleContentChange}
-                  value={content}
-                />
-                <div>
-                  <Grid container spacing={3}>
-                    <Grid
-                      item
-                      xs="8"
-                      sm="6"
-                      style={{ marginTop: 20 }}
-                      onClick={handleImageClick}
-                    >
-                      <input
-                        type="file"
-                        id="imageForm"
-                        onChange={handleImageChange}
-                        ref={fileInput}
-                        style={{
-                          display: "none"
-                        }}
-                      />
-                      <AddAPhoto className={classes.camera} />
-                      <span style={{ verticalAlign: "middle", fontSize: 14 }}>
-                        {postImage.name}
-                      </span>
-                    </Grid>
-                    <Grid
-                      item
-                      xs="4"
-                      sm="6"
-                      style={{ marginTop: 20, textAlign: "right" }}
-                    >
-                      {posted ? (
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="primary"
-                          onClick={handleContentSubmit}
-                        >
-                          投稿
-                        </Button>
-                      ) : (
-                        <div>
-                          <CircularProgress />
-                          <div style={{ fontSize: 12 }}>AI判定中</div>
-                        </div>
-                      )}
-                    </Grid>
-                  </Grid>
-                </div>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-
         {!isLoaded(posts) ? (
           <div></div>
         ) : isEmpty(posts) ? (
-          <div></div>
+          <div>
+            <Grow in={true} timeout={{ enter: 1000 }}>
+              <Card className={classes.card} style={{ marginBottom: 20 }}>
+                <CardHeader subheader={"投稿はありません。"} />
+              </Card>
+            </Grow>
+          </div>
         ) : (
           posts.map(post => (
             <div>

@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "posiidev"
+    "default": "posiidev",
+    "dev": "devposii"
   }
 }

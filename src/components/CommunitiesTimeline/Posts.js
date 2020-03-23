@@ -28,14 +28,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import axios from "axios";
 import MediaQuery from "react-responsive";
 import Lightbox from "react-image-lightbox";
-import Linkify from "react-linkify";
+import "react-image-lightbox/style.css";
 
 import ReportProblemIcon from "@material-ui/icons/ReportProblem";
+
+import Linkify from "material-ui-linkify";
 
 const useStyles = makeStyles(theme => ({
   media: {
     height: 0,
-    paddingTop: "56.25%", // 16:9
+    paddingTop: "56.25%",
     "&:hover": {
       cursor: "pointer",
       opacity: 0.5
@@ -85,7 +87,9 @@ function PostLike(props) {
   const [liked, setLiked] = useState("");
   const likeChange = () => {
     if (props.id !== "") {
-      db.collection("posts")
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(props.id)
         .collection("postLikes")
         .doc(auth.uid)
@@ -105,7 +109,9 @@ function PostLike(props) {
 
   const handleClickPostLike = event => {
     if (props.id !== "" && liked === false) {
-      db.collection("posts")
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(props.id)
         .collection("postLikes")
         .doc(auth.uid)
@@ -164,8 +170,10 @@ export default function Posts(props) {
   };
 
   const postDelete = () => {
-    if (PostDeleteId != "") {
-      db.collection("posts")
+    if (PostDeleteId !== "") {
+      db.collection("communities")
+        .doc(props.communityId)
+        .collection("posts")
         .doc(PostDeleteId)
         .delete()
         .then(function() {
@@ -194,9 +202,10 @@ export default function Posts(props) {
       db.collection("reports")
         .add({
           uid: auth.uid,
-          id: props.id,
+          communityId: props.communityId,
+          postId: props.id,
           content: props.content,
-          type: "post",
+          type: "communityPost",
           createTime: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(function() {
@@ -250,7 +259,9 @@ export default function Posts(props) {
           setSnackMsg("ポジティブな投稿をお願いします。");
           setPosted(true);
         } else {
-          db.collection("posts")
+          db.collection("communities")
+            .doc(props.communityId)
+            .collection("posts")
             .doc(addCommentId)
             .collection("comments")
             .add({
@@ -278,7 +289,6 @@ export default function Posts(props) {
         <Lightbox
           mainSrc={props.postImage}
           onCloseRequest={() => setLightbox(false)}
-          mainSrcThumbnail={props.postImage}
         />
       )}
       <Card className={classes.card} style={{ marginBottom: 20 }}>
@@ -307,7 +317,11 @@ export default function Posts(props) {
         )}
         <CardActions disableSpacing>
           <IconButton aria-label="add to favorites">
-            <PostLike id={props.id} likeCount={props.likeCount} />
+            <PostLike
+              id={props.id}
+              communityId={props.communityId}
+              likeCount={props.likeCount}
+            />
           </IconButton>
           <IconButton aria-label="share">
             <Comment onClick={handleClickCommentOpen} id={props.id} />
@@ -329,7 +343,7 @@ export default function Posts(props) {
             <ReportProblemIcon onClick={handleClickOpenReport} id={props.id} />
           </IconButton>
         </CardActions>
-        <Comments id={props.id} />
+        <Comments id={props.id} communityId={props.communityId} />
       </Card>
 
       <Dialog

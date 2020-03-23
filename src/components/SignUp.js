@@ -48,9 +48,19 @@ const useStyles = makeStyles({
 });
 
 export default function SignUp() {
-  const createNewUser = ({ email, password, username, displayName }) => {
+  const createNewUser = ({
+    email,
+    password,
+    username,
+    displayName,
+    point,
+    avatar
+  }) => {
     firebase
-      .createUser({ email, password }, { username, displayName, email })
+      .createUser(
+        { email, password },
+        { username, displayName, email, point, avatar }
+      )
       .catch(function(error) {
         setMsg("入力内容が正しくありません。");
         setLoaded(true);
@@ -104,7 +114,10 @@ export default function SignUp() {
         email: email,
         password: password,
         username: username,
-        displayName: displayName
+        displayName: displayName,
+        point: 0,
+        avatar: "",
+        notification: false
       });
     }
   };

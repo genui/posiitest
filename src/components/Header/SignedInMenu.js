@@ -7,7 +7,9 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Avatar from "@material-ui/core/Avatar";
 import Grow from "@material-ui/core/Grow";
+import NotificationsNoneIcon from "@material-ui/icons/Notifications";
 import { Link } from "react-router-dom";
+import Badge from "@material-ui/core/Badge";
 
 const useStyles = makeStyles({
   root: {
@@ -22,6 +24,10 @@ const useStyles = makeStyles({
   },
   button: {
     color: "white"
+  },
+  notification: {
+    color: "#888",
+    fontSize: 35
   }
 });
 
@@ -47,6 +53,17 @@ export default function SignedInMenu() {
   return (
     <Grow in={true} timeout={{ enter: 1000, exit: 1000 }}>
       <React.Fragment>
+        <Link to="/notifications">
+          <Button>
+            {profile.notification ? (
+              <Badge variant="dot" color="error" overlap="circle">
+                <NotificationsNoneIcon className={classes.notification} />
+              </Badge>
+            ) : (
+              <NotificationsNoneIcon className={classes.notification} />
+            )}
+          </Button>
+        </Link>
         <Button
           color="inherit"
           aria-haspopup="true"
@@ -54,7 +71,7 @@ export default function SignedInMenu() {
           className={classes.noTransform}
         >
           <Avatar
-            alt="profile image"
+            aria-label="recipe"
             src={`${profile.avatar}`}
             className={classes.avatar}
           />
@@ -65,6 +82,18 @@ export default function SignedInMenu() {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
+          <MenuItem
+            className={classes.menuItem}
+            disabled={true}
+            style={{ opacity: 1 }}
+          >
+            <span style={{ color: "#fa9200" }}>{profile.point} POSII</span>
+          </MenuItem>
+          <MenuItem className={classes.menuItem}>
+            <Link to="/communities" className={classes.link}>
+              コミュニティ
+            </Link>
+          </MenuItem>
           <MenuItem className={classes.menuItem}>
             <Link to="/profile_edit" className={classes.link}>
               プロフィール編集
