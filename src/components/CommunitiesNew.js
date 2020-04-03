@@ -16,6 +16,7 @@ import CardContent from "@material-ui/core/CardContent";
 import { AddAPhoto } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
 import Snackbar from "@material-ui/core/Snackbar";
+import Switch from "@material-ui/core/Switch";
 
 function Copyright() {
   return (
@@ -77,6 +78,7 @@ export default function CommunityNew() {
   const [text, setText] = useState("");
   const [uploaded, setUploaded] = useState(true);
   const [communityImage, setCommunityImage] = useState("");
+  const [publicFlg, setPublic] = useState(true);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
 
@@ -99,6 +101,14 @@ export default function CommunityNew() {
 
   const handleSnackClose = () => {
     setOpenSnack(false);
+  };
+
+  const handlePublicChange = event => {
+    if (publicFlg) {
+      setPublic(false);
+    } else {
+      setPublic(true);
+    }
   };
 
   const handleSubmit = () => {
@@ -130,7 +140,7 @@ export default function CommunityNew() {
                     image: url,
                     createTime: firebase.firestore.FieldValue.serverTimestamp(),
                     updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    public: true
+                    public: publicFlg
                   });
                   setUploaded(true);
                   setText("");
@@ -160,7 +170,7 @@ export default function CommunityNew() {
             image: "",
             createTime: firebase.firestore.FieldValue.serverTimestamp(),
             updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-            public: true
+            public: publicFlg
           })
           .then(function() {
             setUploaded(true);
@@ -243,10 +253,27 @@ export default function CommunityNew() {
                       display: "none"
                     }}
                   />
+
                   <AddAPhoto className={classes.camera} />
                   <span style={{ verticalAlign: "middle", fontSize: 14 }}>
                     {communityImage.name}
                   </span>
+                </div>
+                <div style={{ marginTop: 20 }}>
+                  <Typography
+                    gutterBottom
+                    variant="body2"
+                    component="body2"
+                    style={{ color: "#000" }}
+                  >
+                    公開する
+                  </Typography>
+                  <Switch
+                    checked={publicFlg}
+                    onChange={handlePublicChange}
+                    name="public"
+                    inputProps={{ "aria-label": "secondary checkbox" }}
+                  />
                 </div>
                 {uploaded ? (
                   <Button

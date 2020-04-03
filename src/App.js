@@ -19,17 +19,16 @@ import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
 import ProfileEdit from "./components/ProfileEdit";
-import TopPage from "./components/TopPage";
 import UserPage from "./components/UserPage";
 import UploadTest from "./components/UploadTest";
 import Header from "./components/Header";
 import Communities from "./components/Communities";
 import CommunitiesNew from "./components/CommunitiesNew";
 import CommunitiesEdit from "./components/CommunitiesEdit";
-import PostDetail from "./components/PostDetail";
 import CommunityPostDetail from "./components/CommunityPostDetail";
 import CommunitiesTimeline from "./components/CommunitiesTimeline";
 import Notifications from "./components/Notifications";
+import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
 import { makeStyles } from "@material-ui/core/styles";
@@ -106,12 +105,9 @@ function App() {
                 <Route path="/signin" component={SignIn} />
                 <Route path="/signup" component={SignUp} />
                 <Route path="/password_reminder" component={PasswordReminder} />
-                <PrivateRoute exact path="/">
-                  <TopPage />
-                </PrivateRoute>
-                <PrivateRoute exact path="/posts/:postId">
-                  <PostDetail />
-                </PrivateRoute>
+                <Route exact path="/">
+                  <Lp />
+                </Route>
                 <PrivateRoute exact path="/notifications">
                   <Notifications />
                 </PrivateRoute>
@@ -142,6 +138,13 @@ function App() {
                 <PrivateRoute path="/user/:username">
                   <UserPage />
                 </PrivateRoute>
+                <Route
+                  render={() => (
+                    <h2 style={{ textAlign: "center" }}>
+                      ページが存在しません。
+                    </h2>
+                  )}
+                />
               </Switch>
             </MuiThemeProvider>
           </AuthIsLoaded>

@@ -58,7 +58,7 @@ export default function SignIn() {
   if (isLoaded(auth)) {
     if (auth.uid) {
       console.log(auth);
-      return <Redirect to="/" />;
+      return <Redirect to="/communities" />;
     }
   }
   const handleEmailChange = event => {

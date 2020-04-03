@@ -90,7 +90,46 @@ exports.updateProfileUsername = functions.firestore
           return Promise.all(promises);
         }
       });
-      return res1, res2, res3;
+
+      const notificationQuery = db
+        .collectionGroup("notifications")
+        .where("uid", "==", `${userId}`);
+      const res4 = notificationQuery.get().then(querySnapshot => {
+        if (querySnapshot.empty) {
+          return null;
+        } else {
+          const promises = [];
+          querySnapshot.forEach(doc => {
+            promises.push(
+              doc.ref.update({
+                displayName: `${newUsername}`,
+                avatar: `${newAvatar}`
+              })
+            );
+          });
+        }
+      });
+
+      const memberQuery = db
+        .collectionGroup("members")
+        .where("uid", "==", `${userId}`);
+      const res5 = memberQuery.get().then(querySnapshot => {
+        if (querySnapshot.empty) {
+          return null;
+        } else {
+          const promises = [];
+          querySnapshot.forEach(doc => {
+            promises.push(
+              doc.ref.update({
+                displayName: `${newUsername}`,
+                avatar: `${newAvatar}`
+              })
+            );
+          });
+        }
+      });
+
+      return res1, res2, res3, res4, res5;
     } else {
       return null;
     }
@@ -450,6 +489,25 @@ exports.CommunityComment = functions.firestore
               notification: true
             });
         }
+      });
+
+    return res1;
+  });
+
+exports.CommunityCreate = functions.firestore
+  .document("communities/{communityId}")
+  .onCreate((snap, context) => {
+    const { communityId } = context.params;
+    const uid = snap.data().uid;
+
+    const res1 = db
+      .collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(uid)
+      .set({
+        uid: uid,
+        role: "member"
       });
 
     return res1;

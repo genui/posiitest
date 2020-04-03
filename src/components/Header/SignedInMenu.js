@@ -34,7 +34,6 @@ const useStyles = makeStyles({
 export default function SignedInMenu() {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState("");
-  const [profilePicUrl, setProfilePicUrl] = useState("");
   const firebase = useFirebase();
   const profile = useSelector(state => state.firebase.profile);
   const handleSignOut = () => {

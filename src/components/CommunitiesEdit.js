@@ -1,6 +1,11 @@
 import React, { useState, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useFirebase } from "react-redux-firebase";
+import {
+  useFirebase,
+  useFirestoreConnect,
+  isLoaded,
+  isEmpty
+} from "react-redux-firebase";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Button from "@material-ui/core/Button";
@@ -18,7 +23,9 @@ import CardMedia from "@material-ui/core/CardMedia";
 import { AddAPhoto } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
 import Snackbar from "@material-ui/core/Snackbar";
-import { isLoaded } from "react-redux-firebase";
+import Switch from "@material-ui/core/Switch";
+import CardHeader from "@material-ui/core/CardHeader";
+import Avatar from "@material-ui/core/Avatar";
 
 function Copyright() {
   return (
@@ -90,6 +97,7 @@ export default function CommunityEdit() {
   const [updateText, setUpdateText] = useState("");
   const [image, setImage] = useState("");
   const [uid, setUid] = useState("");
+  const [publicFlg, setPublic] = useState("");
   const [displayForm, setDisplayForm] = useState(false);
   const [uploaded, setUploaded] = useState(true);
   const [imageUploaded, setImageUploaded] = useState(true);
@@ -105,12 +113,31 @@ export default function CommunityEdit() {
       setText(doc.data().text);
       setUid(doc.data().uid);
       setImage(doc.data().image);
+      setPublic(doc.data().public);
       setDisplayForm(true);
 
       if (isLoaded(auth) && auth.uid !== doc.data().uid) {
         history.push("/");
       }
     });
+
+  const handlePublicChange = event => {
+    if (publicFlg) {
+      db.collection("communities")
+        .doc(communityId)
+        .update({ public: false });
+      setPublic(false);
+      setSnackMsg("非公開にしました。");
+      setOpenSnack(true);
+    } else {
+      db.collection("communities")
+        .doc(communityId)
+        .update({ public: true });
+      setPublic(true);
+      setSnackMsg("公開にしました。");
+      setOpenSnack(true);
+    }
+  };
 
   const handleNameChange = event => {
     setUpdateName(event.target.value);
@@ -254,7 +281,7 @@ export default function CommunityEdit() {
             <Card
               className={classes.card}
               variant="outlined"
-              style={{ marginTop: 30, marginBottom: 30 }}
+              style={{ marginBottom: 30 }}
             >
               <CardContent>
                 {imageUploaded ? (
@@ -331,6 +358,23 @@ export default function CommunityEdit() {
                         }}
                       />
                     </div>
+                    <div>
+                      <Typography
+                        gutterBottom
+                        variant="body2"
+                        component="body2"
+                        style={{ color: "#000" }}
+                      >
+                        公開する
+                      </Typography>
+                      <Switch
+                        checked={publicFlg}
+                        onChange={handlePublicChange}
+                        name="public"
+                        inputProps={{ "aria-label": "secondary checkbox" }}
+                      />
+                    </div>
+
                     {uploaded ? (
                       <Button
                         type="button"
@@ -351,6 +395,7 @@ export default function CommunityEdit() {
                 </div>
               </CardContent>
             </Card>
+            {!publicFlg && <UserList id={communityId} />}
             <Box mt={8}>
               <Copyright />
             </Box>
@@ -372,6 +417,124 @@ export default function CommunityEdit() {
           </Container>
         </Grow>
       )}
+    </div>
+  );
+}
+
+function UserList(props) {
+  const firebase = useFirebase();
+  const db = firebase.firestore();
+  const communityId = props.id;
+  const classes = useStyles();
+  const [openSnack, setOpenSnack] = useState(false);
+  const [snackMsg, setSnackMsg] = useState(false);
+
+  useFirestoreConnect([
+    {
+      collection: "communities",
+      doc: communityId,
+      subcollections: [{ collection: "members" }],
+      where: ["role", "==", "regist"],
+      storeAs: `members-${communityId}`
+    }
+  ]);
+
+  const communityMembers = useSelector(
+    state => state.firestore.ordered[`members-${communityId}`]
+  );
+
+  const handleSnackClose = () => {
+    setOpenSnack(false);
+  };
+
+  const handleClickButton = event => {
+    const id = event.currentTarget.id;
+    db.collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(id)
+      .update({
+        role: "member"
+      })
+      .then(function() {
+        setSnackMsg("承認しました");
+        setOpenSnack(true);
+      });
+  };
+
+  return (
+    <div>
+      {!isLoaded(communityMembers) ? (
+        <div></div>
+      ) : isEmpty(communityMembers) ? (
+        <div>
+          <Typography
+            gutterBottom
+            variant="h5"
+            component="h2"
+            style={{ color: "#000" }}
+          >
+            承認待ち
+          </Typography>
+          <Card className={classes.card} style={{ marginBottom: 20 }}>
+            <CardHeader subheader={"承認待ちはありません"} />
+          </Card>
+        </div>
+      ) : (
+        <div>
+          <Typography
+            gutterBottom
+            variant="h5"
+            component="h2"
+            style={{ color: "#000" }}
+          >
+            承認待ち
+          </Typography>
+          {communityMembers.map(communityMember => (
+            <div>
+              <Card className={classes.card} style={{ marginBottom: 20 }}>
+                <CardHeader
+                  avatar={
+                    <Avatar
+                      aria-label="recipe"
+                      src={communityMember.avatar}
+                      className={classes.avatar}
+                    />
+                  }
+                  title={communityMember.displayName}
+                  action={
+                    <Button
+                      type="button"
+                      variant="contained"
+                      color="primary"
+                      style={{ marginTop: 10 }}
+                      onClick={handleClickButton}
+                      id={communityMember.uid}
+                    >
+                      承認する
+                    </Button>
+                  }
+                />
+              </Card>
+            </div>
+          ))}
+        </div>
+      )}
+      <Snackbar
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center"
+        }}
+        open={openSnack}
+        onClose={handleSnackClose}
+        autoHideDuration={5000}
+        message={<span>{snackMsg}</span>}
+        ContentProps={{
+          classes: {
+            root: classes.snackbar
+          }
+        }}
+      />
     </div>
   );
 }

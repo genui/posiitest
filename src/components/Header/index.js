@@ -30,7 +30,7 @@ function Header() {
   const auth = useSelector(state => state.firebase.auth);
   let links = "";
   if (isLoaded(auth)) {
-    links = auth.uid ? <SignedInMenu /> : <div></div>;
+    links = auth.uid ? <SignedInMenu /> : <SignInMenu />;
   }
   const classes = useStyles();
   return (
@@ -43,7 +43,7 @@ function Header() {
         <Toolbar>
           <Typography variant="title" color="inherit" className={classes.flex}>
             <Link to="/" className={classes.link}>
-              <img src={logo} style={{ height: 40 }} />
+              <img src={logo} style={{ height: 40 }} alt="POSII" />
             </Link>
           </Typography>
           {links}

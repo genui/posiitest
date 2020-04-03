@@ -17,7 +17,6 @@ import Posts from "./CommunitiesTimeline/Posts";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
-import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(theme => ({
@@ -100,7 +99,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CommunitiesTimeline() {
-  let { communityId } = useParams();
+  const { communityId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
@@ -129,7 +128,8 @@ export default function CommunitiesTimeline() {
   const [communityName, setCommunityName] = useState("");
   const [communityText, setCommunityText] = useState("");
   const [communityPublic, setCommunityPublic] = useState(true);
-  const [communityRole, setCommunityRole] = useState("");
+  const [communityRole, setCommunityRole] = useState(false);
+  const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
 
@@ -150,6 +150,9 @@ export default function CommunitiesTimeline() {
     .then(function(doc) {
       if (doc.data()) {
         setCommunityRole(doc.data().role);
+        if (communityRole === "regist") {
+          setCommunityButton(false);
+        }
       }
       if (communityPublic === true || communityRole === "member") {
         setCommunityDisplay(true);
@@ -168,6 +171,22 @@ export default function CommunitiesTimeline() {
   };
   const handleImageClick = event => {
     fileInput.current.click();
+  };
+
+  const handleClickRegist = event => {
+    db.collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(auth.uid)
+      .set({
+        role: "regist",
+        uid: auth.uid,
+        displayName: profile.displayName,
+        avatar: profile.avatar
+      });
+    setCommunityButton(false);
+    setPostMsg("参加申請をしました。");
+    setOpenSnack(true);
   };
 
   const handleContentSubmit = () => {
@@ -284,15 +303,34 @@ export default function CommunitiesTimeline() {
               component="h2"
               style={{ color: "#000" }}
             >
-              {communityName}
+              {communityName}{" "}
+              <span style={{ fontSize: 15 }}>
+                {!communityPublic && " 非公開"}
+              </span>
             </Typography>
             <Typography variant="body2" color="textSecondary" component="p">
               {communityText}
             </Typography>
-            {!communityPublic && (
-              <Typography variant="body2" color="textSecondary" component="p">
-                ※このページは非公開です。
-              </Typography>
+            {!communityDisplay && (
+              <div>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  ※このページは非公開です。
+                </Typography>
+                　
+                {communityButton ? (
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="primary"
+                    style={{ marginTop: 10 }}
+                    onClick={handleClickRegist}
+                  >
+                    参加を希望する
+                  </Button>
+                ) : (
+                  <div>申請中です</div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

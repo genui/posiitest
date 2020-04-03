@@ -79,7 +79,7 @@ export default function SignUp() {
   const auth = useSelector(state => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
-      return <Redirect to="/" />;
+      return <Redirect to="/communities" />;
     }
   }
   const handleEmailChange = event => {
