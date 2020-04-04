@@ -1,68 +1,49 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# POSIIβ 版
 
-## Available Scripts
+GitHub に POSIIβ 版のコードを公開しました。  
+CircleCI で自動デプロイが可能です。  
+設定は、.circleci/config.yml で行っています。
 
-In the project directory, you can run:
+## 開発にご協力いただきたい機能
 
-### `yarn start`
+・リファクタリング(コードの簡略化、react-redux-firebase 不使用へ)  
+・TypeScript の導入  
+・インフィニティスクロール  
+・セキュリティルールの見直し  
+・テストコードの作成  
+・通知機能の件数表示
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+他にもお気軽に、プルリクエストをいただければ幸いです。
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## インストール・起動と開発
 
-### `yarn test`
+React と Firebase で開発しています。  
+yarn 自体がインストールされていれば、コマンド「yarn」、「yarn start」のみで起動します。  
+また、Firebase の設定を変更いただければ、ご用意いただいたデータベースでも動作します。  
+src/config.sample.js で apiKey 等を修正してください。  
+Firebase 側でも設定が必要です。  
+Extension から Resize Images の設定をお願いします。  
+主な設定は、  
+Sizes of resized images：200x200,1000x1000、  
+Cloud Storage path for resized images：thumbnails  
+です。
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 開発の参考になるページ
 
-### `yarn build`
+yarn インストール  
+<https://classic.yarnpkg.com/ja/docs/install/>
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+React 公式チュートリアル  
+<https://ja.reactjs.org/tutorial/tutorial.html>
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Firebase 公式ドキュメント  
+<https://firebase.google.com/docs?hl=ja>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Material UI  
+<https://material-ui.com/>
 
-### `yarn eject`
+react-redux-firebase  
+<http://react-redux-firebase.com/>
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+掲示板チュートリアル  
+<https://qiita.com/momosuke/items/245eabb8dbdc3493aac0>
