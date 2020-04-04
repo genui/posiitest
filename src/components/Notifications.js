@@ -114,6 +114,10 @@ function getMessage(type, username) {
   if (type === "communityCommentLike") {
     return username + "さんがあなたのコメントにいいねしました。";
   }
+
+  if (type === "communityMember") {
+    return username + "さんがコミュニティへの参加を希望しています。";
+  }
 }
 
 function getLink(type, postId, communityId) {
@@ -123,6 +127,10 @@ function getLink(type, postId, communityId) {
     type === "communityCommentLike"
   ) {
     return "/communities/" + communityId + "/posts/" + postId;
+  }
+
+  if (type === "communityMember") {
+    return "/communities/edit/" + communityId;
   }
 }
 

@@ -25,17 +25,17 @@ exports.updateProfileUsername = functions.firestore
       const postCollectionRef = db.collection("posts");
       const postQuery = postCollectionRef.where("uid", "==", `${userId}`);
 
-      const res1 = postQuery.get().then(querySnapshot => {
+      const res1 = postQuery.get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           return null;
         } else {
           const promises = [];
 
-          querySnapshot.forEach(doc => {
+          querySnapshot.forEach((doc) => {
             promises.push(
               doc.ref.update({
                 displayName: `${newUsername}`,
-                avatar: `${newAvatar}`
+                avatar: `${newAvatar}`,
               })
             );
           });
@@ -47,17 +47,17 @@ exports.updateProfileUsername = functions.firestore
       const commentCollectionRef = db.collectionGroup("comments");
       const commentQuery = commentCollectionRef.where("uid", "==", `${userId}`);
 
-      const res2 = commentQuery.get().then(querySnapshot => {
+      const res2 = commentQuery.get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           return null;
         } else {
           const promises = [];
 
-          querySnapshot.forEach(doc => {
+          querySnapshot.forEach((doc) => {
             promises.push(
               doc.ref.update({
                 displayName: `${newUsername}`,
-                avatar: `${newAvatar}`
+                avatar: `${newAvatar}`,
               })
             );
           });
@@ -72,17 +72,17 @@ exports.updateProfileUsername = functions.firestore
         `${userId}`
       );
 
-      const res3 = postGroupQuery.get().then(querySnapshot => {
+      const res3 = postGroupQuery.get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           return null;
         } else {
           const promises = [];
 
-          querySnapshot.forEach(doc => {
+          querySnapshot.forEach((doc) => {
             promises.push(
               doc.ref.update({
                 displayName: `${newUsername}`,
-                avatar: `${newAvatar}`
+                avatar: `${newAvatar}`,
               })
             );
           });
@@ -94,16 +94,16 @@ exports.updateProfileUsername = functions.firestore
       const notificationQuery = db
         .collectionGroup("notifications")
         .where("uid", "==", `${userId}`);
-      const res4 = notificationQuery.get().then(querySnapshot => {
+      const res4 = notificationQuery.get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           return null;
         } else {
           const promises = [];
-          querySnapshot.forEach(doc => {
+          querySnapshot.forEach((doc) => {
             promises.push(
               doc.ref.update({
                 displayName: `${newUsername}`,
-                avatar: `${newAvatar}`
+                avatar: `${newAvatar}`,
               })
             );
           });
@@ -113,16 +113,16 @@ exports.updateProfileUsername = functions.firestore
       const memberQuery = db
         .collectionGroup("members")
         .where("uid", "==", `${userId}`);
-      const res5 = memberQuery.get().then(querySnapshot => {
+      const res5 = memberQuery.get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           return null;
         } else {
           const promises = [];
-          querySnapshot.forEach(doc => {
+          querySnapshot.forEach((doc) => {
             promises.push(
               doc.ref.update({
                 displayName: `${newUsername}`,
-                avatar: `${newAvatar}`
+                avatar: `${newAvatar}`,
               })
             );
           });
@@ -133,54 +133,6 @@ exports.updateProfileUsername = functions.firestore
     } else {
       return null;
     }
-  });
-
-exports.postLikeCount = functions.firestore
-  .document("posts/{postId}/postLikes/{userId}")
-  .onCreate((change, context) => {
-    const FieldValue = admin.firestore.FieldValue;
-    const { postId, userId } = context.params;
-
-    const res1 = db
-      .collection("posts")
-      .doc(postId)
-      .update({ likeCount: FieldValue.increment(1) });
-
-    const res2 = db
-      .collection("posts")
-      .doc(postId)
-      .get()
-      .then(function(doc1) {
-        //postしたユーザーの取得
-        const postUid = doc1.data().uid;
-        if (userId !== postUid) {
-          db.collection("users")
-            .doc(userId)
-            .get()
-            .then(function(doc2) {
-              //いいねしたユーザー情報の書き込み
-              db.collection("users")
-                .doc(postUid)
-                .collection("notifications")
-                .add({
-                  displayName: doc2.data().displayName,
-                  avatar: doc2.data().avatar,
-                  id: postId,
-                  type: "postLike",
-                  uid: userId,
-                  createTime: admin.firestore.FieldValue.serverTimestamp()
-                });
-
-              db.collection("users")
-                .doc(postUid)
-                .update({
-                  notification: true
-                });
-            });
-        }
-      });
-
-    return res1, res2;
   });
 
 exports.communitiesPostLikeCount = functions.firestore
@@ -202,14 +154,14 @@ exports.communitiesPostLikeCount = functions.firestore
       .collection("posts")
       .doc(postId)
       .get()
-      .then(function(doc1) {
+      .then(function (doc1) {
         //postしたユーザーの取得
         const postUid = doc1.data().uid;
         if (userId !== postUid) {
           db.collection("users")
             .doc(userId)
             .get()
-            .then(function(doc2) {
+            .then(function (doc2) {
               //いいねしたユーザー情報の書き込み
               db.collection("users")
                 .doc(postUid)
@@ -221,84 +173,12 @@ exports.communitiesPostLikeCount = functions.firestore
                   type: "communityPostLike",
                   communityId: communityId,
                   uid: userId,
-                  createTime: admin.firestore.FieldValue.serverTimestamp()
+                  createTime: admin.firestore.FieldValue.serverTimestamp(),
                 });
 
-              db.collection("users")
-                .doc(postUid)
-                .update({
-                  notification: true
-                });
-            });
-        }
-      });
-
-    return res1, res2;
-  });
-
-exports.commentLikeCount = functions.firestore
-  .document("posts/{postId}/comments/{commentId}/commentLikes/{userId}")
-  .onCreate((change, context) => {
-    const FieldValue = admin.firestore.FieldValue;
-    const { postId, commentId, userId } = context.params;
-    let flg = true;
-
-    const res1 = db
-      .collection("posts")
-      .doc(postId)
-      .collection("comments")
-      .doc(commentId)
-      .update({ likeCount: FieldValue.increment(1) })
-      .then(function() {
-        db.collection("posts")
-          .doc(postId)
-          .collection("comments")
-          .get(commentId)
-          .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {
-              const commentUid = doc.data().uid;
-              if (commentUid !== userId && flg === true) {
-                db.collection("users")
-                  .doc(commentUid)
-                  .update({ point: FieldValue.increment(1) });
-                flg = false;
-              }
-            });
-          });
-      });
-
-    const res2 = db
-      .collection("posts")
-      .doc(postId)
-      .collection("comments")
-      .doc(commentId)
-      .get()
-      .then(function(doc1) {
-        //commentしたユーザーの取得
-        const commentUid = doc1.data().uid;
-        if (userId !== commentUid) {
-          db.collection("users")
-            .doc(userId)
-            .get()
-            .then(function(doc2) {
-              //いいねしたユーザー情報の書き込み
-              db.collection("users")
-                .doc(commentUid)
-                .collection("notifications")
-                .add({
-                  displayName: doc2.data().displayName,
-                  avatar: doc2.data().avatar,
-                  id: postId,
-                  type: "commentLike",
-                  uid: userId,
-                  createTime: admin.firestore.FieldValue.serverTimestamp()
-                });
-
-              db.collection("users")
-                .doc(commentUid)
-                .update({
-                  notification: true
-                });
+              db.collection("users").doc(postUid).update({
+                notification: true,
+              });
             });
         }
       });
@@ -323,15 +203,15 @@ exports.CommunityCommentLikeCount = functions.firestore
       .collection("comments")
       .doc(commentId)
       .update({ likeCount: FieldValue.increment(1) })
-      .then(function() {
+      .then(function () {
         db.collection("communities")
           .doc(communityId)
           .collection("posts")
           .doc(postId)
           .collection("comments")
           .get(commentId)
-          .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {
+          .then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
               const commentUid = doc.data().uid;
               if (commentUid !== userId && flg === true) {
                 db.collection("users")
@@ -351,14 +231,14 @@ exports.CommunityCommentLikeCount = functions.firestore
       .collection("comments")
       .doc(commentId)
       .get()
-      .then(function(doc1) {
+      .then(function (doc1) {
         //commentしたユーザーの取得
         const commentUid = doc1.data().uid;
         if (userId !== commentUid) {
           db.collection("users")
             .doc(userId)
             .get()
-            .then(function(doc2) {
+            .then(function (doc2) {
               //いいねしたユーザー情報の書き込み
               db.collection("users")
                 .doc(commentUid)
@@ -370,14 +250,12 @@ exports.CommunityCommentLikeCount = functions.firestore
                   type: "communityCommentLike",
                   communityId: communityId,
                   uid: userId,
-                  createTime: admin.firestore.FieldValue.serverTimestamp()
+                  createTime: admin.firestore.FieldValue.serverTimestamp(),
                 });
 
-              db.collection("users")
-                .doc(commentUid)
-                .update({
-                  notification: true
-                });
+              db.collection("users").doc(commentUid).update({
+                notification: true,
+              });
             });
         }
       });
@@ -390,12 +268,9 @@ exports.CommunityCommentUpdate = functions.firestore
   .onCreate((change, context) => {
     const { communityId } = context.params;
 
-    const res1 = db
-      .collection("communities")
-      .doc(communityId)
-      .update({
-        updateTime: admin.firestore.FieldValue.serverTimestamp()
-      });
+    const res1 = db.collection("communities").doc(communityId).update({
+      updateTime: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return res1;
   });
@@ -405,50 +280,9 @@ exports.CommunityPostUpdate = functions.firestore
   .onCreate((change, context) => {
     const { communityId } = context.params;
 
-    const res1 = db
-      .collection("communities")
-      .doc(communityId)
-      .update({
-        updateTime: admin.firestore.FieldValue.serverTimestamp()
-      });
-
-    return res1;
-  });
-
-exports.PostComment = functions.firestore
-  .document("posts/{postId}/comments/{commentId}")
-  .onCreate((snap, context) => {
-    const { postId } = context.params;
-    const displayName = snap.data().displayName;
-    const avatar = snap.data().avatar;
-    const uid = snap.data().uid;
-
-    const res1 = db
-      .collection("posts")
-      .doc(postId)
-      .get()
-      .then(function(doc) {
-        const postUid = doc.data().uid;
-        if (postUid !== uid) {
-          db.collection("users")
-            .doc(postUid)
-            .collection("notifications")
-            .add({
-              displayName: displayName,
-              avatar: avatar,
-              id: postId,
-              type: "post",
-              uid: uid,
-              createTime: admin.firestore.FieldValue.serverTimestamp()
-            });
-
-          db.collection("users")
-            .doc(postUid)
-            .update({
-              notification: true
-            });
-        }
-      });
+    const res1 = db.collection("communities").doc(communityId).update({
+      updateTime: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return res1;
   });
@@ -467,27 +301,22 @@ exports.CommunityComment = functions.firestore
       .collection("posts")
       .doc(postId)
       .get()
-      .then(function(doc) {
+      .then(function (doc) {
         const postUid = doc.data().uid;
         if (postUid !== uid) {
-          db.collection("users")
-            .doc(postUid)
-            .collection("notifications")
-            .add({
-              displayName: displayName,
-              avatar: avatar,
-              communityId: communityId,
-              id: postId,
-              type: "community",
-              uid: uid,
-              createTime: admin.firestore.FieldValue.serverTimestamp()
-            });
+          db.collection("users").doc(postUid).collection("notifications").add({
+            displayName: displayName,
+            avatar: avatar,
+            communityId: communityId,
+            id: postId,
+            type: "community",
+            uid: uid,
+            createTime: admin.firestore.FieldValue.serverTimestamp(),
+          });
 
-          db.collection("users")
-            .doc(postUid)
-            .update({
-              notification: true
-            });
+          db.collection("users").doc(postUid).update({
+            notification: true,
+          });
         }
       });
 
@@ -507,8 +336,40 @@ exports.CommunityCreate = functions.firestore
       .doc(uid)
       .set({
         uid: uid,
-        role: "member"
+        role: "member",
       });
 
+    return res1;
+  });
+
+exports.CommunityMember = functions.firestore
+  .document("communities/{communityId}/members/{userId}")
+  .onCreate((snap, context) => {
+    const { communityId, userId } = context.params;
+
+    const res1 = db
+      .collection("communities")
+      .doc(communityId)
+      .get()
+      .then(function (doc) {
+        const uid = doc.data().uid;
+        db.collection("users")
+          .doc(userId)
+          .get()
+          .then(function (doc2) {
+            db.collection("users").doc(uid).collection("notifications").add({
+              displayName: doc2.data().displayName,
+              avatar: doc2.data().avatar,
+              communityId: communityId,
+              id: "",
+              type: "communityMember",
+              uid: userId,
+              createTime: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            db.collection("users").doc(uid).update({
+              notification: true,
+            });
+          });
+      });
     return res1;
   });

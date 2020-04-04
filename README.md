@@ -28,7 +28,7 @@ Sizes of resized images：200x200,1000x1000、
 Cloud Storage path for resized images：thumbnails  
 です。
 
-## 開発の参考になるページ
+## 開発の参考にしたページ
 
 yarn インストール  
 <https://classic.yarnpkg.com/ja/docs/install/>
