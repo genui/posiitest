@@ -353,23 +353,25 @@ exports.CommunityMember = functions.firestore
       .get()
       .then(function (doc) {
         const uid = doc.data().uid;
-        db.collection("users")
-          .doc(userId)
-          .get()
-          .then(function (doc2) {
-            db.collection("users").doc(uid).collection("notifications").add({
-              displayName: doc2.data().displayName,
-              avatar: doc2.data().avatar,
-              communityId: communityId,
-              id: "",
-              type: "communityMember",
-              uid: userId,
-              createTime: admin.firestore.FieldValue.serverTimestamp(),
+        if (uid !== userId) {
+          db.collection("users")
+            .doc(userId)
+            .get()
+            .then(function (doc2) {
+              db.collection("users").doc(uid).collection("notifications").add({
+                displayName: doc2.data().displayName,
+                avatar: doc2.data().avatar,
+                communityId: communityId,
+                id: "",
+                type: "communityMember",
+                uid: userId,
+                createTime: admin.firestore.FieldValue.serverTimestamp(),
+              });
+              db.collection("users").doc(uid).update({
+                notification: true,
+              });
             });
-            db.collection("users").doc(uid).update({
-              notification: true,
-            });
-          });
+        }
       });
     return res1;
   });
