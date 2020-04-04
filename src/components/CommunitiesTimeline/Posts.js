@@ -34,38 +34,38 @@ import ReportProblemIcon from "@material-ui/icons/ReportProblem";
 
 import Linkify from "material-ui-linkify";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   media: {
     height: 0,
     paddingTop: "56.25%",
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   expand: {
     transform: "rotate(0deg)",
     marginLeft: "auto",
     transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest
-    })
+      duration: theme.transitions.duration.shortest,
+    }),
   },
   expandOpen: {
-    transform: "rotate(180deg)"
+    transform: "rotate(180deg)",
   },
   avatar: {},
   like: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   liked: {
-    color: "#fa9200"
+    color: "#fa9200",
   },
   snackbar: {
-    backgroundColor: "#fa9200"
-  }
+    backgroundColor: "#fa9200",
+  },
 }));
 
 function dateDisplay(date) {
@@ -82,7 +82,7 @@ function PostLike(props) {
   const classes = useStyles();
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   firebase.firestore();
   const [liked, setLiked] = useState("");
   const likeChange = () => {
@@ -94,20 +94,20 @@ function PostLike(props) {
         .collection("postLikes")
         .doc(auth.uid)
         .get()
-        .then(function(doc) {
+        .then(function (doc) {
           if (doc.exists) {
             setLiked(true);
           } else {
             setLiked(false);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log("Error getting document:", error);
         });
     }
   };
 
-  const handleClickPostLike = event => {
+  const handleClickPostLike = (event) => {
     if (props.id !== "" && liked === false) {
       db.collection("communities")
         .doc(props.communityId)
@@ -117,7 +117,7 @@ function PostLike(props) {
         .doc(auth.uid)
         .set({
           uid: auth.uid,
-          createTime: firebase.firestore.FieldValue.serverTimestamp()
+          createTime: firebase.firestore.FieldValue.serverTimestamp(),
         });
       likeChange();
     }
@@ -146,7 +146,7 @@ export default function Posts(props) {
   const classes = useStyles();
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
 
   const [PostDeleteId, setPostDeleteId] = useState("");
   const [OpenDelete, setOpenDelete] = useState(false);
@@ -160,7 +160,7 @@ export default function Posts(props) {
     setOpenSnack(false);
   };
 
-  const handleClickOpenDelete = event => {
+  const handleClickOpenDelete = (event) => {
     setPostDeleteId(event.currentTarget.id);
     setOpenDelete(true);
   };
@@ -176,11 +176,11 @@ export default function Posts(props) {
         .collection("posts")
         .doc(PostDeleteId)
         .delete()
-        .then(function() {
+        .then(function () {
           setSnackMsg("投稿を削除しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error removing document: ", error);
         });
       setPostDeleteId("");
@@ -188,7 +188,7 @@ export default function Posts(props) {
     }
   };
 
-  const handleClickOpenReport = event => {
+  const handleClickOpenReport = (event) => {
     setPostReportId(event.currentTarget.id);
     setOpenReport(true);
   };
@@ -206,13 +206,13 @@ export default function Posts(props) {
           postId: props.id,
           content: props.content,
           type: "communityPost",
-          createTime: firebase.firestore.FieldValue.serverTimestamp()
+          createTime: firebase.firestore.FieldValue.serverTimestamp(),
         })
-        .then(function() {
+        .then(function () {
           setSnackMsg("通報しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error removing document: ", error);
         });
       setPostReportId("");
@@ -224,14 +224,14 @@ export default function Posts(props) {
   const [commentOpen, setCommentOpen] = React.useState(false);
   const [addCommentId, setAddCommentId] = React.useState("");
   const [commentContent, setCommentContent] = React.useState("");
-  const profile = useSelector(state => state.firebase.profile);
+  const profile = useSelector((state) => state.firebase.profile);
 
-  const handleClickCommentOpen = event => {
+  const handleClickCommentOpen = (event) => {
     setAddCommentId(event.currentTarget.id);
     setCommentOpen(true);
   };
 
-  const handleCommentContentChange = event => {
+  const handleCommentContentChange = (event) => {
     setCommentContent(event.target.value);
   };
 
@@ -253,7 +253,7 @@ export default function Posts(props) {
       const url = "https://myflaskapi1234321.herokuapp.com/";
       axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
-      axios.get(url, { params }).then(results => {
+      axios.get(url, { params }).then((results) => {
         if (results.data.result === "5" || results.data.result === "4") {
           setOpenSnack(true);
           setSnackMsg("ポジティブな投稿をお願いします。");
@@ -271,7 +271,7 @@ export default function Posts(props) {
               username: profile.username,
               content: commentContent,
               createTime: firebase.firestore.FieldValue.serverTimestamp(),
-              likeCount: 0
+              likeCount: 0,
             });
           setCommentContent("");
           setPosted(true);
@@ -304,9 +304,15 @@ export default function Posts(props) {
           subheader={props.createTime && dateDisplay(props.createTime)}
         />
         <CardContent>
-          <Typography variant="body2" component="p">
-            <Linkify>{props.content}</Linkify>
-          </Typography>
+          <Linkify>
+            <Typography
+              variant="body2"
+              component="p"
+              style={{ whiteSpace: "pre-line" }}
+            >
+              {props.content}
+            </Typography>
+          </Linkify>
         </CardContent>
         {props.postImage && (
           <CardMedia
@@ -447,7 +453,7 @@ export default function Posts(props) {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -455,8 +461,8 @@ export default function Posts(props) {
         message={<span>{snackMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </div>

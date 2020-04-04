@@ -388,14 +388,16 @@ export default function Comments(props) {
                     )}
                   </Typography>
                   <div style={{ paddingTop: 10 }}>
-                    <Typography
-                      variant="body2"
-                      component="body2"
-                      gutterBottom
-                      style={{ whiteSpace: "pre-line" }}
-                    >
-                      <Linkify>{comment.content}</Linkify>
-                    </Typography>
+                    <Linkify>
+                      <Typography
+                        variant="body2"
+                        component="body2"
+                        gutterBottom
+                        style={{ whiteSpace: "pre-line" }}
+                      >
+                        {comment.content}
+                      </Typography>
+                    </Linkify>
                   </div>
                 </div>
                 <CardActions disableSpacing>
