@@ -21,6 +21,7 @@
     "react-lightbox-component": "^1.2.1",
     "react-linkify": "^1.0.0-alpha",
     "react-material-ui-form-validator": "^2.0.9",
+    "react-redux": "^7.2.0",
     "react-responsive": "^8.0.3",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
