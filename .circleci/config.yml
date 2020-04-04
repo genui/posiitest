@@ -1,74 +1,53 @@
-version: 2.1
-
-executors:
-  default:
-    docker:
-      - image: circleci/node:10.15.3
-
-commands:
-  npm_install:
-    steps:
-      - restore_cache:
-          name: Restore Dependencies
-          keys:
-            - v1-dependencies-{{ checksum "yarn.lock" }}
-            - v1-dependencies
-      - run:
-          name: Install Dependencies
-          command: yarn install
-      - save_cache:
-          name: Save Dependencies
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-  firebase_install:
-    steps:
-      - run:
-          name: Install Firebase CLI
-          command: yarn add -D firebase-tools
-
+version: 2
 jobs:
   build:
-    executor:
-      name: default
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/posiidev
     steps:
       - checkout
-      - npm_install
-
-  test:
-    executor:
-      name: default
-    steps:
-      - checkout
-      - npm_install
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm install
       - run:
-          name: Test Project
-          command: yarn test
+          name: "Install Dependecies"
+          command: npm install --save-dev firebase-tools
+      - run:
+          name: "Build"
+          command: npm run build
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
   deploy:
-    executor:
-      name: default
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/posiidev
     steps:
-      - checkout
-      - firebase_install
-      - npm_install
+      - attach_workspace:
+          at: .
       - run:
-          name: Build Project
-          command: yarn build
-      - run:
-          name: Deploy to Firebase Hosting
-          command: node_modules/.bin/firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
-
+          name: "Deploy to Hosting"
+          command: >-
+            ln -s ./node_modules/firebase-tools/bin/firebase . &&
+            ./firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
 workflows:
   version: 2
   build_and_deploy:
     jobs:
       - build
-      - test:
-          requires:
-            - build
       - deploy:
           requires:
-            - test
+            - build
           filters:
             branches:
               only: master
