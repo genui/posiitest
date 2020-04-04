@@ -30,7 +30,6 @@ import Notifications from "./components/Notifications";
 import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
-import { makeStyles } from "@material-ui/core/styles";
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
