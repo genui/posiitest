@@ -104,7 +104,7 @@ export default function Communities() {
         className={classes.submit}
         href="/communities/new"
       >
-        コミュニティを作成
+        コミュニティを作成する
       </Button>
       {communities &&
         communities.map((community) => (
