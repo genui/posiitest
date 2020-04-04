@@ -4,7 +4,7 @@ import {
   useFirebase,
   isLoaded,
   isEmpty,
-  useFirestoreConnect
+  useFirestoreConnect,
 } from "react-redux-firebase";
 import { useSelector } from "react-redux";
 import Grid from "@material-ui/core/Grid";
@@ -28,72 +28,72 @@ import Badge from "@material-ui/core/Badge";
 import Snackbar from "@material-ui/core/Snackbar";
 import Linkify from "material-ui-linkify";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#f8f8f8",
     flexGrow: 1,
     minHeight: 500,
-    paddingTop: 30
+    paddingTop: 30,
   },
   media: {
     height: 0,
-    paddingTop: "56.25%" // 16:9
+    paddingTop: "56.25%", // 16:9
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
-    color: "black"
+    color: "black",
   },
   button: {
-    color: "white"
+    color: "white",
   },
   middle: {
     width: theme.spacing(6),
-    height: theme.spacing(6)
+    height: theme.spacing(6),
   },
   large: {
     width: theme.spacing(7),
-    height: theme.spacing(7)
+    height: theme.spacing(7),
   },
   camera: {
     marginRight: 10,
     verticalAlign: "middle",
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   delete: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   comment: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   like: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   liked: {
-    color: "#fa9200"
+    color: "#fa9200",
   },
   likedNumber: {
     fontSize: 20,
     verticalAlign: "top",
     paddingTop: 5,
-    paddingRight: 5
+    paddingRight: 5,
   },
   snackbar: {
-    backgroundColor: "#fa9200"
+    backgroundColor: "#fa9200",
   },
   postButtons: {
     display: "flex",
@@ -101,7 +101,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   commentButtons: {
     display: "flex",
@@ -109,8 +109,8 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 }));
 
 function dateDisplay(date) {
@@ -127,7 +127,7 @@ function CommentLike(props) {
   const classes = useStyles();
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   firebase.firestore();
   const [liked, setLiked] = React.useState("");
   const likeChange = () => {
@@ -141,19 +141,19 @@ function CommentLike(props) {
         .collection("commentLikes")
         .doc(auth.uid)
         .get()
-        .then(function(doc) {
+        .then(function (doc) {
           if (doc.exists) {
             setLiked(true);
           } else {
             setLiked(false);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log("Error getting document:", error);
         });
     }
   };
-  const handleClickCommentLike = event => {
+  const handleClickCommentLike = (event) => {
     if (props.id !== "" && liked === false) {
       db.collection("communities")
         .doc(props.communityId)
@@ -165,7 +165,7 @@ function CommentLike(props) {
         .doc(auth.uid)
         .set({
           uid: auth.uid,
-          createTime: firebase.firestore.FieldValue.serverTimestamp()
+          createTime: firebase.firestore.FieldValue.serverTimestamp(),
         });
       likeChange();
     }
@@ -193,7 +193,7 @@ function CommentLike(props) {
 function CommentReportButton(props) {
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   firebase.firestore();
   const [CommentReportId, setCommentReportId] = React.useState("");
   const [OpenReport, setOpenReport] = React.useState(false);
@@ -201,7 +201,7 @@ function CommentReportButton(props) {
   const [snackMsg, setSnackMsg] = useState(false);
   const classes = useStyles();
 
-  const handleClickOpenReport = event => {
+  const handleClickOpenReport = (event) => {
     setCommentReportId(event.currentTarget.id);
     setOpenReport(true);
   };
@@ -224,13 +224,13 @@ function CommentReportButton(props) {
           commentId: props.id,
           content: props.content,
           type: "postComment",
-          createTime: firebase.firestore.FieldValue.serverTimestamp()
+          createTime: firebase.firestore.FieldValue.serverTimestamp(),
         })
-        .then(function() {
+        .then(function () {
           setSnackMsg("通報しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error removing document: ", error);
         });
       setCommentReportId("");
@@ -266,7 +266,7 @@ function CommentReportButton(props) {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -274,8 +274,8 @@ function CommentReportButton(props) {
         message={<span>{snackMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </div>
@@ -283,11 +283,9 @@ function CommentReportButton(props) {
 }
 
 export default function Comments(props) {
-  const communityId = props.communityId;
-  const id = props.id;
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   const classes = useStyles();
   firebase.firestore();
   useFirestoreConnect([
@@ -296,15 +294,15 @@ export default function Comments(props) {
       doc: props.communityId,
       subcollections: [
         { collection: "posts", doc: props.id },
-        { collection: "comments" }
+        { collection: "comments" },
       ],
       orderBy: ["createTime", "desc"],
-      storeAs: `comments-${props.id}`
-    }
+      storeAs: `comments-${props.id}`,
+    },
   ]);
 
   const comments = useSelector(
-    state => state.firestore.ordered[`comments-${props.id}`]
+    (state) => state.firestore.ordered[`comments-${props.id}`]
   );
   const [CommentDeleteId, setCommentDeleteId] = React.useState("");
   const [OpenDelete, setOpenDelete] = React.useState(false);
@@ -316,7 +314,7 @@ export default function Comments(props) {
     setOpenSnack(false);
   };
 
-  const handleClickOpenDelete = event => {
+  const handleClickOpenDelete = (event) => {
     setCommentDeleteId(event.currentTarget.id);
     setOpenDelete(true);
   };
@@ -334,11 +332,11 @@ export default function Comments(props) {
         .collection("comments")
         .doc(CommentDeleteId)
         .delete()
-        .then(function() {
+        .then(function () {
           setSnackMsg("コメントを削除しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error removing document: ", error);
         });
       setCommentDeleteId("");
@@ -352,7 +350,7 @@ export default function Comments(props) {
       ) : isEmpty(comments) ? (
         <span></span>
       ) : (
-        comments.map(comment => (
+        comments.map((comment) => (
           <CardContent>
             <Grid container spacing={3}>
               <Grid item xs={1}>
@@ -364,7 +362,7 @@ export default function Comments(props) {
                     backgroundColor: "#f2f3f5",
                     borderRadius: 10,
                     padding: 15,
-                    marginLeft: 20
+                    marginLeft: 20,
                   }}
                 >
                   <Typography
@@ -456,7 +454,7 @@ export default function Comments(props) {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -464,8 +462,8 @@ export default function Comments(props) {
         message={<span>{snackMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </div>

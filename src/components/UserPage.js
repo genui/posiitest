@@ -6,27 +6,26 @@ import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
-import { getPortPromise } from "portfinder";
 import { useParams } from "react-router-dom";
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
-    color: "black"
+    color: "black",
   },
   button: {
-    color: "white"
+    color: "white",
   },
   large: {
     marginTop: 30,
     width: theme.spacing(7),
-    height: theme.spacing(7)
-  }
+    height: theme.spacing(7),
+  },
 }));
 
 export default function UserPage() {
@@ -36,19 +35,17 @@ export default function UserPage() {
   const [displayName, setDisplayName] = useState("");
   const [profileText, setProfileText] = useState("");
   const [avatar, setAvatar] = useState("");
-  const userInfo = db
-    .collection("users")
+  db.collection("users")
     .where("username", "==", username)
     .limit(1)
     .get()
-    .then(querySnapshot => {
-      const items = querySnapshot.docs.map(doc => doc.data());
+    .then((querySnapshot) => {
+      const items = querySnapshot.docs.map((doc) => doc.data());
       setDisplayName(items[0].displayName);
       setProfileText(items[0].profileText);
       setAvatar(items[0].avatar);
     });
   const classes = useStyles();
-  const profile = useSelector(state => state.firebase.profile);
 
   return (
     <div className={classes.root}>

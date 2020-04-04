@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
@@ -32,16 +30,16 @@ const useStyles = makeStyles({
     marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {},
   form: {
-    width: "100%"
+    width: "100%",
   },
   submit: {
     marginTop: 30,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 });
 
 export default function PasswordReminder() {
@@ -49,20 +47,20 @@ export default function PasswordReminder() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
 
-  const EmailChange = e => {
+  const EmailChange = (e) => {
     setEmail(e.target.value);
   };
 
-  const handlePasswordReminder = async e => {
+  const handlePasswordReminder = async (e) => {
     console.log(email);
     var status;
     await firebase
       .auth()
       .sendPasswordResetEmail(email)
-      .then(function() {
+      .then(function () {
         status = true;
       })
-      .catch(function(error) {
+      .catch(function (error) {
         status = false;
       });
     if (status === true) {

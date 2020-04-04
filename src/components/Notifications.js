@@ -1,89 +1,79 @@
-import React, { useState, useRef } from "react";
-import PromiseValue from "promise-value";
+import React, { useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase, useFirestoreConnect } from "react-redux-firebase";
 import { useSelector } from "react-redux";
-import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import { AddAPhoto } from "@material-ui/icons";
 import { isLoaded, isEmpty } from "react-redux-firebase";
 import Grow from "@material-ui/core/Grow";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Posts from "./Timeline/Posts";
-import axios from "axios";
-import Snackbar from "@material-ui/core/Snackbar";
 import Typography from "@material-ui/core/Typography";
 import CardHeader from "@material-ui/core/CardHeader";
 import Link from "@material-ui/core/Link";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#f8f8f8",
     flexGrow: 1,
     minHeight: 500,
-    paddingTop: 30
+    paddingTop: 30,
   },
   media: {
     height: 0,
-    paddingTop: "56.25%" // 16:9
+    paddingTop: "56.25%", // 16:9
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
     color: "black",
     "&:hover": {
-      textDecoration: "none"
-    }
+      textDecoration: "none",
+    },
   },
   button: {
-    color: "white"
+    color: "white",
   },
   middle: {
     width: theme.spacing(6),
-    height: theme.spacing(6)
+    height: theme.spacing(6),
   },
   large: {
     width: theme.spacing(7),
-    height: theme.spacing(7)
+    height: theme.spacing(7),
   },
   camera: {
     marginRight: 10,
     verticalAlign: "middle",
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   delete: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   comment: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   like: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   liked: {
-    color: "#fa9200"
+    color: "#fa9200",
   },
   snackbar: {
-    backgroundColor: "#fa9200"
+    backgroundColor: "#fa9200",
   },
   postButtons: {
     display: "flex",
@@ -91,7 +81,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   commentButtons: {
     display: "flex",
@@ -99,8 +89,8 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 }));
 
 function dateDisplay(date) {
@@ -141,17 +131,15 @@ function getLink(type, postId, communityId) {
 }
 
 export default function Notifications() {
-  const fileInput = useRef(null);
   const firebase = useFirebase();
-  const db = firebase.firestore();
 
   firebase.firestore();
 
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   const classes = useStyles();
 
   firebase.updateProfile({
-    notification: false
+    notification: false,
   });
 
   useFirestoreConnect([
@@ -160,12 +148,12 @@ export default function Notifications() {
       doc: auth.uid,
       subcollections: [{ collection: "notifications" }],
       orderBy: ["createTime", "desc"],
-      storeAs: `notifications`
-    }
+      storeAs: `notifications`,
+    },
   ]);
 
   const notifications = useSelector(
-    state => state.firestore.ordered.notifications
+    (state) => state.firestore.ordered.notifications
   );
 
   return (
@@ -191,7 +179,7 @@ export default function Notifications() {
             </Grow>
           </div>
         ) : (
-          notifications.map(notification => (
+          notifications.map((notification) => (
             <div>
               <Grow in={true} timeout={{ enter: 1000 }}>
                 <Card className={classes.card} style={{ marginBottom: 20 }}>

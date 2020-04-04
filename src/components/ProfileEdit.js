@@ -30,48 +30,47 @@ function Copyright() {
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   large: {
     width: theme.spacing(13),
     height: theme.spacing(13),
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   form: {
-    width: "100%"
+    width: "100%",
   },
   submit: {
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   snackbar: {
-    backgroundColor: "#fa9200"
-  }
+    backgroundColor: "#fa9200",
+  },
 }));
 
 export default function ProfileEdit() {
   const fileInput = useRef(null);
   const classes = useStyles();
   const firebase = useFirebase();
-  const profile = useSelector(state => state.firebase.profile);
+  const profile = useSelector((state) => state.firebase.profile);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [profileText, setProfileText] = useState("");
-  const [msg, setMsg] = useState("");
   const [usernameMsg, setUsernameMsg] = useState("");
   const [uploaded, setUploaded] = useState(true);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
 
-  const handleDisplayNameChange = event => {
+  const handleDisplayNameChange = (event) => {
     setDisplayName(event.target.value);
   };
 
@@ -83,7 +82,7 @@ export default function ProfileEdit() {
     fileInput.current.click();
   };
 
-  const handleAvaterChange = event => {
+  const handleAvaterChange = (event) => {
     setUploaded(false);
     const file = event.target.files;
     const filePath = "avatars";
@@ -103,20 +102,20 @@ export default function ProfileEdit() {
       const fileName = file[0].name;
       const imageRef = `${filePre}-${fileName}`;
 
-      const fileRef = storageRef
+      storageRef
         .child(imageRef)
         .put(file[0])
-        .then(snapshot => {
+        .then((snapshot) => {
           const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
             fileName
           )}`;
           setTimeout(() => {
-            const url = storageRef
+            storageRef
               .child(uploadedPath)
               .getDownloadURL()
-              .then(function(url) {
+              .then(function (url) {
                 firebase.updateProfile({
-                  avatar: url
+                  avatar: url,
                 });
                 setUploaded(true);
               });
@@ -125,11 +124,11 @@ export default function ProfileEdit() {
     }
   };
 
-  const handleProfileTextChange = event => {
+  const handleProfileTextChange = (event) => {
     setProfileText(event.target.value);
   };
 
-  const handleUsernameChange = event => {
+  const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
 
@@ -138,7 +137,7 @@ export default function ProfileEdit() {
 
     if (displayName !== "") {
       firebase.updateProfile({
-        displayName: displayName
+        displayName: displayName,
       });
       setSnackMsg("プロフィールを更新しました");
       setOpenSnack(true);
@@ -147,7 +146,7 @@ export default function ProfileEdit() {
     if (username !== "") {
       if (regex.test(username) === true) {
         firebase.updateProfile({
-          username: username
+          username: username,
         });
         setSnackMsg("プロフィールを更新しました");
         setOpenSnack(true);
@@ -160,7 +159,7 @@ export default function ProfileEdit() {
 
     if (profileText !== "") {
       firebase.updateProfile({
-        profileText: profileText
+        profileText: profileText,
       });
       setSnackMsg("プロフィールを更新しました");
       setOpenSnack(true);
@@ -199,7 +198,7 @@ export default function ProfileEdit() {
                       onChange={handleAvaterChange}
                       ref={fileInput}
                       style={{
-                        display: "none"
+                        display: "none",
                       }}
                     />
                   </Button>
@@ -214,10 +213,10 @@ export default function ProfileEdit() {
                       type="name"
                       id="username"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       inputProps={{
-                        maxLength: 20
+                        maxLength: 20,
                       }}
                       defaultValue={profile.username}
                       onChange={handleUsernameChange}
@@ -235,10 +234,10 @@ export default function ProfileEdit() {
                       type="name"
                       id="displayName"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       inputProps={{
-                        maxLength: 20
+                        maxLength: 20,
                       }}
                       defaultValue={profile.displayName}
                       onChange={handleDisplayNameChange}
@@ -253,7 +252,7 @@ export default function ProfileEdit() {
                       type="name"
                       id="profile"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       defaultValue={profile.profileText}
                       onChange={handleProfileTextChange}
@@ -261,10 +260,9 @@ export default function ProfileEdit() {
                       rows={10}
                       rowsMax={10}
                       inputProps={{
-                        maxLength: 200
+                        maxLength: 200,
                       }}
                     />
-                    <div style={{ textAlign: "center" }}>{msg}</div>
                     <Button
                       type="button"
                       fullWidth
@@ -287,7 +285,7 @@ export default function ProfileEdit() {
         <Snackbar
           anchorOrigin={{
             vertical: "top",
-            horizontal: "center"
+            horizontal: "center",
           }}
           open={openSnack}
           onClose={handleSnackClose}
@@ -295,8 +293,8 @@ export default function ProfileEdit() {
           message={<span>{snackMsg}</span>}
           ContentProps={{
             classes: {
-              root: classes.snackbar
-            }
+              root: classes.snackbar,
+            },
           }}
         />
       </div>

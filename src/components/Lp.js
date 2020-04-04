@@ -6,8 +6,6 @@ import posii_3 from "../images/posii_3.jpg";
 import posii_4 from "../images/posii_4.jpg";
 import posii_5 from "../images/posii_5.jpg";
 import posii_6 from "../images/posii_6.jpg";
-import posii_7 from "../images/posii_7.jpg";
-import posii_8 from "../images/posii_8.jpg";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
@@ -22,25 +20,25 @@ export const theme = createMuiTheme({
       light: "#fa9200",
       main: "#fa9200",
       dark: "#fa9200",
-      contrastText: "#FFF"
-    }
-  }
+      contrastText: "#FFF",
+    },
+  },
 });
 
 const useStyles = makeStyles({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
-    color: "white"
+    color: "white",
   },
   button: {
-    color: "white"
-  }
+    color: "white",
+  },
 });
 
 function Copyright() {
@@ -61,7 +59,7 @@ function Copyright() {
 
 export default function App() {
   const classes = useStyles();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
       console.log(auth);

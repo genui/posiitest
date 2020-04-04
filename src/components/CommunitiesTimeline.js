@@ -19,66 +19,66 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#f8f8f8",
     flexGrow: 1,
     minHeight: 500,
-    paddingTop: 30
+    paddingTop: 30,
   },
   media: {
     height: 0,
-    paddingTop: "56.25%" // 16:9
+    paddingTop: "56.25%", // 16:9
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
-    color: "black"
+    color: "black",
   },
   button: {
-    color: "white"
+    color: "white",
   },
   middle: {
     width: theme.spacing(6),
-    height: theme.spacing(6)
+    height: theme.spacing(6),
   },
   large: {
     width: theme.spacing(7),
-    height: theme.spacing(7)
+    height: theme.spacing(7),
   },
   camera: {
     marginRight: 10,
     verticalAlign: "middle",
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   delete: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   comment: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   like: {
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   liked: {
-    color: "#fa9200"
+    color: "#fa9200",
   },
   snackbar: {
-    backgroundColor: "#fa9200"
+    backgroundColor: "#fa9200",
   },
   postButtons: {
     display: "flex",
@@ -86,7 +86,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   commentButtons: {
     display: "flex",
@@ -94,8 +94,8 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 }));
 
 export default function CommunitiesTimeline() {
@@ -110,16 +110,16 @@ export default function CommunitiesTimeline() {
       doc: communityId,
       subcollections: [{ collection: "posts" }],
       orderBy: ["createTime", "desc"],
-      storeAs: `posts-${communityId}`
-    }
+      storeAs: `posts-${communityId}`,
+    },
   ]);
 
   const posts = useSelector(
-    state => state.firestore.ordered[`posts-${communityId}`]
+    (state) => state.firestore.ordered[`posts-${communityId}`]
   );
 
-  const auth = useSelector(state => state.firebase.auth);
-  const profile = useSelector(state => state.firebase.profile);
+  const auth = useSelector((state) => state.firebase.auth);
+  const profile = useSelector((state) => state.firebase.profile);
   const [openSnack, setOpenSnack] = useState(false);
   const [content, setContent] = useState("");
   const [postImage, setPostImage] = useState("");
@@ -136,7 +136,7 @@ export default function CommunitiesTimeline() {
   db.collection("communities")
     .doc(communityId)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       setCommunityName(doc.data().name);
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
@@ -147,7 +147,7 @@ export default function CommunitiesTimeline() {
     .collection("members")
     .doc(auth.uid)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       if (doc.data()) {
         setCommunityRole(doc.data().role);
         if (communityRole === "regist") {
@@ -161,19 +161,19 @@ export default function CommunitiesTimeline() {
       }
     });
 
-  const handleContentChange = event => {
+  const handleContentChange = (event) => {
     setContent(event.target.value);
   };
 
-  const handleImageChange = event => {
+  const handleImageChange = (event) => {
     const file = event.target.files;
     setPostImage(file[0]);
   };
-  const handleImageClick = event => {
+  const handleImageClick = (event) => {
     fileInput.current.click();
   };
 
-  const handleClickRegist = event => {
+  const handleClickRegist = (event) => {
     db.collection("communities")
       .doc(communityId)
       .collection("members")
@@ -182,7 +182,7 @@ export default function CommunitiesTimeline() {
         role: "regist",
         uid: auth.uid,
         displayName: profile.displayName,
-        avatar: profile.avatar
+        avatar: profile.avatar,
       });
     setCommunityButton(false);
     setPostMsg("参加申請をしました。");
@@ -198,7 +198,7 @@ export default function CommunitiesTimeline() {
 
       axios
         .get(url, { params })
-        .then(results => {
+        .then((results) => {
           if (results.data.result === "5" || results.data.result === "4") {
             setOpenSnack(true);
             setPostMsg("ポジティブな投稿をお願いします。");
@@ -222,18 +222,18 @@ export default function CommunitiesTimeline() {
                 return `${filePre[0]}_1000x1000.${filePre[1]}`;
               }
 
-              const fileRef = storageRef
+              storageRef
                 .child(imageRef)
                 .put(postImage)
-                .then(snapshot => {
+                .then((snapshot) => {
                   const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
                     fileName
                   )}`;
                   setTimeout(() => {
-                    const url = storageRef
+                    storageRef
                       .child(uploadedPath)
                       .getDownloadURL()
-                      .then(function(url) {
+                      .then(function (url) {
                         db.collection("communities")
                           .doc(communityId)
                           .collection("posts")
@@ -245,7 +245,7 @@ export default function CommunitiesTimeline() {
                             username: profile.username,
                             content: content,
                             createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                            likeCount: 0
+                            likeCount: 0,
                           });
                         setPosted(true);
                         setContent("");
@@ -255,7 +255,7 @@ export default function CommunitiesTimeline() {
                       });
                   }, 5000);
                 })
-                .catch(error => {
+                .catch((error) => {
                   setPosted(true);
                   setPostImage("");
                   setPostMsg("10MB以下の画像をお願いします。");
@@ -272,7 +272,7 @@ export default function CommunitiesTimeline() {
                   username: profile.username,
                   content: content,
                   createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                  likeCount: 0
+                  likeCount: 0,
                 });
               setPosted(true);
               setContent("");
@@ -282,7 +282,7 @@ export default function CommunitiesTimeline() {
             }
           }
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     }
@@ -372,7 +372,7 @@ export default function CommunitiesTimeline() {
                           onChange={handleImageChange}
                           ref={fileInput}
                           style={{
-                            display: "none"
+                            display: "none",
                           }}
                         />
                         <AddAPhoto className={classes.camera} />
@@ -415,7 +415,7 @@ export default function CommunitiesTimeline() {
         ) : isEmpty(posts) ? (
           <div></div>
         ) : (
-          posts.map(post => (
+          posts.map((post) => (
             <div>
               <Grow in={true} timeout={{ enter: 1000 }}>
                 <Posts
@@ -437,7 +437,7 @@ export default function CommunitiesTimeline() {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -445,8 +445,8 @@ export default function CommunitiesTimeline() {
         message={<span>{postMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </div>

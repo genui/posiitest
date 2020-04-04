@@ -18,40 +18,39 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Snackbar from "@material-ui/core/Snackbar";
-import CardHeader from "@material-ui/core/CardHeader";
 
 const useStyles = makeStyles({
   paper: {
     marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {},
   form: {
-    width: "100%"
+    width: "100%",
   },
   submit: {
     marginTop: 30,
-    marginBottom: 20
+    marginBottom: 20,
   },
   media: {
-    height: 200
+    height: 200,
   },
   snackbar: {
-    backgroundColor: "#fa9200"
-  }
+    backgroundColor: "#fa9200",
+  },
 });
 
 export default function Communities() {
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   useFirestoreConnect([
     {
       collection: "communities",
-      orderBy: ["updateTime", "desc"]
-    }
+      orderBy: ["updateTime", "desc"],
+    },
   ]);
 
   const [communityDeleteId, setCommunityDeleteId] = useState("");
@@ -59,9 +58,11 @@ export default function Communities() {
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
 
-  const communities = useSelector(state => state.firestore.ordered.communities);
+  const communities = useSelector(
+    (state) => state.firestore.ordered.communities
+  );
 
-  const handleClickOpenDelete = event => {
+  const handleClickOpenDelete = (event) => {
     setCommunityDeleteId(event.currentTarget.id);
     setOpenDelete(true);
   };
@@ -76,11 +77,11 @@ export default function Communities() {
       db.collection("communities")
         .doc(communityDeleteId)
         .delete()
-        .then(function() {
+        .then(function () {
           setSnackMsg("投稿を削除しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error removing document: ", error);
         });
       setCommunityDeleteId("");
@@ -106,7 +107,7 @@ export default function Communities() {
         コミュニティを作成する
       </Button>
       {communities &&
-        communities.map(community => (
+        communities.map((community) => (
           <Card className={classes.root} style={{ marginBottom: 20 }}>
             <Link
               to={`/communities/${community.id}`}
@@ -186,7 +187,7 @@ export default function Communities() {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -194,8 +195,8 @@ export default function Communities() {
         message={<span>{snackMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </Container>

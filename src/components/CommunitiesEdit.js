@@ -4,7 +4,7 @@ import {
   useFirebase,
   useFirestoreConnect,
   isLoaded,
-  isEmpty
+  isEmpty,
 } from "react-redux-firebase";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -20,7 +20,6 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import { AddAPhoto } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
 import Snackbar from "@material-ui/core/Snackbar";
 import Switch from "@material-ui/core/Switch";
@@ -40,46 +39,46 @@ function Copyright() {
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   large: {
     width: theme.spacing(13),
     height: theme.spacing(13),
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   form: {
-    width: "100%"
+    width: "100%",
   },
   submit: {
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   camera: {
     marginRight: 10,
     verticalAlign: "middle",
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
+      opacity: 0.5,
+    },
   },
   snackbar: {
-    backgroundColor: "#fa9200"
+    backgroundColor: "#fa9200",
   },
   media: {
     height: 200,
     "&:hover": {
       cursor: "pointer",
-      opacity: 0.5
-    }
-  }
+      opacity: 0.5,
+    },
+  },
 }));
 
 export default function CommunityEdit() {
@@ -89,65 +88,60 @@ export default function CommunityEdit() {
   const classes = useStyles();
   const firebase = useFirebase();
   const db = firebase.firestore();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
 
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [updateName, setUpdateName] = useState("");
   const [updateText, setUpdateText] = useState("");
   const [image, setImage] = useState("");
-  const [uid, setUid] = useState("");
   const [publicFlg, setPublic] = useState("");
   const [displayForm, setDisplayForm] = useState(false);
   const [uploaded, setUploaded] = useState(true);
   const [imageUploaded, setImageUploaded] = useState(true);
-  const [communityImage, setCommunityImage] = useState("");
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
+  const communityImage = "";
 
   db.collection("communities")
     .doc(communityId)
     .get()
-    .then(function(doc) {
+    .then(function (doc) {
       setName(doc.data().name);
       setText(doc.data().text);
-      setUid(doc.data().uid);
+      const uid = doc.data().uid;
       setImage(doc.data().image);
       setPublic(doc.data().public);
       setDisplayForm(true);
 
-      if (isLoaded(auth) && auth.uid !== doc.data().uid) {
+      if (isLoaded(auth) && auth.uid !== uid) {
         history.push("/");
       }
     });
 
-  const handlePublicChange = event => {
+  const handlePublicChange = (event) => {
     if (publicFlg) {
-      db.collection("communities")
-        .doc(communityId)
-        .update({ public: false });
+      db.collection("communities").doc(communityId).update({ public: false });
       setPublic(false);
       setSnackMsg("非公開にしました。");
       setOpenSnack(true);
     } else {
-      db.collection("communities")
-        .doc(communityId)
-        .update({ public: true });
+      db.collection("communities").doc(communityId).update({ public: true });
       setPublic(true);
       setSnackMsg("公開にしました。");
       setOpenSnack(true);
     }
   };
 
-  const handleNameChange = event => {
+  const handleNameChange = (event) => {
     setUpdateName(event.target.value);
   };
 
-  const handleImageClick = event => {
+  const handleImageClick = (event) => {
     fileInput.current.click();
   };
 
-  const handleTextChange = event => {
+  const handleTextChange = (event) => {
     setUpdateText(event.target.value);
   };
 
@@ -162,16 +156,16 @@ export default function CommunityEdit() {
         .doc(communityId)
         .update({
           name: updateName,
-          text: updateText
+          text: updateText,
         })
-        .then(function() {
+        .then(function () {
           setUploaded(true);
           setText("");
           setName("");
           setSnackMsg("更新が完了しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
           setSnackMsg("エラーが発生しました");
           setOpenSnack(true);
@@ -183,16 +177,16 @@ export default function CommunityEdit() {
       db.collection("communities")
         .doc(communityId)
         .update({
-          text: updateText
+          text: updateText,
         })
-        .then(function() {
+        .then(function () {
           setUploaded(true);
           setText("");
           setName("");
           setSnackMsg("更新が完了しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
           setSnackMsg("エラーが発生しました");
           setOpenSnack(true);
@@ -204,16 +198,16 @@ export default function CommunityEdit() {
       db.collection("communities")
         .doc(communityId)
         .update({
-          name: updateName
+          name: updateName,
         })
-        .then(function() {
+        .then(function () {
           setUploaded(true);
           setText("");
           setName("");
           setSnackMsg("更新が完了しました。");
           setOpenSnack(true);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
           setSnackMsg("エラーが発生しました");
           setOpenSnack(true);
@@ -225,10 +219,9 @@ export default function CommunityEdit() {
     fileInput.current.click();
   };
 
-  const handleImageChange = event => {
+  const handleImageChange = (event) => {
     setImageUploaded(false);
     const file = event.target.files;
-    const filePath = "communityImage";
 
     if (file[0].name) {
       const filePath = "communityImage";
@@ -239,21 +232,19 @@ export default function CommunityEdit() {
       const fileName = communityImage.name;
       const imageRef = `${b}-${fileName}`;
 
-      const fileRef = storageRef
+      storageRef
         .child(imageRef)
         .put(file[0])
-        .then(snapshot => {
+        .then((snapshot) => {
           const uploadedPath = `${b}-${fileName}`;
           setTimeout(() => {
-            const url = storageRef
+            storageRef
               .child(uploadedPath)
               .getDownloadURL()
-              .then(function(url) {
-                db.collection("communities")
-                  .doc(communityId)
-                  .update({
-                    image: url
-                  });
+              .then(function (url) {
+                db.collection("communities").doc(communityId).update({
+                  image: url,
+                });
                 setImageUploaded(true);
               });
           }, 5000);
@@ -303,7 +294,7 @@ export default function CommunityEdit() {
                   onChange={handleImageChange}
                   ref={fileInput}
                   style={{
-                    display: "none"
+                    display: "none",
                   }}
                 />
                 <div className={classes.paper}>
@@ -318,11 +309,11 @@ export default function CommunityEdit() {
                       type="text"
                       id="name"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       onChange={handleNameChange}
                       inputProps={{
-                        maxLength: 20
+                        maxLength: 20,
                       }}
                       defaultValue={name}
                     />
@@ -337,14 +328,14 @@ export default function CommunityEdit() {
                       type="text"
                       id="text"
                       InputLabelProps={{
-                        shrink: true
+                        shrink: true,
                       }}
                       onChange={handleTextChange}
                       multiline={true}
                       rows={10}
                       rowsMax={10}
                       inputProps={{
-                        maxLength: 200
+                        maxLength: 200,
                       }}
                     />
                     <div onClick={handleImageClick}>
@@ -354,7 +345,7 @@ export default function CommunityEdit() {
                         onChange={handleImageChange}
                         ref={fileInput}
                         style={{
-                          display: "none"
+                          display: "none",
                         }}
                       />
                     </div>
@@ -402,7 +393,7 @@ export default function CommunityEdit() {
             <Snackbar
               anchorOrigin={{
                 vertical: "top",
-                horizontal: "center"
+                horizontal: "center",
               }}
               open={openSnack}
               onClose={handleSnackClose}
@@ -410,8 +401,8 @@ export default function CommunityEdit() {
               message={<span>{snackMsg}</span>}
               ContentProps={{
                 classes: {
-                  root: classes.snackbar
-                }
+                  root: classes.snackbar,
+                },
               }}
             />
           </Container>
@@ -435,28 +426,28 @@ function UserList(props) {
       doc: communityId,
       subcollections: [{ collection: "members" }],
       where: ["role", "==", "regist"],
-      storeAs: `members-${communityId}`
-    }
+      storeAs: `members-${communityId}`,
+    },
   ]);
 
   const communityMembers = useSelector(
-    state => state.firestore.ordered[`members-${communityId}`]
+    (state) => state.firestore.ordered[`members-${communityId}`]
   );
 
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
 
-  const handleClickButton = event => {
+  const handleClickButton = (event) => {
     const id = event.currentTarget.id;
     db.collection("communities")
       .doc(communityId)
       .collection("members")
       .doc(id)
       .update({
-        role: "member"
+        role: "member",
       })
-      .then(function() {
+      .then(function () {
         setSnackMsg("承認しました");
         setOpenSnack(true);
       });
@@ -490,7 +481,7 @@ function UserList(props) {
           >
             承認待ち
           </Typography>
-          {communityMembers.map(communityMember => (
+          {communityMembers.map((communityMember) => (
             <div>
               <Card className={classes.card} style={{ marginBottom: 20 }}>
                 <CardHeader
@@ -523,7 +514,7 @@ function UserList(props) {
       <Snackbar
         anchorOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
         open={openSnack}
         onClose={handleSnackClose}
@@ -531,8 +522,8 @@ function UserList(props) {
         message={<span>{snackMsg}</span>}
         ContentProps={{
           classes: {
-            root: classes.snackbar
-          }
+            root: classes.snackbar,
+          },
         }}
       />
     </div>

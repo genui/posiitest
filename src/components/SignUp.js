@@ -35,16 +35,16 @@ const useStyles = makeStyles({
     marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {},
   form: {
-    width: "100%"
+    width: "100%",
   },
   submit: {
     marginTop: 20,
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 });
 
 export default function SignUp() {
@@ -54,14 +54,14 @@ export default function SignUp() {
     username,
     displayName,
     point,
-    avatar
+    avatar,
   }) => {
     firebase
       .createUser(
         { email, password },
         { username, displayName, email, point, avatar }
       )
-      .catch(function(error) {
+      .catch(function (error) {
         setMsg("入力内容が正しくありません。");
         setLoaded(true);
       });
@@ -76,25 +76,25 @@ export default function SignUp() {
   const [usernameMsg, setUsernameMsg] = useState("");
   const classes = useStyles();
   const firebase = useFirebase();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
       return <Redirect to="/communities" />;
     }
   }
-  const handleEmailChange = event => {
+  const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
 
-  const handlePasswordChange = event => {
+  const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
-  const handleUsernameChange = event => {
+  const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
 
-  const handleDisplayNameChange = event => {
+  const handleDisplayNameChange = (event) => {
     setDisplayName(event.target.value);
   };
 
@@ -106,7 +106,7 @@ export default function SignUp() {
       setUsernameMsg("");
     }
     setLoaded(false);
-    if (username == "" || displayName == "" || !regex.test(username)) {
+    if (username === "" || displayName === "" || !regex.test(username)) {
       setMsg("正しい情報を入力してください。");
       setLoaded(true);
     } else {
@@ -117,7 +117,7 @@ export default function SignUp() {
         displayName: displayName,
         point: 0,
         avatar: "",
-        notification: false
+        notification: false,
       });
     }
   };
@@ -173,7 +173,7 @@ export default function SignUp() {
                   id="username"
                   onChange={handleUsernameChange}
                   inputProps={{
-                    maxLength: 20
+                    maxLength: 20,
                   }}
                 />
                 <div style={{ textAlign: "center" }}>
@@ -191,7 +191,7 @@ export default function SignUp() {
                   maxlength="20"
                   onChange={handleDisplayNameChange}
                   inputProps={{
-                    maxLength: 20
+                    maxLength: 20,
                   }}
                 />
                 <div style={{ textAlign: "center" }}>{msg}</div>

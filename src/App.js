@@ -8,7 +8,7 @@ import "firebase/storage";
 import {
   ReactReduxFirebaseProvider,
   isLoaded,
-  isEmpty
+  isEmpty,
 } from "react-redux-firebase";
 import { createFirestoreInstance } from "redux-firestore";
 import { useSelector } from "react-redux";
@@ -20,7 +20,6 @@ import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
 import ProfileEdit from "./components/ProfileEdit";
 import UserPage from "./components/UserPage";
-import UploadTest from "./components/UploadTest";
 import Header from "./components/Header";
 import Communities from "./components/Communities";
 import CommunitiesNew from "./components/CommunitiesNew";
@@ -39,13 +38,13 @@ const store = configureStore(initialState);
 firebase.initializeApp(fbConfig);
 const firestore = firebase.firestore();
 firestore.settings({
-  timestampsInSnapshots: true
+  timestampsInSnapshots: true,
 });
 
 firebase.firestore();
 
 function PrivateRoute({ children, ...rest }) {
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   return (
     <Route
       {...rest}
@@ -56,7 +55,7 @@ function PrivateRoute({ children, ...rest }) {
           <Redirect
             to={{
               pathname: "/signin",
-              state: { from: location }
+              state: { from: location },
             }}
           />
         )
@@ -65,18 +64,17 @@ function PrivateRoute({ children, ...rest }) {
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     "& > * + *": {
-      marginLeft: theme.spacing(2)
-    }
-  }
+      marginLeft: theme.spacing(2),
+    },
+  },
 }));
 
 function AuthIsLoaded({ children }) {
-  const classes = useStyles();
-  const auth = useSelector(state => state.firebase.auth);
+  const auth = useSelector((state) => state.firebase.auth);
   if (!isLoaded(auth))
     return (
       <div>
@@ -131,9 +129,6 @@ function App() {
                 </PrivateRoute>
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
-                </PrivateRoute>
-                <PrivateRoute exact path="/upload">
-                  <UploadTest />
                 </PrivateRoute>
                 <PrivateRoute path="/user/:username">
                   <UserPage />
