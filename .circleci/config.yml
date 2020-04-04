@@ -35,6 +35,15 @@ jobs:
       - checkout
       - npm_install
 
+  test:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - npm_install
+      - run:
+          name: Test Project
+          command: yarn test
   deploy:
     executor:
       name: default
