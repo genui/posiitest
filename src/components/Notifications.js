@@ -104,23 +104,19 @@ function dateDisplay(date) {
 }
 
 function getMessage(type, username) {
-  if (type === "post" || type === "community") {
+  if (type === "community") {
     return username + "さんがあなたの投稿にコメントしました。";
   }
-  if (type === "postLike" || type === "communityPostLike") {
+  if (type === "communityPostLike") {
     return username + "さんがあなたの投稿にいいねしました。";
   }
 
-  if (type === "commentLike" || type === "communityCommentLike") {
+  if (type === "communityCommentLike") {
     return username + "さんがあなたのコメントにいいねしました。";
   }
 }
 
 function getLink(type, postId, communityId) {
-  if (type === "post" || type === "postLike" || type === "commentLike") {
-    return "/posts/" + postId;
-  }
-
   if (
     type === "community" ||
     type === "communityPostLike" ||

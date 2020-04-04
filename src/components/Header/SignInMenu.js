@@ -9,34 +9,31 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 const useStyles = makeStyles({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   flex: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   link: {
     textDecoration: "none",
-    color: "black"
+    color: "black",
   },
   button: {
-    color: "white"
+    color: "white",
   },
   dehaze: {
-    color: "#888"
-  }
+    color: "#888",
+  },
 });
 
 export default function SignInMenu() {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState("");
-  const handleClick = event => {
-    // #3
+  const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    //this.setState({ anchorEl: event.currentTarget });
   };
   const handleClose = () => {
     setAnchorEl(null);
-    // this.setState({ anchorEl: null });
   };
   return (
     <Grow in={true} timeout={{ enter: 1000, exit: 1000 }}>
