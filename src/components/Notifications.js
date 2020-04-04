@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase, useFirestoreConnect } from "react-redux-firebase";
 import { useSelector } from "react-redux";

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase } from "react-redux-firebase";
-import { useSelector } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import Avatar from "@material-ui/core/Avatar";

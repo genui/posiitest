@@ -64,15 +64,6 @@ function PrivateRoute({ children, ...rest }) {
   );
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    "& > * + *": {
-      marginLeft: theme.spacing(2),
-    },
-  },
-}));
-
 function AuthIsLoaded({ children }) {
   const auth = useSelector((state) => state.firebase.auth);
   if (!isLoaded(auth))
