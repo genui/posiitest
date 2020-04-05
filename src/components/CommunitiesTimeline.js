@@ -18,6 +18,7 @@ import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
+import Linkify from "material-ui-linkify";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -308,9 +309,16 @@ export default function CommunitiesTimeline() {
                 {!communityPublic && " 非公開"}
               </span>
             </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              {communityText}
-            </Typography>
+            <Linkify>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                component="p"
+                style={{ whiteSpace: "pre-line" }}
+              >
+                {communityText}
+              </Typography>
+            </Linkify>
             {!communityDisplay && (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">

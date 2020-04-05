@@ -136,7 +136,12 @@ export default function Communities() {
                     {!community.public && " 非公開"}
                   </span>
                 </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  component="p"
+                  style={{ whiteSpace: "pre-line" }}
+                >
                   {community.text}
                 </Typography>
               </Link>
