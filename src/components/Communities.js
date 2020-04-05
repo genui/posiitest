@@ -18,6 +18,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Snackbar from "@material-ui/core/Snackbar";
+import Linkify from "material-ui-linkify";
 
 const useStyles = makeStyles({
   paper: {
@@ -136,14 +137,16 @@ export default function Communities() {
                     {!community.public && " 非公開"}
                   </span>
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  component="p"
-                  style={{ whiteSpace: "pre-line" }}
-                >
-                  {community.text}
-                </Typography>
+                <Linkify>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="p"
+                    style={{ whiteSpace: "pre-line" }}
+                  >
+                    {community.text}
+                  </Typography>
+                </Linkify>
               </Link>
             </CardContent>
             {(() => {
