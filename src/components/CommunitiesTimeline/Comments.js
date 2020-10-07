@@ -27,6 +27,8 @@ import CardContent from "@material-ui/core/CardContent";
 import Badge from "@material-ui/core/Badge";
 import Snackbar from "@material-ui/core/Snackbar";
 import Linkify from "material-ui-linkify";
+import { Link } from "react-router-dom";
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -353,9 +355,18 @@ export default function Comments(props) {
         comments.map((comment) => (
           <CardContent>
             <Grid container spacing={3}>
+ 
               <Grid item xs={1}>
+              <Link to={{ 
+                pathname: `/user/${comment.uid}`, 
+                state: { userid: comment.uid}
+                }}
+                style={{ textDecoration: 'none',color: 'black'}}
+                >
                 <Avatar alt="profile image" src={`${comment.avatar}`} />
+                </Link>
               </Grid>
+          
               <Grid item xs={11}>
                 <div
                   style={{
@@ -365,16 +376,23 @@ export default function Comments(props) {
                     marginLeft: 20,
                   }}
                 >
-                  <Typography
-                    variant="subtitle2"
-                    component="subtitle2"
-                    gutterBottom
-                    style={{ fontWeight: "bold" }}
+                <Link to={{ 
+                  pathname: `/user/${comment.uid}`, 
+                  state: { userid: comment.uid}
+                  }}
+                  style={{ textDecoration: 'none',color: 'black'}}
                   >
-                    {comment.displayName
-                      ? comment.displayName
-                      : comment.username}
-                  </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      component="subtitle2"
+                      gutterBottom
+                      style={{ fontWeight: "bold" }}
+                    >
+                      {comment.displayName
+                        ? comment.displayName
+                        : comment.username}
+                    </Typography>
+                    </Link>
                   <Typography
                     variant="body2"
                     component="body2"

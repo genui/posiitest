@@ -69,6 +69,10 @@ export default function ProfileEdit() {
   const [uploaded, setUploaded] = useState(true);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
+  const db = firebase.firestore();
+  const [updateDisplayName, setupdateDisplayName] = useState("");
+  const [updateProfileText, setupdateProfileText] = useState("");
+
 
   const handleDisplayNameChange = (event) => {
     setDisplayName(event.target.value);
@@ -81,6 +85,50 @@ export default function ProfileEdit() {
   const handleClick = () => {
     fileInput.current.click();
   };
+  
+  
+  const userPageProfile = () =>{
+    const currentUser = firebase.auth().currentUser.uid;
+    let profileRef = db.collection('profile').doc(currentUser);
+    db.collection('users').doc(currentUser).get().then((doc) => {
+
+      if ({displayName}.displayName === ''){
+        let setProfile = profileRef.set({
+          avatar:doc.data().avatar,
+          displayName: profile.displayName,
+          profileText: doc.data().profileText
+        });
+      }
+      else{
+        let setProfile = profileRef.set({
+          avatar:doc.data().avatar,
+          displayName: {displayName}.displayName,
+          profileText: doc.data().profileText
+        });
+      }
+      profileRef.get().then((doc)=>{
+        const newdisplayName = doc.data().displayName
+        if ({profileText}.profileText === ''){
+          let setProfile = profileRef.set({
+            avatar:doc.data().avatar,
+            displayName: newdisplayName,
+            profileText: profile.profileText
+          });
+        }
+        else{
+          let setProfile = profileRef.set({
+            avatar:doc.data().avatar,
+            displayName: newdisplayName,
+            profileText: {profileText}.profileText
+          });
+        }
+      })
+
+  })
+  }
+
+
+
 
   const handleAvaterChange = (event) => {
     setUploaded(false);
@@ -134,6 +182,7 @@ export default function ProfileEdit() {
 
   const handleSubmit = () => {
     const regex = /^[0-9a-z]+$/;
+    userPageProfile()
 
     if (displayName !== "") {
       firebase.updateProfile({
@@ -141,6 +190,7 @@ export default function ProfileEdit() {
       });
       setSnackMsg("プロフィールを更新しました");
       setOpenSnack(true);
+
     }
 
     if (username !== "") {
@@ -164,6 +214,7 @@ export default function ProfileEdit() {
       setSnackMsg("プロフィールを更新しました");
       setOpenSnack(true);
     }
+
   };
 
   if (isLoaded(profile)) {
@@ -185,7 +236,7 @@ export default function ProfileEdit() {
                         alt="profile image"
                         src={`${profile.avatar}`}
                         className={classes.large}
-                      />
+                        />
                     ) : (
                       <div>
                         <CircularProgress />
@@ -260,7 +311,7 @@ export default function ProfileEdit() {
                       rows={10}
                       rowsMax={10}
                       inputProps={{
-                        maxLength: 200,
+                        maxLength: 2000,
                       }}
                     />
                     <Button

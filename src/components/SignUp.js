@@ -76,6 +76,7 @@ export default function SignUp() {
   const [usernameMsg, setUsernameMsg] = useState("");
   const classes = useStyles();
   const firebase = useFirebase();
+  const db = firebase.firestore();
   const auth = useSelector((state) => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
@@ -110,7 +111,8 @@ export default function SignUp() {
       setMsg("正しい情報を入力してください。");
       setLoaded(true);
     } else {
-      createNewUser({
+      createNewUser
+      ({
         email: email,
         password: password,
         username: username,
@@ -119,6 +121,18 @@ export default function SignUp() {
         avatar: "",
         notification: false,
       });
+      const createNewUserProfile = {
+        username: username,
+        displayName: displayName,
+        avatar: "",
+      }
+
+      setTimeout(() => {
+        const newuser = firebase.auth().currentUser.uid;
+        db.collection('profile').doc(newuser).set(createNewUserProfile);
+      }, 2000);
+
+      // db.collection('profile').doc
     }
   };
 
