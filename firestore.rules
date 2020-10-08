@@ -79,7 +79,7 @@ service cloud.firestore {
     match /profile/{userId}/notifications/{notificationId} {
     	allow read,write: if request.auth.uid == userId;
     }
-    match /{user=**} {
+    match /{document=**} {
       allow read: if true;
     }
     
