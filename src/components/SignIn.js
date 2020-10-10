@@ -57,7 +57,6 @@ export default function SignIn() {
   const auth = useSelector(state => state.firebase.auth);
   if (isLoaded(auth)) {
     if (auth.uid) {
-      console.log(auth);
       return <Redirect to="/communities" />;
     }
   }

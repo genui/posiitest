@@ -30,6 +30,7 @@ import Notifications from "./components/Notifications";
 import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
+import { PinDropSharp } from "@material-ui/icons";
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -53,7 +54,7 @@ function PrivateRoute({ children, ...rest }) {
         ) : (
           <Redirect
             to={{
-              pathname: "/signin",
+              pathname: "",
               state: { from: location },
             }}
           />
@@ -120,7 +121,7 @@ function App() {
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
                 </PrivateRoute>
-                <PrivateRoute path="/user/:username">
+                <PrivateRoute path="/user/:uid" component={UserPage}>
                   <UserPage />
                 </PrivateRoute>
                 <Route

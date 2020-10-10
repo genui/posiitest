@@ -33,6 +33,7 @@ import "react-image-lightbox/style.css";
 import ReportProblemIcon from "@material-ui/icons/ReportProblem";
 
 import Linkify from "material-ui-linkify";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   media: {
@@ -283,6 +284,8 @@ export default function Posts(props) {
     }
   };
 
+
+
   return (
     <div>
       {lightBox && (
@@ -292,6 +295,13 @@ export default function Posts(props) {
         />
       )}
       <Card className={classes.card} style={{ marginBottom: 20 }}>
+      <Link to={{ 
+        pathname: `/user/${props.uid}`, 
+        state: { userid: props.uid}
+         }}
+         style={{ textDecoration: 'none',color: 'black'}}
+         >
+
         <CardHeader
           avatar={
             <Avatar
@@ -303,6 +313,7 @@ export default function Posts(props) {
           title={props.displayName}
           subheader={props.createTime && dateDisplay(props.createTime)}
         />
+        </Link>
         <CardContent>
           <Linkify>
             <Typography
