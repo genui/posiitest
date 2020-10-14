@@ -105,7 +105,8 @@ function PostLike(props) {
         .catch(function (error) {
           console.log("Error getting document:", error);
         });
-    }
+    } 
+    
   };
 
   const handleClickPostLike = (event) => {

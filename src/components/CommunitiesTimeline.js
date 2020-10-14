@@ -147,6 +147,7 @@ export default function CommunitiesTimeline() {
       setCommunityPublic(doc.data().public);
     });
 
+  
   db.collection("communities")
     .doc(communityId)
     .collection("members")
@@ -403,10 +404,6 @@ export default function CommunitiesTimeline() {
                     value={content}
                   /> 
 
-                  {/* <Mentioneds data={mentionuser} 
-                  value={content} 
-                  onChange={handleContentChange} /> */}
-
                   <div>
                     <Grid container spacing={3}>
                       <Grid
@@ -456,7 +453,7 @@ export default function CommunitiesTimeline() {
                   </div>
                 </Grid>
               </Grid>
-            </CardContent>
+            </CardContent> 
           </Card>
         )}
 

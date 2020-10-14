@@ -14,6 +14,7 @@ import { createFirestoreInstance } from "redux-firestore";
 import { useSelector } from "react-redux";
 import configureStore from "./store";
 import { firebase as fbConfig, reduxFirebase as rfConfig } from "./config";
+import { sampleuser } from "./config";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
@@ -31,6 +32,8 @@ import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
 import { PinDropSharp } from "@material-ui/icons";
+import { useFirebase } from "react-redux-firebase";
+
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -48,14 +51,14 @@ function PrivateRoute({ children, ...rest }) {
   return (
     <Route
       {...rest}
-      render={({ location }) =>
+      render={( location ) =>
         isLoaded(auth) && !isEmpty(auth) ? (
           children
         ) : (
           <Redirect
             to={{
-              pathname: "",
-              state: { from: location },
+              pathname: "/communities/:communityId",
+              // state: { from: location },
             }}
           />
         )
@@ -100,9 +103,9 @@ function App() {
                 <PrivateRoute exact path="/notifications">
                   <Notifications />
                 </PrivateRoute>
-                <PrivateRoute exact path="/communities">
-                  <Communities />
-                </PrivateRoute>
+                {/* <PrivateRoute exact path="/communities"> */}
+                  <Communities exact path="/communities" />
+                {/* </PrivateRoute> */}
                 <PrivateRoute
                   exact
                   path="/communities/:communityId/posts/:postId"
@@ -116,7 +119,7 @@ function App() {
                   <CommunitiesEdit />
                 </PrivateRoute>
                 <PrivateRoute exact path="/communities/:communityId">
-                  <CommunitiesTimeline />
+                  <CommunitiesTimeline  exact path="/communities/:communityId"/>
                 </PrivateRoute>
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
