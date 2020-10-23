@@ -1,4 +1,4 @@
-// 本番環境
+// // 本番環境
 // export const firebase = {
 //   apiKey: "AIzaSyAGJYOgpwcDI-1XlRN16l-FJtnJbDmAcUk",
 //   authDomain: "posiidev.firebaseapp.com",

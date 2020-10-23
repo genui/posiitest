@@ -98,14 +98,14 @@ export default function GestCommunities() {
   return (
     <Container component="main" maxWidth="sm">
       <Button
-        type="button"
-        fullWidth
-        variant="contained"
-        color="primary"
-        className={classes.submit}
-        href="/communities/new"
+        // type="button"
+        // fullWidth
+        // variant="contained"
+        // color="primary"
+        // className={classes.submit}
+        // href="/communities/new"
       >
-        コミュニティを作成する
+        {/* コミュニティを作成する */}
       </Button>
       {communities &&
         communities.map((community) => (

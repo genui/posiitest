@@ -21,8 +21,8 @@ service cloud.firestore {
     
     
     match /communities/{communityId}/posts/{postId} {
-    	allow read: if true;
       allow write: if request.auth.uid != null && (get(/databases/$(database)/documents/communities/$(communityId)).data.public == true || get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role == "member");
+      allow read: if (get(/databases/$(database)/documents/communities/$(communityId)).data.public == true || get(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid)).data.role == "member");
     }
     
     match /communities/{communityId}/posts/{postId}/comments/{commentId} {

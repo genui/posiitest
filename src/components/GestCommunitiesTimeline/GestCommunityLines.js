@@ -187,6 +187,19 @@ export default function GestCommunitiesTimeline() {
                 <Typography variant="body2" color="textSecondary" component="p">
                   ※このページは非公開です。
                 </Typography>
+                　
+                {communityButton ? (
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="primary"
+                    style={{ marginTop: 10 }}
+                  >
+                    参加を希望する
+                  </Button>
+                ) : (
+                  <div>申請中です</div>
+                )}
               </div>
             )}
           </CardContent>
