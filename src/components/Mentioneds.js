@@ -164,7 +164,7 @@ function Mentioneds({ value, data, onChange }) {
           </div>
         )}
 
-{/* 
+
         {!isLoaded(posts) ? (
           <div></div>
         ) : isEmpty(posts) ? (
@@ -187,7 +187,7 @@ function Mentioneds({ value, data, onChange }) {
               </Grow>
             </div>
           ))
-        )} */}
+        )}
         
       </div>
     )

@@ -60,9 +60,12 @@ function Copyright() {
 export default function App() {
   const classes = useStyles();
   const auth = useSelector((state) => state.firebase.auth);
+  console.log(window.location.search);
   if (isLoaded(auth)) {
     if (auth.uid) {
       return <Redirect to="/communities" />;
+    } else {
+      return <Redirect to="/gestcommunities" />;
     }
   }
   return (
