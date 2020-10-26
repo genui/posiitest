@@ -295,8 +295,6 @@ export default function CommunitiesTimeline() {
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
-  console.log(window.location.href);
-  console.log(communityId);
   if (isLoaded(auth)) {
     if (auth.uid) {
       console.log('test1');

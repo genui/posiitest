@@ -76,6 +76,7 @@ service cloud.firestore {
 
     match /profile/{userId} {
     	allow read: if true;
+      allow write: if request.auth.uid != null;
     }
     
     

@@ -127,10 +127,10 @@ export default function SignUp() {
         avatar: "",
       }
 
-      setTimeout(() => {
-        const newuser = firebase.auth().currentUser.uid;
-        db.collection('profile').doc(newuser).set(createNewUserProfile);
-      }, 2000);
+      // setTimeout(() => {
+      //   const newuser = firebase.auth().currentUser.uid;
+      //   db.collection('profile').doc(newuser).set(createNewUserProfile);
+      // }, 2000);
 
       // db.collection('profile').doc
     }

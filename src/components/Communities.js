@@ -58,9 +58,6 @@ export default function Communities() {
   const [OpenDelete, setOpenDelete] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
-
-  console.log('test');
-
   const communities = useSelector(
     (state) => state.firestore.ordered.communities
   );
@@ -96,7 +93,26 @@ export default function Communities() {
     setOpenSnack(false);
   };
 
+
   const classes = useStyles();
+  
+  const cuse= firebase.auth().currentUser;
+  if (cuse != null) {
+    const currentuser= firebase.auth().currentUser.uid;
+    db.collection('profile').doc(currentuser).get().then(val => {
+      if (val.data() === undefined){
+        db.collection('users').doc(currentuser).get().then(val => {
+          const createNewUserProfile = {
+            displayName: val.data().displayName,
+            avatar: "",
+          }
+          db.collection('profile').doc(currentuser).set(createNewUserProfile);
+        });
+      }
+    })
+
+  }
+
   return (
     <Container component="main" maxWidth="sm">
       <Button
