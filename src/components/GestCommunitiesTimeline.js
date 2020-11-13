@@ -133,6 +133,7 @@ export default function GestCommunitiesTimeline() {
   const [communityName, setCommunityName] = useState("");
   const [communityText, setCommunityText] = useState("");
   const [communityPublic, setCommunityPublic] = useState(true);
+  const [communityPublicGlobal, setCommunityPublicGlobal] = useState(true);
   const [communityRole, setCommunityRole] = useState(false);
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
@@ -141,9 +142,12 @@ export default function GestCommunitiesTimeline() {
     .doc(communityId)
     .get()
     .then(function (doc) {
+      console.log(doc.data());
       setCommunityName(doc.data().name);
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
+      setCommunityPublicGlobal(doc.data().publicGlobal);
+      console.log(doc.data().publicGlobal);
     });
   
   // db.collection("communities")
@@ -182,14 +186,6 @@ export default function GestCommunitiesTimeline() {
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
-  if (isLoaded(auth)) {
-    if (auth.uid) {
-      console.log('test1');
-      // window.history.push('/gestcommunities/'+communityId)
-    } else {
-      console.log('test2');
-    }
-  }
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
@@ -203,7 +199,7 @@ export default function GestCommunitiesTimeline() {
             >
               {communityName}{" "}
               <span style={{ fontSize: 15 }}>
-                {!communityPublic && " 非公開"}
+                {!communityPublicGlobal && " 非公開"}
               </span>
             </Typography>
             <Linkify>
@@ -216,12 +212,12 @@ export default function GestCommunitiesTimeline() {
                 {communityText}
               </Typography>
             </Linkify>
-            {!communityDisplay && (
+            {!communityPublicGlobal　&& (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
                   ※このページは非公開です。
                 </Typography>
-                　
+                {/* 　
                 {communityButton ? (
                   <Button
                     type="button"
@@ -233,13 +229,15 @@ export default function GestCommunitiesTimeline() {
                   </Button>
                 ) : (
                   <div>申請中です</div>
-                )}
+                )} */}
               </div>
             )}
           </CardContent>
         </Card>
         
-        {!isLoaded(posts) ? (
+        {!communityPublicGlobal ? (
+          <div></div>
+        ) : !isLoaded(posts) ? (
           <div></div>
         ) : isEmpty(posts) ? (
           <div></div>
@@ -280,3 +278,4 @@ export default function GestCommunitiesTimeline() {
     </div>
   );
 }
+

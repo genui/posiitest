@@ -96,7 +96,7 @@ export default function Communities() {
 
   const classes = useStyles();
   
-  const cuse= firebase.auth().currentUser;
+  const cuse = firebase.auth().currentUser;
   if (cuse != null) {
     const currentuser= firebase.auth().currentUser.uid;
     db.collection('profile').doc(currentuser).get().then(val => {
@@ -110,8 +110,8 @@ export default function Communities() {
         });
       }
     })
-
   }
+
 
   return (
     <Container component="main" maxWidth="sm">

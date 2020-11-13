@@ -97,9 +97,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     marginBottom: 20,
   },
-  textarea: {
-    height:100
-  }
 }));
 
 export default function CommunitiesTimeline() {
@@ -107,7 +104,6 @@ export default function CommunitiesTimeline() {
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
-
   firebase.firestore();
   useFirestoreConnect([
     {
@@ -137,6 +133,7 @@ export default function CommunitiesTimeline() {
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
+
   db.collection("communities")
     .doc(communityId)
     .get()
@@ -145,25 +142,32 @@ export default function CommunitiesTimeline() {
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
     });
-  
-  // db.collection("communities")
-  //   .doc(communityId)
-  //   .collection("members")
-  //   .doc(auth.uid)
-  //   .get()
-  //   .then(function (doc) {
-  //     if (doc.data()) {
-  //       setCommunityRole(doc.data().role);
-  //       if (communityRole === "regist") {
-  //         setCommunityButton(false);
-  //       }
-  //     }
-  //     if (communityPublic === true || communityRole === "member") {
-  //       setCommunityDisplay(true);
-  //     } else {
-  //       setCommunityDisplay(false);
-  //     }
-  //   });
+
+
+
+    // db.collection("communities")
+    // .doc(communityId)
+    // .collection("members")
+    // .doc(auth.uid)
+    // .get()
+    // .then(function (doc) {
+    //   if (doc.data()) {
+    //     setCommunityRole(doc.data().role);
+    //     if (communityRole === "regist") {
+    //       setCommunityButton(false);
+    //     }
+    //   }
+    //   console.log(communityPublic);
+    //   if (communityPublic === true || communityRole === "member") {
+    //     setCommunityDisplay(true);
+    //   } else {
+    //     setCommunityDisplay(false);
+    //   }
+    // });
+
+
+
+
 
   const handleContentChange = (event) => {
     setContent(event.target.value);
@@ -295,14 +299,7 @@ export default function CommunitiesTimeline() {
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
-  if (isLoaded(auth)) {
-    if (auth.uid) {
-      console.log('test1');
-      // window.history.push('/gestcommunities/'+communityId)
-    } else {
-      console.log('test2');
-    }
-  }
+
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
@@ -352,11 +349,9 @@ export default function CommunitiesTimeline() {
             )}
           </CardContent>
         </Card>
-        
         {communityDisplay && (
           <Card className={classes.card} style={{ marginBottom: 30 }}>
             <CardContent>
-
               <Grid container spacing={3}>
                 <Grid item xs="2">
                   <Avatar
@@ -366,7 +361,6 @@ export default function CommunitiesTimeline() {
                     style={{ marginTop: 30 }}
                   />
                 </Grid>
-
                 <Grid item xs="10" style={{ marginTop: 20 }}>
                   <TextField
                     id="standard-basic"
@@ -377,8 +371,7 @@ export default function CommunitiesTimeline() {
                     rowsMax={5}
                     onChange={handleContentChange}
                     value={content}
-                  /> 
-
+                  />
                   <div>
                     <Grid container spacing={3}>
                       <Grid
@@ -428,9 +421,10 @@ export default function CommunitiesTimeline() {
                   </div>
                 </Grid>
               </Grid>
-            </CardContent> 
+            </CardContent>
           </Card>
         )}
+
         {!isLoaded(posts) ? (
           <div></div>
         ) : isEmpty(posts) ? (
