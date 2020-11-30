@@ -223,18 +223,25 @@ export default function CommunitiesTimeline() {
                 return `${filePre[0]}_1000x1000.${filePre[1]}`;
               }
 
+              console.log('upload開始');
               storageRef
                 .child(imageRef)
                 .put(postImage)
                 .then((snapshot) => {
-                  const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                  console.log('thumbnail開始');
+                  //本番環境
+                  // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                 //テスト環境
+                  const uploadedPath = `${filePre}-${thumbnailName(
                     fileName
                   )}`;
                   setTimeout(() => {
+                    console.log('url開始');
                     storageRef
                       .child(uploadedPath)
                       .getDownloadURL()
                       .then(function (url) {
+                        console.log(url);
                         db.collection("communities")
                           .doc(communityId)
                           .collection("posts")

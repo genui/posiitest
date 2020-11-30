@@ -17,6 +17,10 @@ import { AddAPhoto } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
 import Snackbar from "@material-ui/core/Snackbar";
 import Switch from "@material-ui/core/Switch";
+import { green } from '@material-ui/core/colors';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
+
 
 function Copyright() {
   return (
@@ -30,6 +34,7 @@ function Copyright() {
     </Typography>
   );
 }
+
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -79,6 +84,9 @@ export default function CommunityNew() {
   const [uploaded, setUploaded] = useState(true);
   const [communityImage, setCommunityImage] = useState("");
   const [publicFlg, setPublic] = useState(true);
+  const [publicFlgGlobal, setPublicGlobal] = useState(true);
+  const [publicFlgPosii, setPublicPosii] = useState(true);
+  const [publicFlgHide, setPublicHide] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
 
@@ -110,6 +118,28 @@ export default function CommunityNew() {
       setPublic(true);
     }
   };
+  const handlePublicChangeGlobal = event => {
+    if (publicFlgGlobal) {
+      setPublicGlobal(false);
+    } else {
+      setPublicGlobal(true);
+    }
+  };
+  const handlePublicChangePosii = event => {
+    if (publicFlgPosii) {
+      setPublicPosii(false);
+    } else {
+      setPublicPosii(true);
+    }
+  };
+  const handlePublicChangeHide = event => {
+    if (publicFlgHide) {
+      setPublicHide(false);
+    } else {
+      setPublicHide(true);
+    }
+  };
+
 
   const handleSubmit = () => {
     if (name !== "" && text !== "") {
@@ -140,7 +170,9 @@ export default function CommunityNew() {
                     image: url,
                     createTime: firebase.firestore.FieldValue.serverTimestamp(),
                     updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    public: publicFlg
+                    public: publicFlgGlobal,
+                    publicFlgPosii: publicFlgPosii,
+                    publicFlgHide: publicFlgHide
                   });
                   setUploaded(true);
                   setText("");
@@ -170,7 +202,9 @@ export default function CommunityNew() {
             image: "",
             createTime: firebase.firestore.FieldValue.serverTimestamp(),
             updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-            public: publicFlg
+            public: publicFlgGlobal,
+            publicFlgPosii: publicFlgPosii,
+            publicFlgHide: publicFlgHide
           })
           .then(function() {
             setUploaded(true);
@@ -260,20 +294,50 @@ export default function CommunityNew() {
                   </span>
                 </div>
                 <div style={{ marginTop: 20 }}>
-                  <Typography
+                <FormControlLabel
+                  control=
+                    {
+                      <Checkbox
+                        checked={publicFlgGlobal}
+                        onChange={handlePublicChangeGlobal}
+                        color="primary"
+                      />}
+                    label="一般公開"
+                  />
+                <FormControlLabel
+                  control=
+                    {
+                      <Checkbox
+                        checked={publicFlgPosii}
+                        onChange={handlePublicChangePosii} 
+                        color="primary"
+                      />}
+                    label="POSII公開"
+                  />
+                <FormControlLabel
+                  control=
+                    {
+                      <Checkbox
+                        checked={publicFlgHide}
+                        onChange={handlePublicChangeHide} 
+                        color="primary"
+                      />}
+                    label="非公開"
+                  />
+                  {/* <Typography
                     gutterBottom
                     variant="body2"
                     component="body2"
                     style={{ color: "#000" }}
                   >
                     公開する
-                  </Typography>
-                  <Switch
+                  </Typography> */}
+                  {/* <Switch
                     checked={publicFlg}
                     onChange={handlePublicChange}
                     name="public"
                     inputProps={{ "aria-label": "secondary checkbox" }}
-                  />
+                  /> */}
                 </div>
                 {uploaded ? (
                   <Button

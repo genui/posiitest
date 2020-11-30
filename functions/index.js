@@ -181,6 +181,18 @@ exports.communitiesPostLikeCount = functions.firestore
               });
             });
         }
+
+        db.collection('users').doc(postUid).get().then(function (doc3){
+          db.collection('mail').add({
+              to: doc3.data().email,
+              message: {
+                subject: 'POSIIからのお知らせです!!',
+                html: 'コメントが褒められました！posiiを見にいきましょう！https://posii.ai/notifications',
+                },
+              });
+
+        })
+
       });
 
     return res1, res2;
@@ -257,6 +269,16 @@ exports.CommunityCommentLikeCount = functions.firestore
                 notification: true,
               });
             });
+            db.collection('users').doc(commentUid).get().then(function (doc3){
+              db.collection('mail').add({
+                  to: doc3.data().email,
+                  message: {
+                    subject: 'POSIIからのお知らせです!!',
+                    html: 'コメントが褒められました！posiiを見にいきましょう！https://posii.ai/notifications',
+                    },
+                  });
+    
+            })
         }
       });
 
@@ -317,6 +339,16 @@ exports.CommunityComment = functions.firestore
           db.collection("users").doc(postUid).update({
             notification: true,
           });
+          db.collection('users').doc(postUid).get().then(function (doc3){
+            db.collection('mail').add({
+                to: doc3.data().email,
+                message: {
+                  subject: 'POSIIからのお知らせです!!',
+                  html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/notifications',
+                  },
+                });
+  
+          })
         }
       });
 

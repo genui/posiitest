@@ -76,13 +76,6 @@ export default function App() {
         <img src={posii_5} style={{ maxWidth: "100%" }} alt="posii説明" />
         <img src={posii_6} style={{ maxWidth: "100%" }} alt="posii説明" />
         <div style={{ textAlign: "center", padding: 30 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSe5Ff5V-cmWub6Rh6G_W22BMLD2aL5Ku-CNYPOkAt6-oH8YxA/viewform"
-          >
-            事前登録はこちら
-          </Button>
         </div>
       </Container>
       <Copyright />

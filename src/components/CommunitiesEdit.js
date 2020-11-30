@@ -25,6 +25,10 @@ import Snackbar from "@material-ui/core/Snackbar";
 import Switch from "@material-ui/core/Switch";
 import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
+
+
 
 function Copyright() {
   return (
@@ -95,7 +99,9 @@ export default function CommunityEdit() {
   const [updateName, setUpdateName] = useState("");
   const [updateText, setUpdateText] = useState("");
   const [image, setImage] = useState("");
-  const [publicFlg, setPublic] = useState("");
+  const [publicFlgGlobal, setPublicGlobal] = useState("");
+  const [publicFlgPosii, setPublicPosii] = useState("");
+  const [publicFlgHide, setPublicHide] = useState("");
   const [displayForm, setDisplayForm] = useState(false);
   const [uploaded, setUploaded] = useState(true);
   const [imageUploaded, setImageUploaded] = useState(true);
@@ -111,7 +117,9 @@ export default function CommunityEdit() {
       setText(doc.data().text);
       const uid = doc.data().uid;
       setImage(doc.data().image);
-      setPublic(doc.data().public);
+      setPublicGlobal(doc.data().public);
+      setPublicPosii(doc.data().publicFlgPosii);
+      setPublicHide(doc.data().publicFlgHide);
       setDisplayForm(true);
 
       if (isLoaded(auth) && auth.uid !== uid) {
@@ -119,16 +127,45 @@ export default function CommunityEdit() {
       }
     });
 
-  const handlePublicChange = (event) => {
-    if (publicFlg) {
+  const handlePublicChangeGlobal = (event) => {
+    console.log(publicFlgGlobal);
+    if (publicFlgGlobal) {
       db.collection("communities").doc(communityId).update({ public: false });
-      setPublic(false);
-      setSnackMsg("非公開にしました。");
+      setPublicGlobal(false);
+      setSnackMsg("設定を変更しました。");
       setOpenSnack(true);
     } else {
       db.collection("communities").doc(communityId).update({ public: true });
-      setPublic(true);
-      setSnackMsg("公開にしました。");
+      setPublicGlobal(true);
+      setSnackMsg("設定を変更しました。");
+      setOpenSnack(true);
+    }
+  };
+  const handlePublicChangePosii = (event) => {
+    console.log(publicFlgPosii);
+    if (publicFlgPosii) {
+      db.collection("communities").doc(communityId).update({ publicFlgPosii: false });
+      setPublicPosii(false);
+      setSnackMsg("設定を変更しました。");
+      setOpenSnack(true);
+    } else {
+      db.collection("communities").doc(communityId).update({ publicFlgPosii: true });
+      setPublicPosii(true);
+      setSnackMsg("設定を変更しました。");
+      setOpenSnack(true);
+    }
+  };
+  const handlePublicChangeHide = (event) => {
+    console.log(publicFlgHide);
+    if (publicFlgHide) {
+      db.collection("communities").doc(communityId).update({ publicFlgHide: false });
+      setPublicHide(false);
+      setSnackMsg("設定を変更しました。");
+      setOpenSnack(true);
+    } else {
+      db.collection("communities").doc(communityId).update({ publicFlgHide: true });
+      setPublicHide(true);
+      setSnackMsg("設定を変更しました。");
       setOpenSnack(true);
     }
   };
@@ -349,7 +386,37 @@ export default function CommunityEdit() {
                         }}
                       />
                     </div>
-                    <div>
+                    <FormControlLabel
+                      control=
+                        {
+                          <Checkbox
+                            checked={publicFlgGlobal}
+                            onChange={handlePublicChangeGlobal}
+                            color="primary"
+                          />}
+                        label="一般公開"
+                      />
+                    <FormControlLabel
+                      control=
+                        {
+                          <Checkbox
+                            checked={publicFlgPosii}
+                            onChange={handlePublicChangePosii} 
+                            color="primary"
+                          />}
+                        label="POSII公開"
+                      />
+                    <FormControlLabel
+                      control=
+                        {
+                          <Checkbox
+                            checked={publicFlgHide}
+                            onChange={handlePublicChangeHide} 
+                            color="primary"
+                          />}
+                        label="非公開"
+                      />
+                    {/* <div>
                       <Typography
                         gutterBottom
                         variant="body2"
@@ -364,7 +431,7 @@ export default function CommunityEdit() {
                         name="public"
                         inputProps={{ "aria-label": "secondary checkbox" }}
                       />
-                    </div>
+                    </div> */}
 
                     {uploaded ? (
                       <Button
@@ -386,7 +453,7 @@ export default function CommunityEdit() {
                 </div>
               </CardContent>
             </Card>
-            {!publicFlg && <UserList id={communityId} />}
+            {/* {!publicFlg && <UserList id={communityId} />} */}
             <Box mt={8}>
               <Copyright />
             </Box>
