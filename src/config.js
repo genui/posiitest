@@ -10,7 +10,7 @@
 //   measurementId: "G-8FFYJ89XR2"
 // };
 
-// 検証環境（無料枠を超えてしまったようで、動きが少し鈍い感じがします。）
+// // 検証環境（無料枠を超えてしまったようで、動きが少し鈍い感じがします。）
 export const firebase = {
   apiKey: "AIzaSyCZ2vG51z38Ut9kFvUKbwjxtbpHi0B50Aw",
   authDomain: "sample-posii.firebaseapp.com",

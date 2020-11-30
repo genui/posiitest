@@ -199,7 +199,7 @@ export default function GestCommunitiesTimeline() {
             >
               {communityName}{" "}
               <span style={{ fontSize: 15 }}>
-                {!communityPublicGlobal && " 非公開"}
+                {!communityPublic && " 非公開"}
               </span>
             </Typography>
             <Linkify>
@@ -212,7 +212,7 @@ export default function GestCommunitiesTimeline() {
                 {communityText}
               </Typography>
             </Linkify>
-            {!communityPublicGlobal　&& (
+            {!communityPublic　&& (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
                   ※このページは非公開です。
@@ -235,7 +235,7 @@ export default function GestCommunitiesTimeline() {
           </CardContent>
         </Card>
         
-        {!communityPublicGlobal ? (
+        {!communityPublic ? (
           <div></div>
         ) : !isLoaded(posts) ? (
           <div></div>

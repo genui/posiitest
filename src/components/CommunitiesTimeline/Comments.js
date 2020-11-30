@@ -355,7 +355,7 @@ export default function Comments(props) {
         comments.map((comment) => (
           <CardContent>
             <Grid container spacing={3}>
- 
+
               <Grid item xs={1}>
               <Link to={{ 
                 pathname: `/user/${comment.uid}`, 

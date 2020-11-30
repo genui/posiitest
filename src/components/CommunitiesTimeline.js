@@ -142,28 +142,31 @@ export default function CommunitiesTimeline() {
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
     });
+    
+    let user = firebase.auth().currentUser;
 
 
-
-    // db.collection("communities")
-    // .doc(communityId)
-    // .collection("members")
-    // .doc(auth.uid)
-    // .get()
-    // .then(function (doc) {
-    //   if (doc.data()) {
-    //     setCommunityRole(doc.data().role);
-    //     if (communityRole === "regist") {
-    //       setCommunityButton(false);
-    //     }
-    //   }
-    //   console.log(communityPublic);
-    //   if (communityPublic === true || communityRole === "member") {
-    //     setCommunityDisplay(true);
-    //   } else {
-    //     setCommunityDisplay(false);
-    //   }
-    // });
+  if (user) {
+    db.collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(auth.uid)
+      .get()
+      .then(function (doc) {
+        if (doc.data()) {
+          setCommunityRole(doc.data().role);
+          if (communityRole === "regist") {
+            setCommunityButton(false);
+          }
+        }
+        console.log(communityPublic);
+        if (communityPublic === true || communityRole === "member") {
+          setCommunityDisplay(true);
+        } else {
+          setCommunityDisplay(false);
+        }
+      });
+  }
 
 
 
@@ -230,18 +233,25 @@ export default function CommunitiesTimeline() {
                 return `${filePre[0]}_1000x1000.${filePre[1]}`;
               }
 
+              console.log('upload開始');
               storageRef
                 .child(imageRef)
                 .put(postImage)
                 .then((snapshot) => {
-                  const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                  console.log('thumbnail開始');
+                  //本番環境
+                  // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                 //テスト環境
+                  const uploadedPath = `${filePre}-${thumbnailName(
                     fileName
                   )}`;
                   setTimeout(() => {
+                    console.log('url開始');
                     storageRef
                       .child(uploadedPath)
                       .getDownloadURL()
                       .then(function (url) {
+                        console.log(url);
                         db.collection("communities")
                           .doc(communityId)
                           .collection("posts")
