@@ -63,6 +63,8 @@ export default function App() {
   if (isLoaded(auth)) {
     if (auth.uid) {
       return <Redirect to="/communities" />;
+    } else {
+      return <Redirect to="/gestcommunities" />;
     }
   }
   return (

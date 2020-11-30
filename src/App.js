@@ -14,7 +14,8 @@ import { createFirestoreInstance } from "redux-firestore";
 import { useSelector } from "react-redux";
 import configureStore from "./store";
 import { firebase as fbConfig, reduxFirebase as rfConfig } from "./config";
-import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { sampleuser } from "./config";
+import { BrowserRouter, Switch, Route, Redirect, Link } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
@@ -31,6 +32,11 @@ import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
 import { PinDropSharp } from "@material-ui/icons";
+import { useFirebase } from "react-redux-firebase";
+import GestCommunities from "./components/GestCommunitiesTimeline/GestCommunities";
+import GestCommunitiesTimeline from "./components/GestCommunitiesTimeline";
+import GestComments from "./components/GestCommunitiesTimeline/GestComments";
+
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -40,38 +46,39 @@ const firestore = firebase.firestore();
 firestore.settings({
   timestampsInSnapshots: true,
 });
-
 firebase.firestore();
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector((state) => state.firebase.auth);
+  // console.log(props);
+  // console.log('testだよ');
+  // this.props.history.push('/gestcosmmunities');
   return (
     <Route
       {...rest}
-      render={({ location }) =>
-        isLoaded(auth) && !isEmpty(auth) ? (
+      render={( location ) =>
+        isLoaded(auth) ? (
           children
         ) : (
-          <Redirect
-            to={{
-              pathname: "",
-              state: { from: location },
-            }}
-          />
+          <Route exact path="/" />
+          // <Redirect
+          // exact path="/gestcommunities/:communityId"
+          // />
         )
       }
     />
   );
 }
 
+
 function AuthIsLoaded({ children }) {
   const auth = useSelector((state) => state.firebase.auth);
   if (!isLoaded(auth))
     return (
       <div>
-        <MuiThemeProvider theme={theme}>
+        <PrivateRoute theme={theme}>
           <Header />
-        </MuiThemeProvider>
+        </PrivateRoute>
       </div>
     );
   return children;
@@ -91,6 +98,12 @@ function App() {
             <MuiThemeProvider theme={theme}>
               <Header />
               <Switch>
+                <Route exact path="/gestcommunities">
+                  <GestCommunities exact path="/gestcommunities" />
+                </Route>
+                <Route exact path="/gestcommunities/:communityId">
+                  <GestCommunitiesTimeline  exact path="/gestcommunities/:communityId"/>
+                </Route>
                 <Route path="/signin" component={SignIn} />
                 <Route path="/signup" component={SignUp} />
                 <Route path="/password_reminder" component={PasswordReminder} />
@@ -100,9 +113,9 @@ function App() {
                 <PrivateRoute exact path="/notifications">
                   <Notifications />
                 </PrivateRoute>
-                <PrivateRoute exact path="/communities">
-                  <Communities />
-                </PrivateRoute>
+                <Route exact path="/communities">
+                  <Communities exact path="/communities" />
+                </Route>
                 <PrivateRoute
                   exact
                   path="/communities/:communityId/posts/:postId"
@@ -115,9 +128,9 @@ function App() {
                 <PrivateRoute exact path="/communities/edit/:communityId">
                   <CommunitiesEdit />
                 </PrivateRoute>
-                <PrivateRoute exact path="/communities/:communityId">
-                  <CommunitiesTimeline />
-                </PrivateRoute>
+                <Route exact path="/communities/:communityId">
+                  <CommunitiesTimeline  exact path="/communities/:communityId"/>
+                </Route>    
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
                 </PrivateRoute>

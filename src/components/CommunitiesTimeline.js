@@ -20,7 +20,6 @@ import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Linkify from "material-ui-linkify";
 
-
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#f8f8f8",
@@ -98,9 +97,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     marginBottom: 20,
   },
-  textarea: {
-    height:100
-  }
 }));
 
 export default function CommunitiesTimeline() {
@@ -108,7 +104,6 @@ export default function CommunitiesTimeline() {
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
-
   firebase.firestore();
   useFirestoreConnect([
     {
@@ -138,6 +133,7 @@ export default function CommunitiesTimeline() {
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
+
   db.collection("communities")
     .doc(communityId)
     .get()
@@ -146,25 +142,35 @@ export default function CommunitiesTimeline() {
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
     });
+    
+    let user = firebase.auth().currentUser;
 
-  db.collection("communities")
-    .doc(communityId)
-    .collection("members")
-    .doc(auth.uid)
-    .get()
-    .then(function (doc) {
-      if (doc.data()) {
-        setCommunityRole(doc.data().role);
-        if (communityRole === "regist") {
-          setCommunityButton(false);
+
+  if (user) {
+    db.collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(auth.uid)
+      .get()
+      .then(function (doc) {
+        if (doc.data()) {
+          setCommunityRole(doc.data().role);
+          if (communityRole === "regist") {
+            setCommunityButton(false);
+          }
         }
-      }
-      if (communityPublic === true || communityRole === "member") {
-        setCommunityDisplay(true);
-      } else {
-        setCommunityDisplay(false);
-      }
-    });
+        console.log(communityPublic);
+        if (communityPublic === true || communityRole === "member") {
+          setCommunityDisplay(true);
+        } else {
+          setCommunityDisplay(false);
+        }
+      });
+  }
+
+
+
+
 
   const handleContentChange = (event) => {
     setContent(event.target.value);
@@ -227,18 +233,25 @@ export default function CommunitiesTimeline() {
                 return `${filePre[0]}_1000x1000.${filePre[1]}`;
               }
 
+              console.log('upload開始');
               storageRef
                 .child(imageRef)
                 .put(postImage)
                 .then((snapshot) => {
-                  const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                  console.log('thumbnail開始');
+                  //本番環境
+                  // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                 //テスト環境
+                  const uploadedPath = `${filePre}-${thumbnailName(
                     fileName
                   )}`;
                   setTimeout(() => {
+                    console.log('url開始');
                     storageRef
                       .child(uploadedPath)
                       .getDownloadURL()
                       .then(function (url) {
+                        console.log(url);
                         db.collection("communities")
                           .doc(communityId)
                           .collection("posts")
@@ -296,36 +309,6 @@ export default function CommunitiesTimeline() {
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
-  // let mentionuser = [];
-  // db.collection("profile").get().then(value =>{
-  //   const usercount = value.docs.length;
-  //   for(let i=0; i<usercount; i++){
-  //     let id = value.docs[i].id
-  //     db.collection('profile').doc(id).get().then(val => 
-  //       {
-  //       let displayName = val.data().displayName
-  //       let subusermention = {
-  //         "id": id,
-  //         "display": displayName
-  //       }
-  //       let testarray = [];
-  //       mentionuser.push(
-  //         {
-  //           'id':id,
-  //           'displayName':displayName
-  //         }
-  //       )
-  //       testarray = allusermention.concat(subusermention)
-  //       // console.log(testarray[0]);
-  //       // mentionuser.push(testarray);
-  //       console.log(testarray);
-  //     })
-  //   }
-  // });
-
-  // console.log(mentionuser,'ユーザ取得');
-  // console.log(typeof(mentionuser));
-  
 
   return (
     <div className={classes.root}>
@@ -376,11 +359,9 @@ export default function CommunitiesTimeline() {
             )}
           </CardContent>
         </Card>
-        
         {communityDisplay && (
           <Card className={classes.card} style={{ marginBottom: 30 }}>
             <CardContent>
-
               <Grid container spacing={3}>
                 <Grid item xs="2">
                   <Avatar
@@ -390,7 +371,6 @@ export default function CommunitiesTimeline() {
                     style={{ marginTop: 30 }}
                   />
                 </Grid>
-
                 <Grid item xs="10" style={{ marginTop: 20 }}>
                   <TextField
                     id="standard-basic"
@@ -401,12 +381,7 @@ export default function CommunitiesTimeline() {
                     rowsMax={5}
                     onChange={handleContentChange}
                     value={content}
-                  /> 
-
-                  {/* <Mentioneds data={mentionuser} 
-                  value={content} 
-                  onChange={handleContentChange} /> */}
-
+                  />
                   <div>
                     <Grid container spacing={3}>
                       <Grid

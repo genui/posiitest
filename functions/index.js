@@ -140,7 +140,6 @@ exports.communitiesPostLikeCount = functions.firestore
   .onCreate((change, context) => {
     const FieldValue = admin.firestore.FieldValue;
     const { communityId, postId, userId } = context.params;
-
     const res1 = db
       .collection("communities")
       .doc(communityId)
@@ -181,9 +180,21 @@ exports.communitiesPostLikeCount = functions.firestore
               });
             });
         }
+
+        db.collection('users').doc(postUid).get().then(function (doc3){
+          db.collection('mail').add({
+              to: doc3.data().email,
+              message: {
+                subject: 'POSIIからのお知らせです!!',
+                html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                },
+              });
+
+        })
+
       });
 
-    return res1, res2;
+    return res1, res2, res3;
   });
 
 exports.CommunityCommentLikeCount = functions.firestore
@@ -194,7 +205,6 @@ exports.CommunityCommentLikeCount = functions.firestore
     const FieldValue = admin.firestore.FieldValue;
     const { communityId, postId, commentId, userId } = context.params;
     let flg = true;
-
     const res1 = db
       .collection("communities")
       .doc(communityId)
@@ -221,6 +231,7 @@ exports.CommunityCommentLikeCount = functions.firestore
               }
             });
           });
+        
       });
 
     const res2 = db
@@ -257,6 +268,16 @@ exports.CommunityCommentLikeCount = functions.firestore
                 notification: true,
               });
             });
+            db.collection('users').doc(commentUid).get().then(function (doc3){
+              db.collection('mail').add({
+                  to: doc3.data().email,
+                  message: {
+                    subject: 'POSIIからのお知らせです!!',
+                    html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                    },
+                  });
+    
+            })
         }
       });
 
@@ -274,6 +295,7 @@ exports.CommunityCommentUpdate = functions.firestore
 
     return res1;
   });
+
 
 exports.CommunityPostUpdate = functions.firestore
   .document("communities/{communityId}/posts/{postId}")
@@ -317,6 +339,16 @@ exports.CommunityComment = functions.firestore
           db.collection("users").doc(postUid).update({
             notification: true,
           });
+          db.collection('users').doc(postUid).get().then(function (doc3){
+            db.collection('mail').add({
+                to: doc3.data().email,
+                message: {
+                  subject: 'POSIIからのお知らせです!!',
+                  html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                  },
+                });
+  
+          })
         }
       });
 
@@ -341,6 +373,8 @@ exports.CommunityCreate = functions.firestore
 
     return res1;
   });
+
+  
 
 exports.CommunityMember = functions.firestore
   .document("communities/{communityId}/members/{userId}")
