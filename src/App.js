@@ -47,6 +47,33 @@ firestore.settings({
   timestampsInSnapshots: true,
 });
 firebase.firestore();
+const userData = [
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  },
+]
+// メンション用ユーザ情報取得
+const db = firebase.firestore();
+db.collection("profile")
+.get()
+.then(user => {
+  for (let i = 0; i < user.docs.length; i++) {
+    const userId = user.docs[i].id;
+    db.collection('profile')
+    .doc(userId).get().then(displayName => {
+      const displayUserName = displayName.data().displayName;
+      userData.unshift({
+        id: userId,
+        display: displayUserName
+      });
+    })
+  }
+})
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector((state) => state.firebase.auth);
@@ -129,8 +156,8 @@ function App() {
                   <CommunitiesEdit />
                 </PrivateRoute>
                 <Route exact path="/communities/:communityId">
-                  <CommunitiesTimeline  exact path="/communities/:communityId"/>
-                </Route>    
+                  <CommunitiesTimeline  exact path="/communities/:communityId" data={userData} />
+                </Route>
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
                 </PrivateRoute>

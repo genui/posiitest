@@ -100,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CommunitiesTimeline() {
+export default function CommunitiesTimeline(data) {
   const { communityId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
@@ -135,6 +135,7 @@ export default function CommunitiesTimeline() {
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
 
+
   const users = [
     {
       id: 'walter',
@@ -153,7 +154,7 @@ export default function CommunitiesTimeline() {
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
     });
-    
+
     let user = firebase.auth().currentUser;
 
 
@@ -393,7 +394,7 @@ export default function CommunitiesTimeline() {
                     placeholder={"'@'でメンションできます！"}
                   >
                     <Mention
-                    data={users}
+                    data={data.data}
                     // onAdd={onAdd}
                     // style={defaultMentionStyle}
                     />
