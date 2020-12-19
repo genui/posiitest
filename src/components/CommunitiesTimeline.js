@@ -19,6 +19,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Linkify from "material-ui-linkify";
+import { MentionsInput, Mention } from 'react-mentions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -134,6 +135,16 @@ export default function CommunitiesTimeline() {
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
 
+  const users = [
+    {
+      id: 'walter',
+      display: 'Walter White',
+    },
+    {
+      id: 'jesse',
+      display: 'Jesse Pinkman',
+    },
+  ]
   db.collection("communities")
     .doc(communityId)
     .get()
@@ -206,80 +217,72 @@ export default function CommunitiesTimeline() {
       const params = { text: content };
       const url = "https://myflaskapi1234321.herokuapp.com/";
       axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
-
       axios
-        .get(url, { params })
-        .then((results) => {
-          if (results.data.result === "5" || results.data.result === "4") {
-            setOpenSnack(true);
-            setPostMsg("ポジティブな投稿をお願いします。");
-            setPosted(true);
-          } else {
-            setPosted(false);
-            if (postImage.name) {
-              const filePath = "postImage";
-              const date = new Date();
-              const a = date.getTime();
-              const b = Math.floor(a / 1000);
-              const storageRef = firebase.storage().ref(filePath);
-              const filePre = `${b}-${profile.username}`;
-              const fileName = postImage.name;
-              const imageRef = `${filePre}-${fileName}`;
-              function splitExt(filename) {
-                return filename.split(/\.(?=[^.]+$)/);
-              }
-              function thumbnailName(filename) {
-                const filePre = splitExt(filename);
-                return `${filePre[0]}_1000x1000.${filePre[1]}`;
-              }
-
-              console.log('upload開始');
-              storageRef
-                .child(imageRef)
-                .put(postImage)
-                .then((snapshot) => {
-                  console.log('thumbnail開始');
-                  //本番環境
-                  // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
-                 //テスト環境
-                  const uploadedPath = `${filePre}-${thumbnailName(
-                    fileName
-                  )}`;
-                  setTimeout(() => {
-                    console.log('url開始');
-                    storageRef
-                      .child(uploadedPath)
-                      .getDownloadURL()
-                      .then(function (url) {
-                        console.log(url);
-                        db.collection("communities")
-                          .doc(communityId)
-                          .collection("posts")
-                          .add({
-                            uid: auth.uid,
-                            avatar: profile.avatar,
-                            displayName: profile.displayName,
-                            postImage: url,
-                            username: profile.username,
-                            content: content,
-                            createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                            likeCount: 0,
-                          });
-                        setPosted(true);
-                        setContent("");
-                        setPostImage("");
-                        setPostMsg("投稿が完了しました。");
-                        setOpenSnack(true);
-                      });
-                  }, 5000);
-                })
-                .catch((error) => {
-                  setPosted(true);
-                  setPostImage("");
-                  setPostMsg("10MB以下の画像をお願いします。");
-                  setOpenSnack(true);
-                });
-            } else {
+      .get(url, { params })
+      .then((results) => {
+        if (results.data.result === "5" || results.data.result === "4") {
+          setOpenSnack(true);
+          setPostMsg("ポジティブな投稿をお願いします。");
+          setPosted(true);
+        } else {
+          setPosted(false);
+          if (postImage.name) {
+            const filePath = "postImage";
+            const date = new Date();
+            const a = date.getTime();
+            const b = Math.floor(a / 1000);
+            const storageRef = firebase.storage().ref(filePath);
+            const filePre = `${b}-${profile.username}`;
+            const fileName = postImage.name;
+            const imageRef = `${filePre}-${fileName}`;
+            function splitExt(filename) {
+              return filename.split(/\.(?=[^.]+$)/);
+            }
+            function thumbnailName(filename) {
+              const filePre = splitExt(filename);
+              return `${filePre[0]}_2000x2000.${filePre[1]}`;
+            }
+            storageRef
+              .child(imageRef)
+              .put(postImage)
+              .then((snapshot) => {
+                // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                const uploadedPath = `${filePre}-${thumbnailName(
+                  fileName
+                )}`;
+                setTimeout(() => {
+                  console.log('アップロード開始');
+                  storageRef
+                    .child(uploadedPath)
+                    .getDownloadURL()
+                    .then(function (url) {
+                      db.collection("communities")
+                        .doc(communityId)
+                        .collection("posts")
+                        .add({
+                          uid: auth.uid,
+                          avatar: profile.avatar,
+                          displayName: profile.displayName,
+                          postImage: url,
+                          username: profile.username,
+                          content: content,
+                          createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                          likeCount: 0,
+                        });
+                      setPosted(true);
+                      setContent("");
+                      setPostImage("");
+                      setPostMsg("投稿が完了しました。");
+                      setOpenSnack(true);
+                    });
+                }, 5000);
+              })
+              .catch((error) => {
+                setPosted(true);
+                setPostImage("");
+                setPostMsg("10MB以下の画像をお願いします。");
+                setOpenSnack(true);
+              });            } else {
               db.collection("communities")
                 .doc(communityId)
                 .collection("posts")
@@ -372,7 +375,7 @@ export default function CommunitiesTimeline() {
                   />
                 </Grid>
                 <Grid item xs="10" style={{ marginTop: 20 }}>
-                  <TextField
+                  {/* <TextField
                     id="standard-basic"
                     label="投稿"
                     fullWidth
@@ -381,7 +384,20 @@ export default function CommunitiesTimeline() {
                     rowsMax={5}
                     onChange={handleContentChange}
                     value={content}
-                  />
+                  /> */}
+                  <MentionsInput
+                    singleLine
+                    value={content}
+                    onChange={handleContentChange}
+                    // style={defaultStyle}
+                    placeholder={"'@'でメンションできます！"}
+                  >
+                    <Mention
+                    data={users}
+                    // onAdd={onAdd}
+                    // style={defaultMentionStyle}
+                    />
+                  </MentionsInput>
                   <div>
                     <Grid container spacing={3}>
                       <Grid
