@@ -6,7 +6,6 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 const db = admin.firestore();
-
 exports.updateProfileUsername = functions.firestore
   .document("users/{userId}")
   .onUpdate((change, context) => {
@@ -186,7 +185,7 @@ exports.communitiesPostLikeCount = functions.firestore
               to: doc3.data().email,
               message: {
                 subject: 'POSIIからのお知らせです!!',
-                html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                html: 'コメントを褒められました！posiiを見にいきましょう！https://posii.ai/communities',
                 },
               });
 
@@ -273,7 +272,7 @@ exports.CommunityCommentLikeCount = functions.firestore
                   to: doc3.data().email,
                   message: {
                     subject: 'POSIIからのお知らせです!!',
-                    html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                    html: 'コメントを褒められました！！posiiを見にいきましょう！https://posii.ai/communities',
                     },
                   });
     

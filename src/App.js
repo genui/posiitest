@@ -56,6 +56,22 @@ const userData = [
     id: 'jesse',
     display: 'Jesse Pinkman',
   },
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  },
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  }
 ]
 // メンション用ユーザ情報取得
 const db = firebase.firestore();
@@ -77,9 +93,6 @@ db.collection("profile")
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector((state) => state.firebase.auth);
-  // console.log(props);
-  // console.log('testだよ');
-  // this.props.history.push('/gestcosmmunities');
   return (
     <Route
       {...rest}
@@ -96,7 +109,6 @@ function PrivateRoute({ children, ...rest }) {
     />
   );
 }
-
 
 function AuthIsLoaded({ children }) {
   const auth = useSelector((state) => state.firebase.auth);
@@ -156,7 +168,7 @@ function App() {
                   <CommunitiesEdit />
                 </PrivateRoute>
                 <Route exact path="/communities/:communityId">
-                  <CommunitiesTimeline  exact path="/communities/:communityId" data={userData} />
+                  <CommunitiesTimeline exact path="/communities/:communityId" data={userData} />
                 </Route>
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />

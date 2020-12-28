@@ -79,8 +79,13 @@ service cloud.firestore {
     }
     
     
+    
     match /profile/{userId}/notifications/{notificationId} {
     	allow read,write: if request.auth.uid == userId;
+    }
+    
+    match /mail/{userId} {
+    	allow read,write: if true;
     }
     
   }

@@ -20,6 +20,8 @@ import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Linkify from "material-ui-linkify";
 import { MentionsInput, Mention } from 'react-mentions';
+import defaultMentionStyle from './Style/defaultMentionStyle';
+import defaultStyle from './Style/defaultStyle';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -100,6 +102,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 export default function CommunitiesTimeline(data) {
   const { communityId } = useParams();
   const fileInput = useRef(null);
@@ -134,18 +137,12 @@ export default function CommunitiesTimeline(data) {
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
+  const [mentionFlag, setMentionFlag] = useState(false);
+  const [mentiondata, setMentiondata] = useState('');
 
 
-  const users = [
-    {
-      id: 'walter',
-      display: 'Walter White',
-    },
-    {
-      id: 'jesse',
-      display: 'Jesse Pinkman',
-    },
-  ]
+  console.log('読み込み');
+
   db.collection("communities")
     .doc(communityId)
     .get()
@@ -156,6 +153,7 @@ export default function CommunitiesTimeline(data) {
     });
 
     let user = firebase.auth().currentUser;
+    console.log('コレクションCommunities；');
 
 
   if (user) {
@@ -227,6 +225,17 @@ export default function CommunitiesTimeline(data) {
           setPosted(true);
         } else {
           setPosted(false);
+          if (mentionFlag) {
+            db.collection('users').doc(mentiondata).get().then(function (doc3){
+              db.collection('mail').add({
+                  to: doc3.data().email,
+                  message: {
+                    subject: 'POSIIからのお知らせです!!',
+                    html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+                    },
+                  });
+            })
+          }
           if (postImage.name) {
             const filePath = "postImage";
             const date = new Date();
@@ -241,8 +250,9 @@ export default function CommunitiesTimeline(data) {
             }
             function thumbnailName(filename) {
               const filePre = splitExt(filename);
-              return `${filePre[0]}_2000x2000.${filePre[1]}`;
+              return `${filePre[0]}_800x800.${filePre[1]}`;
             }
+
             storageRef
               .child(imageRef)
               .put(postImage)
@@ -314,6 +324,10 @@ export default function CommunitiesTimeline(data) {
     setOpenSnack(false);
   };
 
+  const mentionSet = (args) =>{
+    setMentionFlag(true);
+    setMentiondata(args);
+  }
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
@@ -387,16 +401,16 @@ export default function CommunitiesTimeline(data) {
                     value={content}
                   /> */}
                   <MentionsInput
-                    singleLine
                     value={content}
                     onChange={handleContentChange}
-                    // style={defaultStyle}
+                    style={defaultStyle}
                     placeholder={"'@'でメンションできます！"}
                   >
                     <Mention
                     data={data.data}
-                    // onAdd={onAdd}
-                    // style={defaultMentionStyle}
+                    onAdd={mentionSet}
+                    markup='@__display__'
+                    style={defaultMentionStyle}
                     />
                   </MentionsInput>
                   <div>
