@@ -19,9 +19,10 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Linkify from "material-ui-linkify";
-import { MentionsInput, Mention } from 'react-mentions';
+import { MentionsInput, Mention } from '../src/'
 import defaultMentionStyle from './Style/defaultMentionStyle';
 import defaultStyle from './Style/defaultStyle';
+import SingleLine from './examples/SingleLine';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -103,21 +104,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
+
 export default function CommunitiesTimeline(data) {
   const { communityId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
   firebase.firestore();
-  useFirestoreConnect([
-    {
-      collection: "communities",
-      doc: communityId,
-      subcollections: [{ collection: "posts" }],
-      orderBy: ["createTime", "desc"],
-      storeAs: `posts-${communityId}`,
-    },
-  ]);
+
+  // useFirestoreConnect([
+  //   {
+  //     collection: "communities",
+  //     doc: communityId,
+  //     subcollections: [{ collection: "posts" }],
+  //     orderBy: ["createTime", "desc"],
+  //     storeAs: `posts-${communityId}`,
+  //   },
+  // ]);
 
   const posts = useSelector(
     (state) => state.firestore.ordered[`posts-${communityId}`]
@@ -390,7 +393,7 @@ export default function CommunitiesTimeline(data) {
                   />
                 </Grid>
                 <Grid item xs="10" style={{ marginTop: 20 }}>
-                  {/* <TextField
+                  <TextField
                     id="standard-basic"
                     label="投稿"
                     fullWidth
@@ -399,8 +402,8 @@ export default function CommunitiesTimeline(data) {
                     rowsMax={5}
                     onChange={handleContentChange}
                     value={content}
-                  /> */}
-                  <MentionsInput
+                  />
+                  {/* <MentionsInput
                     value={content}
                     onChange={handleContentChange}
                     style={defaultStyle}
@@ -412,7 +415,11 @@ export default function CommunitiesTimeline(data) {
                     markup='@__display__'
                     style={defaultMentionStyle}
                     />
-                  </MentionsInput>
+                  </MentionsInput> */}
+
+
+
+
                   <div>
                     <Grid container spacing={3}>
                       <Grid
@@ -440,7 +447,7 @@ export default function CommunitiesTimeline(data) {
                         item
                         xs="4"
                         sm="6"
-                        style={{ marginTop: 20, textAlign: "right" }}
+                        style={{ marginTop: 20,  textAlign: "right" }}
                       >
                         {posted ? (
                           <Button
@@ -459,6 +466,7 @@ export default function CommunitiesTimeline(data) {
                         )}
                       </Grid>
                     </Grid>
+                    <SingleLine data={data.data}></SingleLine>
                   </div>
                 </Grid>
               </Grid>

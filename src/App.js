@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 import configureStore from "./store";
 import { firebase as fbConfig, reduxFirebase as rfConfig } from "./config";
 import { sampleuser } from "./config";
-import { BrowserRouter, Switch, Route, Redirect, Link } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect, Link, useParams } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
@@ -32,11 +32,11 @@ import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
 import { PinDropSharp } from "@material-ui/icons";
-import { useFirebase } from "react-redux-firebase";
+import { useFirebase, useFirestoreConnect } from "react-redux-firebase";
 import GestCommunities from "./components/GestCommunitiesTimeline/GestCommunities";
 import GestCommunitiesTimeline from "./components/GestCommunitiesTimeline";
 import GestComments from "./components/GestCommunitiesTimeline/GestComments";
-
+import SingleLine from "./components/examples/SingleLine";
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -47,6 +47,8 @@ firestore.settings({
   timestampsInSnapshots: true,
 });
 firebase.firestore();
+
+
 const userData = [
   {
     id: 'walter',
@@ -57,20 +59,20 @@ const userData = [
     display: 'Jesse Pinkman',
   },
   {
-    id: 'walter',
-    display: 'Walter White',
+    id: 'walter2',
+    display: 'Walter White2',
   },
   {
-    id: 'jesse',
-    display: 'Jesse Pinkman',
+    id: 'jesse2',
+    display: 'Jesse Pinkman2',
   },
   {
-    id: 'walter',
-    display: 'Walter White',
+    id: 'walter3',
+    display: 'Walter White3',
   },
   {
-    id: 'jesse',
-    display: 'Jesse Pinkman',
+    id: 'jesse4',
+    display: 'Jesse Pinkman4',
   }
 ]
 // メンション用ユーザ情報取得
@@ -90,6 +92,7 @@ db.collection("profile")
     })
   }
 })
+
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector((state) => state.firebase.auth);

@@ -19,6 +19,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Snackbar from "@material-ui/core/Snackbar";
 import Linkify from "material-ui-linkify";
+import SingleLine from "../components/examples/SingleLine"
 
 const useStyles = makeStyles({
   paper: {
@@ -95,7 +96,7 @@ export default function Communities() {
 
 
   const classes = useStyles();
-  
+
   const cuse = firebase.auth().currentUser;
   if (cuse != null) {
     const currentuser= firebase.auth().currentUser.uid;
