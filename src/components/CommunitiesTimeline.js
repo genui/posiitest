@@ -109,15 +109,15 @@ export default function CommunitiesTimeline(data) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   firebase.firestore();
-  useFirestoreConnect([
-    {
-      collection: "communities",
-      doc: communityId,
-      subcollections: [{ collection: "posts" }],
-      orderBy: ["createTime", "desc"],
-      storeAs: `posts-${communityId}`,
-    },
-  ]);
+  // useFirestoreConnect([
+  //   {
+  //     collection: "communities",
+  //     doc: communityId,
+  //     subcollections: [{ collection: "posts" }],
+  //     orderBy: ["createTime", "desc"],
+  //     storeAs: `posts-${communityId}`,
+  //   },
+  // ]);
 
   const posts = useSelector(
     (state) => state.firestore.ordered[`posts-${communityId}`]
@@ -139,9 +139,12 @@ export default function CommunitiesTimeline(data) {
   const classes = useStyles();
   const [mentionFlag, setMentionFlag] = useState(false);
   const [mentiondata, setMentiondata] = useState('');
+  
+  const [mentioncontent, setMentioncontent] = useState("");
+  const [mentioncontentflag, setMentioncontentflag] = useState(false);
 
+  const [dataId, setdataId] = useState('');
 
-  console.log('読み込み');
 
   db.collection("communities")
     .doc(communityId)
@@ -153,9 +156,6 @@ export default function CommunitiesTimeline(data) {
     });
 
     let user = firebase.auth().currentUser;
-    console.log('コレクションCommunities；');
-
-
   if (user) {
     db.collection("communities")
       .doc(communityId)
@@ -169,7 +169,6 @@ export default function CommunitiesTimeline(data) {
             setCommunityButton(false);
           }
         }
-        console.log(communityPublic);
         if (communityPublic === true || communityRole === "member") {
           setCommunityDisplay(true);
         } else {
@@ -184,6 +183,18 @@ export default function CommunitiesTimeline(data) {
 
   const handleContentChange = (event) => {
     setContent(event.target.value);
+    if(event.target.value.match(/@/)) {
+
+      if(event.target.value.match(/ /) || event.target.value.match(/　/)){
+        console.log('キャンセルテスト');
+        setMentioncontentflag(false)
+      } else {
+        console.log('@テスト');
+        setMentioncontentflag(true)
+        setMentioncontent(event.target.value)
+      }
+    }
+    console.log(mentioncontent);
   };
 
   const handleImageChange = (event) => {
@@ -209,8 +220,45 @@ export default function CommunitiesTimeline(data) {
     setPostMsg("参加申請をしました。");
     setOpenSnack(true);
   };
-
   const handleContentSubmit = () => {
+    let userCount =0;
+    let userDisplayName = '';
+    if (content.match(/@/)){
+      userDisplayName = mentioncontent.slice(1)
+      console.log(data.data);
+    }
+    for (let i = 0; i < data.data.length; i++){
+      console.log(data.data[i].display);
+      if (data.data[i].display === userDisplayName){
+        userCount += 1;
+        setdataId(data.data[i].id);
+      }
+    }
+    if (userCount === 2) {
+      console.log('ユーザ二人います。');
+    } else {
+      sendMentionEmail(dataId,userCount)
+    }
+  }
+  const sendMentionEmail = (i,userCount) => {
+    try {
+      db.collection('users').doc(data.data[i].id).get().then(function (doc3){
+        db.collection('mail').add({
+            to: doc3.data().email,
+            message: {
+              subject: 'POSIIからのお知らせです!!',
+              html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+              },
+            });
+      })
+    } catch(e) {
+      console.log('存在しないユーザ。',userCount);
+    }
+  }
+
+
+
+  const handleContentSubmit2 = () => {
     if (content !== "") {
       setPosted(false);
       const params = { text: content };
@@ -225,17 +273,21 @@ export default function CommunitiesTimeline(data) {
           setPosted(true);
         } else {
           setPosted(false);
-          if (mentionFlag) {
-            db.collection('users').doc(mentiondata).get().then(function (doc3){
-              db.collection('mail').add({
-                  to: doc3.data().email,
-                  message: {
-                    subject: 'POSIIからのお知らせです!!',
-                    html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-                    },
-                  });
-            })
-          }
+          // if (mentionFlag) {
+          //   db.collection('users').doc(mentiondata).get().then(function (doc3){
+          //     db.collection('mail').add({
+          //         to: doc3.data().email,
+          //         message: {
+          //           subject: 'POSIIからのお知らせです!!',
+          //           html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+          //           },
+          //         });
+          //   })
+          // }
+          // if (content.match(/@/)){
+          //   let userDisplayName = mentioncontent.slice(1)
+          //   console.log(userDisplayName);
+          // }
           if (postImage.name) {
             const filePath = "postImage";
             const date = new Date();
@@ -390,7 +442,7 @@ export default function CommunitiesTimeline(data) {
                   />
                 </Grid>
                 <Grid item xs="10" style={{ marginTop: 20 }}>
-                  {/* <TextField
+                  <TextField
                     id="standard-basic"
                     label="投稿"
                     fullWidth
@@ -399,8 +451,8 @@ export default function CommunitiesTimeline(data) {
                     rowsMax={5}
                     onChange={handleContentChange}
                     value={content}
-                  /> */}
-                  <MentionsInput
+                  />
+                  {/* <MentionsInput
                     value={content}
                     onChange={handleContentChange}
                     style={defaultStyle}
@@ -412,7 +464,7 @@ export default function CommunitiesTimeline(data) {
                     markup='@__display__'
                     style={defaultMentionStyle}
                     />
-                  </MentionsInput>
+                  </MentionsInput> */}
                   <div>
                     <Grid container spacing={3}>
                       <Grid
