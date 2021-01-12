@@ -109,15 +109,15 @@ export default function CommunitiesTimeline(data) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   firebase.firestore();
-  // useFirestoreConnect([
-  //   {
-  //     collection: "communities",
-  //     doc: communityId,
-  //     subcollections: [{ collection: "posts" }],
-  //     orderBy: ["createTime", "desc"],
-  //     storeAs: `posts-${communityId}`,
-  //   },
-  // ]);
+  useFirestoreConnect([
+    {
+      collection: "communities",
+      doc: communityId,
+      subcollections: [{ collection: "posts" }],
+      orderBy: ["createTime", "desc"],
+      storeAs: `posts-${communityId}`,
+    },
+  ]);
 
   const posts = useSelector(
     (state) => state.firestore.ordered[`posts-${communityId}`]
@@ -144,6 +144,10 @@ export default function CommunitiesTimeline(data) {
   const [mentioncontentflag, setMentioncontentflag] = useState(false);
 
   const [dataId, setdataId] = useState('');
+  const [openuserSnack, setopenuserSnack] = useState(false);
+  const [avatarImg, setAvatarImg] = useState('');
+  const [avatar, setavatar] = useState('');
+  let userAvatar = []
 
 
   db.collection("communities")
@@ -221,6 +225,7 @@ export default function CommunitiesTimeline(data) {
     setOpenSnack(true);
   };
   const handleContentSubmit = () => {
+    let userconflict = [];
     let userCount =0;
     let userDisplayName = '';
     if (content.match(/@/)){
@@ -232,10 +237,32 @@ export default function CommunitiesTimeline(data) {
       if (data.data[i].display === userDisplayName){
         userCount += 1;
         setdataId(data.data[i].id);
+        db.collection('profile').doc(data.data[i].id).get().then(function (doc){
+          userconflict.push({avatarImg:doc.data().avatar})
+          // userAvatar.push(
+            // <Avatar
+            // aria-label="recipe"
+            // src={doc.data().avatar}
+            // className={classes.middle}
+            // style={{ marginTop: 30 }} />
+          // )
+          
+        })
       }
     }
+    console.log(userCount);
+    console.log(userconflict);
+
+    // setAvatarImg(userAvatar);
     if (userCount === 2) {
       console.log('ユーザ二人います。');
+      for (let i in userconflict) {
+        console.log(userconflict[i].avatarImg);
+      }
+      userAvatar.push(userconflict[0].avatarImg)
+      // setPostMsg(userAvatar[i]);
+      setopenuserSnack(true);
+      setPosted(true);
     } else {
       sendMentionEmail(dataId,userCount)
     }
@@ -253,6 +280,11 @@ export default function CommunitiesTimeline(data) {
       })
     } catch(e) {
       console.log('存在しないユーザ。',userCount);
+      if (userCount === 0) {
+        setOpenSnack(true)
+        setPostMsg(mentioncontent+'というユーザはいません！')
+        setPosted(true);
+      }
     }
   }
 
@@ -374,6 +406,7 @@ export default function CommunitiesTimeline(data) {
 
   const handleSnackClose = () => {
     setOpenSnack(false);
+    setopenuserSnack(false);
   };
 
   const mentionSet = (args) =>{
@@ -552,6 +585,23 @@ export default function CommunitiesTimeline(data) {
         autoHideDuration={5000}
         message={<span>{postMsg}</span>}
         ContentProps={{
+          classes: {
+            root: classes.snackbar,
+          },
+        }}
+      />
+      <Snackbar
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        open={openuserSnack}
+        onClose={handleSnackClose}
+        autoHideDuration={5000}
+        message={<span>
+          {userAvatar}
+          </span>}
+        ps={{
           classes: {
             root: classes.snackbar,
           },
