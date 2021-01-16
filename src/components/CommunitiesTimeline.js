@@ -22,6 +22,7 @@ import Linkify from "material-ui-linkify";
 import { MentionsInput, Mention } from 'react-mentions';
 import defaultMentionStyle from './Style/defaultMentionStyle';
 import defaultStyle from './Style/defaultStyle';
+import { Chip } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -100,6 +101,15 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     marginBottom: 20,
   },
+  coflictuser: {
+    marginTop:50,
+    marginBottom:10,
+    opacity:0.6,
+    fontWeight:"bold"
+  },
+  coflictuserlist: {
+    marginBottom:10
+  }
 }));
 
 
@@ -137,17 +147,14 @@ export default function CommunitiesTimeline(data) {
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
-  const [mentionFlag, setMentionFlag] = useState(false);
-  const [mentiondata, setMentiondata] = useState('');
-  
+  const [mentionFlag, setMentionFlag] = useState(false); 
   const [mentioncontent, setMentioncontent] = useState("");
   const [mentioncontentflag, setMentioncontentflag] = useState(false);
 
-  const [dataId, setdataId] = useState('');
-  const [openuserSnack, setopenuserSnack] = useState(false);
-  const [avatarImg, setAvatarImg] = useState('');
-  const [avatar, setavatar] = useState('');
-  let userAvatar = []
+  const [dataId, setdataId] = useState("");
+  const [mentiondata,setMentiondata] = useState("");
+  let [usersconflict,setUsersConflict] = useState([]);
+  let [selectUser,setSelectUser] = useState("");
 
 
   db.collection("communities")
@@ -198,8 +205,13 @@ export default function CommunitiesTimeline(data) {
         setMentioncontent(event.target.value)
       }
     }
-    console.log(mentioncontent);
   };
+
+  const conflictUserChoice = (id) => {
+    setMentiondata(id)
+    setMentionFlag(true)
+    handleContentSubmit2(id);
+  }
 
   const handleImageChange = (event) => {
     const file = event.target.files;
@@ -230,67 +242,109 @@ export default function CommunitiesTimeline(data) {
     let userDisplayName = '';
     if (content.match(/@/)){
       userDisplayName = mentioncontent.slice(1)
-      console.log(data.data);
-    }
-    for (let i = 0; i < data.data.length; i++){
-      console.log(data.data[i].display);
-      if (data.data[i].display === userDisplayName){
-        userCount += 1;
-        setdataId(data.data[i].id);
-        db.collection('profile').doc(data.data[i].id).get().then(function (doc){
-          userconflict.push({avatarImg:doc.data().avatar})
-          // userAvatar.push(
-            // <Avatar
-            // aria-label="recipe"
-            // src={doc.data().avatar}
-            // className={classes.middle}
-            // style={{ marginTop: 30 }} />
-          // )
-          
-        })
-      }
-    }
-    console.log(userCount);
-    console.log(userconflict);
 
-    // setAvatarImg(userAvatar);
-    if (userCount === 2) {
-      console.log('ユーザ二人います。');
-      for (let i in userconflict) {
-        console.log(userconflict[i].avatarImg);
+      setSelectUser(
+        <div className={classes.coflictuser}>
+        どの{userDisplayName}さんですか？
+        </div>
+      );
+      for (let i = 0; i < data.data.length; i++){
+        console.log(data.data[i].display);
+        if (data.data[i].display === userDisplayName){
+          userCount += 1;
+          setdataId(data.data[i].id);
+          db.collection('profile').doc(data.data[i].id).get().then(function (doc){
+            if (doc.data().profileText == null) {
+              userconflict.push(
+                {
+                  id: data.data[i].id,
+                  avatar:doc.data().avatar,
+                  profile:'コメントが設定されていません。'
+                })
+            } else {
+              let profileComment = doc.data().profileText.substr(0,15);
+              userconflict.push(
+                {
+                  id:data.data[i].id,
+                  avatar:doc.data().avatar,
+                  profile:profileComment+'...'
+                })
+            }
+            // userAvatar.push(
+              // <Avatar
+              // aria-label="recipe"
+              // src={doc.data().avatar}
+              // className={classes.middle}
+              // style={{ marginTop: 30 }} />
+            // )
+          })
+        }
       }
-      userAvatar.push(userconflict[0].avatarImg)
-      // setPostMsg(userAvatar[i]);
-      setopenuserSnack(true);
-      setPosted(true);
-    } else {
-      sendMentionEmail(dataId,userCount)
-    }
-  }
-  const sendMentionEmail = (i,userCount) => {
-    try {
-      db.collection('users').doc(data.data[i].id).get().then(function (doc3){
-        db.collection('mail').add({
-            to: doc3.data().email,
-            message: {
-              subject: 'POSIIからのお知らせです!!',
-              html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-              },
-            });
-      })
-    } catch(e) {
-      console.log('存在しないユーザ。',userCount);
-      if (userCount === 0) {
-        setOpenSnack(true)
-        setPostMsg(mentioncontent+'というユーザはいません！')
+
+      // setAvatarImg(userAvatar);
+      if (userCount >= 2) {
+        console.log('ユーザ二人います。');
+        setPostMsg('2人以上のユーザが見つかりました。')
+        setOpenSnack(true);
         setPosted(true);
+        setUsersConflict(userconflict)
+      } else {
+        if (userCount === 0){
+          setOpenSnack(true)
+          setPostMsg(mentioncontent+'というユーザはいません！')
+          setPosted(true);
+        }
       }
+    } else {
+      handleContentSubmit2()
+    }
+  }
+  const sendMentionEmail = (id) => {
+    console.log('Collection登録');
+    db.collection("mentionmail")
+    .doc(id)
+    .add({
+      mention: true,
+      uid: id
+    });
+    try {
+      // console.log(id,i,communityId);
+      // if (id === null) {
+      //   setMentiondata(data.data[i].id)
+      // }
+
+      // setTimeout(() => {
+      //   db.collection("communities")
+      //   .doc(communityId)
+      //   .collection("posts")
+      //   .add({
+      //     mention: true
+      //   });
+      // }, 1000);
+      // db.collection('mentionmail').add({
+      //   to: 'deragentogasi@ezweb.ne.jp',
+      //   message: {
+      //     subject: 'POSIIからのお知らせです!!',
+      //     html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+      //     },
+      //   });
+      // db.collection('users').doc(id).get().then(function (doc3){
+      //   db.collection('mail').add({
+      //       to: 'deragentogasi@ezweb.ne.jp',
+      //       message: {
+      //         subject: 'POSIIからのお知らせです!!',
+      //         html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+      //         },
+      //       });
+      // })
+    } catch(e) {
+      console.log('存在しないユーザ。');
     }
   }
 
 
 
-  const handleContentSubmit2 = () => {
+  const handleContentSubmit2 = (id) => {
     if (content !== "") {
       setPosted(false);
       const params = { text: content };
@@ -305,21 +359,10 @@ export default function CommunitiesTimeline(data) {
           setPosted(true);
         } else {
           setPosted(false);
-          // if (mentionFlag) {
-          //   db.collection('users').doc(mentiondata).get().then(function (doc3){
-          //     db.collection('mail').add({
-          //         to: doc3.data().email,
-          //         message: {
-          //           subject: 'POSIIからのお知らせです!!',
-          //           html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-          //           },
-          //         });
-          //   })
-          // }
-          // if (content.match(/@/)){
-          //   let userDisplayName = mentioncontent.slice(1)
-          //   console.log(userDisplayName);
-          // }
+          setMentionFlag(false);
+          setMentiondata('')
+          setUsersConflict([])
+          setSelectUser('')
           if (postImage.name) {
             const filePath = "postImage";
             const date = new Date();
@@ -363,6 +406,7 @@ export default function CommunitiesTimeline(data) {
                           content: content,
                           createTime: firebase.firestore.FieldValue.serverTimestamp(),
                           likeCount: 0,
+                          mention: false
                         });
                       setPosted(true);
                       setContent("");
@@ -371,6 +415,7 @@ export default function CommunitiesTimeline(data) {
                       setOpenSnack(true);
                     });
                 }, 5000);
+
               })
               .catch((error) => {
                 setPosted(true);
@@ -390,6 +435,7 @@ export default function CommunitiesTimeline(data) {
                   createTime: firebase.firestore.FieldValue.serverTimestamp(),
                   likeCount: 0,
                 });
+              sendMentionEmail(id)
               setPosted(true);
               setContent("");
               setPostMsg("投稿が完了しました。");
@@ -406,7 +452,6 @@ export default function CommunitiesTimeline(data) {
 
   const handleSnackClose = () => {
     setOpenSnack(false);
-    setopenuserSnack(false);
   };
 
   const mentionSet = (args) =>{
@@ -485,6 +530,19 @@ export default function CommunitiesTimeline(data) {
                     onChange={handleContentChange}
                     value={content}
                   />
+                  {selectUser}
+                  {usersconflict.map((val)=>
+                    <Chip
+                    　className={classes.coflictuserlist}
+                      onClick={() => conflictUserChoice(val.id)}
+                      label={val.profile}
+                      avatar={
+                        <Avatar
+                          src={val.avatar}
+                        />
+                      }/>
+                    )}
+
                   {/* <MentionsInput
                     value={content}
                     onChange={handleContentChange}
@@ -585,23 +643,6 @@ export default function CommunitiesTimeline(data) {
         autoHideDuration={5000}
         message={<span>{postMsg}</span>}
         ContentProps={{
-          classes: {
-            root: classes.snackbar,
-          },
-        }}
-      />
-      <Snackbar
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        open={openuserSnack}
-        onClose={handleSnackClose}
-        autoHideDuration={5000}
-        message={<span>
-          {userAvatar}
-          </span>}
-        ps={{
           classes: {
             root: classes.snackbar,
           },

@@ -303,6 +303,7 @@ export default function Comments(props) {
     },
   ]);
 
+
   const comments = useSelector(
     (state) => state.firestore.ordered[`comments-${props.id}`]
   );

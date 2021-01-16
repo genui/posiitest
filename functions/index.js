@@ -230,7 +230,7 @@ exports.CommunityCommentLikeCount = functions.firestore
               }
             });
           });
-        
+
       });
 
     const res2 = db
@@ -275,7 +275,7 @@ exports.CommunityCommentLikeCount = functions.firestore
                     html: 'コメントを褒められました！！posiiを見にいきましょう！https://posii.ai/communities',
                     },
                   });
-    
+
             })
         }
       });
@@ -307,6 +307,31 @@ exports.CommunityPostUpdate = functions.firestore
 
     return res1;
   });
+
+// exports.CommunityPostMention = functions.firestore
+//   .document("mentionmail")
+//   .onCreate((change, context) => {
+//     const { postId, communityId } = context.params;
+//     console.log("ファンクションメンション");
+//     const res1 = db
+//     .collection("mentionmail")
+//     .doc('id')
+//     .get()
+//     .then(function (doc) {
+//       const postUid = doc.data().uid;
+//       db.collection('users').doc(postUid).get().then(function (doc3){
+//         db.collection('mail').add({
+//             to: doc3.data().email,
+//             message: {
+//               subject: 'POSIIからのお知らせです!!',
+//               html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+//               },
+//             });
+//       })
+//     });
+
+//   return res1;
+//   });
 
 exports.CommunityComment = functions.firestore
   .document("communities/{communityId}/posts/{postId}/comments/{commentId}")
@@ -346,7 +371,6 @@ exports.CommunityComment = functions.firestore
                   html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/communities',
                   },
                 });
-  
           })
         }
       });
@@ -373,7 +397,6 @@ exports.CommunityCreate = functions.firestore
     return res1;
   });
 
-  
 
 exports.CommunityMember = functions.firestore
   .document("communities/{communityId}/members/{userId}")
@@ -408,3 +431,4 @@ exports.CommunityMember = functions.firestore
       });
     return res1;
   });
+
