@@ -243,11 +243,6 @@ export default function CommunitiesTimeline(data) {
     if (content.match(/@/)){
       userDisplayName = mentioncontent.slice(1)
 
-      setSelectUser(
-        <div className={classes.coflictuser}>
-        どの{userDisplayName}さんですか？
-        </div>
-      );
       for (let i = 0; i < data.data.length; i++){
         console.log(data.data[i].display);
         if (data.data[i].display === userDisplayName){
@@ -262,7 +257,13 @@ export default function CommunitiesTimeline(data) {
                   profile:'コメントが設定されていません。'
                 })
             } else {
-              let profileComment = doc.data().profileText.substr(0,15);
+              let profileTextContent = doc.data().profileText;
+              let profileComment = "";
+              if (profileTextContent.length >= 14) {
+                profileComment = profileTextContent.substr(0,15);
+              } else {
+                profileComment = profileTextContent
+              }
               userconflict.push(
                 {
                   id:data.data[i].id,
@@ -270,6 +271,8 @@ export default function CommunitiesTimeline(data) {
                   profile:profileComment+'...'
                 })
             }
+            console.log(userconflict);
+            console.log(userconflict[0].id);
             // userAvatar.push(
               // <Avatar
               // aria-label="recipe"
@@ -283,7 +286,11 @@ export default function CommunitiesTimeline(data) {
 
       // setAvatarImg(userAvatar);
       if (userCount >= 2) {
-        console.log('ユーザ二人います。');
+        setSelectUser(
+          <div className={classes.coflictuser}>
+          どの{userDisplayName}さんですか？
+          </div>
+        );
         setPostMsg('2人以上のユーザが見つかりました。')
         setOpenSnack(true);
         setPosted(true);
@@ -293,6 +300,10 @@ export default function CommunitiesTimeline(data) {
           setOpenSnack(true)
           setPostMsg(mentioncontent+'というユーザはいません！')
           setPosted(true);
+        } else {
+          setTimeout(() => {
+            handleContentSubmit2(userconflict[0].id);
+          }, 3000);
         }
       }
     } else {
@@ -300,12 +311,15 @@ export default function CommunitiesTimeline(data) {
     }
   }
   const sendMentionEmail = (id) => {
+    const date = new Date()
+    let user = firebase.auth().currentUser;
     console.log('Collection登録');
     db.collection("mentionmail")
-    .doc(id)
-    .add({
+    .doc(user.uid)
+    .set({
       mention: true,
-      uid: id
+      uid: id,
+      date:date
     });
     try {
       // console.log(id,i,communityId);
@@ -422,7 +436,14 @@ export default function CommunitiesTimeline(data) {
                 setPostImage("");
                 setPostMsg("10MB以下の画像をお願いします。");
                 setOpenSnack(true);
-              });            } else {
+              });            
+            } else {
+              let setid = ''
+              if(id){
+                setid = id
+              } else {
+                setid = 'none'
+              }
               db.collection("communities")
                 .doc(communityId)
                 .collection("posts")
@@ -434,8 +455,9 @@ export default function CommunitiesTimeline(data) {
                   content: content,
                   createTime: firebase.firestore.FieldValue.serverTimestamp(),
                   likeCount: 0,
+                  mention:setid
                 });
-              sendMentionEmail(id)
+              // sendMentionEmail(id)
               setPosted(true);
               setContent("");
               setPostMsg("投稿が完了しました。");

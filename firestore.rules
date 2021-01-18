@@ -84,7 +84,7 @@ service cloud.firestore {
     	allow read,write: if request.auth.uid == userId;
     }
     
-    match /mail/{userId} {
+    match /mentionmail/{document=**} {
     	allow read,write: if true;
     }
     

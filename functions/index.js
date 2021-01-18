@@ -299,39 +299,53 @@ exports.CommunityCommentUpdate = functions.firestore
 exports.CommunityPostUpdate = functions.firestore
   .document("communities/{communityId}/posts/{postId}")
   .onCreate((change, context) => {
-    const { communityId } = context.params;
+    const { communityId,postId } = context.params;
 
     const res1 = db.collection("communities").doc(communityId).update({
       updateTime: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return res1;
+    const res2 = db
+    .collection("communities")
+    .doc(communityId)
+    .collection("posts")
+    .doc(postId)
+    .get()
+    .then(function (doc){
+      const postUid = doc.data().mention
+      db.collection('users').doc(postUid).get().then(function (doc3){
+        db.collection('mail').add({
+            to: doc3.data().email,
+            message: {
+              subject: 'POSIIからのお知らせです!!',
+              html: 'あなたにメッセージが来ています！posiiを見にいきましょう！https://posii.ai/communities',
+              },
+            });
+      })
+    })
+    return res1, res2;
   });
 
-// exports.CommunityPostMention = functions.firestore
-//   .document("mentionmail")
-//   .onCreate((change, context) => {
-//     const { postId, communityId } = context.params;
-//     console.log("ファンクションメンション");
-//     const res1 = db
-//     .collection("mentionmail")
-//     .doc('id')
-//     .get()
-//     .then(function (doc) {
-//       const postUid = doc.data().uid;
-//       db.collection('users').doc(postUid).get().then(function (doc3){
-//         db.collection('mail').add({
-//             to: doc3.data().email,
-//             message: {
-//               subject: 'POSIIからのお知らせです!!',
-//               html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/communities',
-//               },
-//             });
-//       })
-//     });
+exports.CommunityPostMention = functions.firestore
+  .document("communities/{communityId}/posts/{postId}")
+  .onCreate((change, context) => {
+    const { userId } = context.params;
 
-//   return res1;
-//   });
+    const res1 = db.collection("mentionmail").doc(userId).get()
+    .then(function (doc) {
+      const postUid = doc.data().uid;
+      db.collection('users').doc(postUid).get().then(function (doc3){
+        db.collection('mail').add({
+            to: doc3.data().email,
+            message: {
+              subject: 'POSIIからのお知らせです!!',
+              html: 'あなたにメッセージが来ています！posiiを見にいきましょう！https://posii.ai/communities',
+              },
+            });
+      })
+    });
+  return res1;
+  });
 
 exports.CommunityComment = functions.firestore
   .document("communities/{communityId}/posts/{postId}/comments/{commentId}")
