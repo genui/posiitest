@@ -6,7 +6,6 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 const db = admin.firestore();
-
 exports.updateProfileUsername = functions.firestore
   .document("users/{userId}")
   .onUpdate((change, context) => {
@@ -186,7 +185,7 @@ exports.communitiesPostLikeCount = functions.firestore
               to: doc3.data().email,
               message: {
                 subject: 'POSIIからのお知らせです!!',
-                html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                html: 'コメントを褒められました！posiiを見にいきましょう！https://posii.ai/communities',
                 },
               });
 
@@ -231,7 +230,7 @@ exports.CommunityCommentLikeCount = functions.firestore
               }
             });
           });
-        
+
       });
 
     const res2 = db
@@ -273,10 +272,10 @@ exports.CommunityCommentLikeCount = functions.firestore
                   to: doc3.data().email,
                   message: {
                     subject: 'POSIIからのお知らせです!!',
-                    html: 'コメントにライクがつきました！posiiを見にいきましょう！https://posii.ai/communities',
+                    html: 'コメントを褒められました！！posiiを見にいきましょう！https://posii.ai/communities',
                     },
                   });
-    
+
             })
         }
       });
@@ -300,13 +299,52 @@ exports.CommunityCommentUpdate = functions.firestore
 exports.CommunityPostUpdate = functions.firestore
   .document("communities/{communityId}/posts/{postId}")
   .onCreate((change, context) => {
-    const { communityId } = context.params;
+    const { communityId,postId } = context.params;
 
     const res1 = db.collection("communities").doc(communityId).update({
       updateTime: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return res1;
+    const res2 = db
+    .collection("communities")
+    .doc(communityId)
+    .collection("posts")
+    .doc(postId)
+    .get()
+    .then(function (doc){
+      const postUid = doc.data().mention
+      db.collection('users').doc(postUid).get().then(function (doc3){
+        db.collection('mail').add({
+            to: doc3.data().email,
+            message: {
+              subject: 'POSIIからのお知らせです!!',
+              html: 'あなたにメッセージが来ています！posiiを見にいきましょう！https://posii.ai/communities',
+              },
+            });
+      })
+    })
+    return res1, res2;
+  });
+
+exports.CommunityPostMention = functions.firestore
+  .document("communities/{communityId}/posts/{postId}")
+  .onCreate((change, context) => {
+    const { userId } = context.params;
+
+    const res1 = db.collection("mentionmail").doc(userId).get()
+    .then(function (doc) {
+      const postUid = doc.data().uid;
+      db.collection('users').doc(postUid).get().then(function (doc3){
+        db.collection('mail').add({
+            to: doc3.data().email,
+            message: {
+              subject: 'POSIIからのお知らせです!!',
+              html: 'あなたにメッセージが来ています！posiiを見にいきましょう！https://posii.ai/communities',
+              },
+            });
+      })
+    });
+  return res1;
   });
 
 exports.CommunityComment = functions.firestore
@@ -347,7 +385,6 @@ exports.CommunityComment = functions.firestore
                   html: '投稿にコメントがつきました！posiiを見にいきましょう！https://posii.ai/communities',
                   },
                 });
-  
           })
         }
       });
@@ -374,7 +411,6 @@ exports.CommunityCreate = functions.firestore
     return res1;
   });
 
-  
 
 exports.CommunityMember = functions.firestore
   .document("communities/{communityId}/members/{userId}")
@@ -409,3 +445,4 @@ exports.CommunityMember = functions.firestore
       });
     return res1;
   });
+
