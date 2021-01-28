@@ -86,6 +86,7 @@ service cloud.firestore {
     
     match /mentionmail/{document=**} {
     	allow read,write: if true;
+
     }
     
   }
