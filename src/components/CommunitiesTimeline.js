@@ -119,15 +119,15 @@ export default function CommunitiesTimeline(data) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   firebase.firestore();
-  useFirestoreConnect([
-    {
-      collection: "communities",
-      doc: communityId,
-      subcollections: [{ collection: "posts" }],
-      orderBy: ["createTime", "desc"],
-      storeAs: `posts-${communityId}`,
-    },
-  ]);
+  // useFirestoreConnect([
+  //   {
+  //     collection: "communities",
+  //     doc: communityId,
+  //     subcollections: [{ collection: "posts" }],
+  //     orderBy: ["createTime", "desc"],
+  //     storeAs: `posts-${communityId}`,
+  //   },
+  // ]);
 
   const posts = useSelector(
     (state) => state.firestore.ordered[`posts-${communityId}`]
@@ -155,6 +155,7 @@ export default function CommunitiesTimeline(data) {
   const [mentiondata,setMentiondata] = useState("");
   let [usersconflict,setUsersConflict] = useState([]);
   let [selectUser,setSelectUser] = useState("");
+  let postImageAvatar = '';
 
 
   db.collection("communities")
@@ -216,6 +217,8 @@ export default function CommunitiesTimeline(data) {
   const handleImageChange = (event) => {
     const file = event.target.files;
     setPostImage(file[0]);
+    postImageAvatar = file[0]
+    console.log(postImageAvatar);
   };
   const handleImageClick = (event) => {
     fileInput.current.click();
@@ -355,6 +358,103 @@ export default function CommunitiesTimeline(data) {
       console.log('存在しないユーザ。');
     }
   }
+  
+  const smallImage = () => {
+    const filePath = "postImage";
+    const date = new Date();
+    const a = date.getTime();
+    const b = Math.floor(a / 1000);
+    const storageRef = firebase.storage()
+    const filePre = `${b}-${profile.username}`;
+    const fileName = postImage.name;
+    const imageRef = `${filePre}-${fileName}`;
+    function splitExt(filename) {
+      return filename.split(/\.(?=[^.]+$)/);
+    }
+    function thumbnailName(filename) {
+      const filePre = splitExt(filename);
+      return `${filePre[0]}_800x800.${filePre[1]}`;
+    }
+    postImageAvatar = postImage
+    console.log(fileName);
+    console.log(filePre);
+    console.log(fileName);
+
+    const filenametest = filePre + '_800x800' + fileName;
+    console.log(filenametest);
+
+    // アップロードしてURLを取得
+    storageRef
+    .ref(filePath+'/test')
+    .child(imageRef)
+    .put(postImage)
+    .then((snapshot)=>{
+      console.log(snapshot.metadata.fullPath);
+      setTimeout(() => {
+        storageRef
+        .ref('postImage/test/'+snapshot.metadata.name)
+        .getDownloadURL()
+        .then(function (url) {
+          console.log(url);
+          db.collection("communities")
+            .doc(communityId)
+            .collection("posts")
+            .add({
+              uid: auth.uid,
+              avatar: profile.avatar,
+              displayName: profile.displayName,
+              postImage: url,
+              username: profile.username,
+              content: content,
+              createTime: firebase.firestore.FieldValue.serverTimestamp(),
+              likeCount: 0,
+              mention: false
+            });
+          setPosted(true);
+          setContent("");
+          setPostImage("");
+          setPostMsg("投稿が完了しました。");
+          setOpenSnack(true);
+        })
+      }, 5000);
+    
+    })
+
+
+    // storageRef
+    // .child(imageRef)
+    // .put(postImage)
+    // .then((snapshot) => {
+    //   const uploadedPath = 'test';
+    //   setTimeout(() => {
+    //     console.log('アップロード開始');
+    //     storageRef
+    //       .getDownloadURL()
+    //       .then(function (url) {
+    //         console.log(url);
+    //         // db.collection("communities")
+    //         //   .doc(communityId)
+    //         //   .collection("posts")
+    //         //   .add({
+    //         //     uid: auth.uid,
+    //         //     avatar: profile.avatar,
+    //         //     displayName: profile.displayName,
+    //         //     postImage: url,
+    //         //     username: profile.username,
+    //         //     content: content,
+    //         //     createTime: firebase.firestore.FieldValue.serverTimestamp(),
+    //         //     likeCount: 0,
+    //         //     mention: false
+    //         //   });
+    //         // setPosted(true);
+    //         // setContent("");
+    //         // setPostImage("");
+    //         // setPostMsg("投稿が完了しました。");
+    //         // setOpenSnack(true);
+    //       });
+    //   }, 5000);
+
+  }
 
 
 
@@ -433,7 +533,7 @@ export default function CommunitiesTimeline(data) {
               })
               .catch((error) => {
                 setPosted(true);
-                setPostImage("");
+                // setPostImage("");
                 setPostMsg("10MB以下の画像をお願いします。");
                 setOpenSnack(true);
               });            
@@ -564,20 +664,6 @@ export default function CommunitiesTimeline(data) {
                         />
                       }/>
                     )}
-
-                  {/* <MentionsInput
-                    value={content}
-                    onChange={handleContentChange}
-                    style={defaultStyle}
-                    placeholder={"'@'でメンションできます！"}
-                  >
-                    <Mention
-                    data={data.data}
-                    onAdd={mentionSet}
-                    markup='@__display__'
-                    style={defaultMentionStyle}
-                    />
-                  </MentionsInput> */}
                   <div>
                     <Grid container spacing={3}>
                       <Grid
@@ -612,7 +698,7 @@ export default function CommunitiesTimeline(data) {
                             type="button"
                             variant="contained"
                             color="primary"
-                            onClick={handleContentSubmit}
+                            onClick={smallImage}
                           >
                             投稿
                           </Button>
