@@ -215,7 +215,14 @@ export default function CommunitiesTimeline(data) {
 
   const handleImageChange = (event) => {
     const file = event.target.files;
-    setPostImage(file[0]);
+    console.log(file);
+    if(file[0].name.match('.HEIC') || file[0].name.match('.HEUC')) {
+      setPostImage("");
+      setPostMsg("アップロードできませんでした。拡張子がHEIC（iPhone11以上で撮った写真等）の場合はアップロードできません。");
+      setOpenSnack(true);
+    }else {
+      setPostImage(file[0]);
+    }
   };
   const handleImageClick = (event) => {
     fileInput.current.click();
