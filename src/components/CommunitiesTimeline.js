@@ -19,6 +19,10 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Linkify from "material-ui-linkify";
+import { MentionsInput, Mention } from 'react-mentions';
+import defaultMentionStyle from './Style/defaultMentionStyle';
+import defaultStyle from './Style/defaultStyle';
+import { Chip } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,9 +101,19 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     marginBottom: 20,
   },
+  coflictuser: {
+    marginTop:50,
+    marginBottom:10,
+    opacity:0.6,
+    fontWeight:"bold"
+  },
+  coflictuserlist: {
+    marginBottom:10
+  }
 }));
 
-export default function CommunitiesTimeline() {
+
+export default function CommunitiesTimeline(data) {
   const { communityId } = useParams();
   const fileInput = useRef(null);
   const firebase = useFirebase();
@@ -133,6 +147,15 @@ export default function CommunitiesTimeline() {
   const [communityButton, setCommunityButton] = useState(true);
   const [communityDisplay, setCommunityDisplay] = useState(true);
   const classes = useStyles();
+  const [mentionFlag, setMentionFlag] = useState(false); 
+  const [mentioncontent, setMentioncontent] = useState("");
+  const [mentioncontentflag, setMentioncontentflag] = useState(false);
+
+  const [dataId, setdataId] = useState("");
+  const [mentiondata,setMentiondata] = useState("");
+  let [usersconflict,setUsersConflict] = useState([]);
+  let [selectUser,setSelectUser] = useState("");
+
 
   db.collection("communities")
     .doc(communityId)
@@ -143,28 +166,52 @@ export default function CommunitiesTimeline() {
       setCommunityPublic(doc.data().public);
     });
 
-  db.collection("communities")
-    .doc(communityId)
-    .collection("members")
-    .doc(auth.uid)
-    .get()
-    .then(function (doc) {
-      if (doc.data()) {
-        setCommunityRole(doc.data().role);
-        if (communityRole === "regist") {
-          setCommunityButton(false);
+    let user = firebase.auth().currentUser;
+  if (user) {
+    db.collection("communities")
+      .doc(communityId)
+      .collection("members")
+      .doc(auth.uid)
+      .get()
+      .then(function (doc) {
+        if (doc.data()) {
+          setCommunityRole(doc.data().role);
+          if (communityRole === "regist") {
+            setCommunityButton(false);
+          }
         }
-      }
-      if (communityPublic === true || communityRole === "member") {
-        setCommunityDisplay(true);
-      } else {
-        setCommunityDisplay(false);
-      }
-    });
+        if (communityPublic === true || communityRole === "member") {
+          setCommunityDisplay(true);
+        } else {
+          setCommunityDisplay(false);
+        }
+      });
+  }
+
+
+
+
 
   const handleContentChange = (event) => {
     setContent(event.target.value);
+    if(event.target.value.match(/@/)) {
+
+      if(event.target.value.match(/ /) || event.target.value.match(/　/)){
+        console.log('キャンセルテスト');
+        setMentioncontentflag(false)
+      } else {
+        console.log('@テスト');
+        setMentioncontentflag(true)
+        setMentioncontent(event.target.value)
+      }
+    }
   };
+
+  const conflictUserChoice = (id) => {
+    setMentiondata(id)
+    setMentionFlag(true)
+    handleContentSubmit2(id);
+  }
 
   const handleImageChange = (event) => {
     const file = event.target.files;
@@ -189,80 +236,214 @@ export default function CommunitiesTimeline() {
     setPostMsg("参加申請をしました。");
     setOpenSnack(true);
   };
-
   const handleContentSubmit = () => {
+    let userconflict = [];
+    let userCount =0;
+    let userDisplayName = '';
+    if (content.match(/@/)){
+      userDisplayName = mentioncontent.slice(1)
+
+      for (let i = 0; i < data.data.length; i++){
+        console.log(data.data[i].display);
+        if (data.data[i].display === userDisplayName){
+          userCount += 1;
+          setdataId(data.data[i].id);
+          db.collection('profile').doc(data.data[i].id).get().then(function (doc){
+            if (doc.data().profileText == null) {
+              userconflict.push(
+                {
+                  id: data.data[i].id,
+                  avatar:doc.data().avatar,
+                  profile:'コメントが設定されていません。'
+                })
+            } else {
+              let profileTextContent = doc.data().profileText;
+              let profileComment = "";
+              if (profileTextContent.length >= 14) {
+                profileComment = profileTextContent.substr(0,15);
+              } else {
+                profileComment = profileTextContent
+              }
+              userconflict.push(
+                {
+                  id:data.data[i].id,
+                  avatar:doc.data().avatar,
+                  profile:profileComment+'...'
+                })
+            }
+            console.log(userconflict);
+            console.log(userconflict[0].id);
+            // userAvatar.push(
+              // <Avatar
+              // aria-label="recipe"
+              // src={doc.data().avatar}
+              // className={classes.middle}
+              // style={{ marginTop: 30 }} />
+            // )
+          })
+        }
+      }
+
+      // setAvatarImg(userAvatar);
+      if (userCount >= 2) {
+        setSelectUser(
+          <div className={classes.coflictuser}>
+          どの{userDisplayName}さんですか？
+          </div>
+        );
+        setPostMsg('2人以上のユーザが見つかりました。')
+        setOpenSnack(true);
+        setPosted(true);
+        setUsersConflict(userconflict)
+      } else {
+        if (userCount === 0){
+          setOpenSnack(true)
+          setPostMsg(mentioncontent+'というユーザはいません！')
+          setPosted(true);
+        } else {
+          setTimeout(() => {
+            handleContentSubmit2(userconflict[0].id);
+          }, 3000);
+        }
+      }
+    } else {
+      handleContentSubmit2()
+    }
+  }
+  const sendMentionEmail = (id) => {
+    const date = new Date()
+    let user = firebase.auth().currentUser;
+    console.log('Collection登録');
+    db.collection("mentionmail")
+    .doc(user.uid)
+    .set({
+      mention: true,
+      uid: id,
+      date:date
+    });
+    try {
+      // console.log(id,i,communityId);
+      // if (id === null) {
+      //   setMentiondata(data.data[i].id)
+      // }
+
+      // setTimeout(() => {
+      //   db.collection("communities")
+      //   .doc(communityId)
+      //   .collection("posts")
+      //   .add({
+      //     mention: true
+      //   });
+      // }, 1000);
+      // db.collection('mentionmail').add({
+      //   to: 'deragentogasi@ezweb.ne.jp',
+      //   message: {
+      //     subject: 'POSIIからのお知らせです!!',
+      //     html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+      //     },
+      //   });
+      // db.collection('users').doc(id).get().then(function (doc3){
+      //   db.collection('mail').add({
+      //       to: 'deragentogasi@ezweb.ne.jp',
+      //       message: {
+      //         subject: 'POSIIからのお知らせです!!',
+      //         html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
+      //         },
+      //       });
+      // })
+    } catch(e) {
+      console.log('存在しないユーザ。');
+    }
+  }
+
+
+
+  const handleContentSubmit2 = (id) => {
     if (content !== "") {
       setPosted(false);
       const params = { text: content };
       const url = "https://myflaskapi1234321.herokuapp.com/";
       axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
-
       axios
-        .get(url, { params })
-        .then((results) => {
-          if (results.data.result === "5" || results.data.result === "4") {
-            setOpenSnack(true);
-            setPostMsg("ポジティブな投稿をお願いします。");
-            setPosted(true);
-          } else {
-            setPosted(false);
-            if (postImage.name) {
-              const filePath = "postImage";
-              const date = new Date();
-              const a = date.getTime();
-              const b = Math.floor(a / 1000);
-              const storageRef = firebase.storage().ref(filePath);
-              const filePre = `${b}-${profile.username}`;
-              const fileName = postImage.name;
-              const imageRef = `${filePre}-${fileName}`;
-              function splitExt(filename) {
-                return filename.split(/\.(?=[^.]+$)/);
-              }
-              function thumbnailName(filename) {
-                const filePre = splitExt(filename);
-                return `${filePre[0]}_1000x1000.${filePre[1]}`;
-              }
+      .get(url, { params })
+      .then((results) => {
+        if (results.data.result === "5" || results.data.result === "4") {
+          setOpenSnack(true);
+          setPostMsg("ポジティブな投稿をお願いします。");
+          setPosted(true);
+        } else {
+          setPosted(false);
+          setMentionFlag(false);
+          setMentiondata('')
+          setUsersConflict([])
+          setSelectUser('')
+          if (postImage.name) {
+            const filePath = "postImage";
+            const date = new Date();
+            const a = date.getTime();
+            const b = Math.floor(a / 1000);
+            const storageRef = firebase.storage().ref(filePath);
+            const filePre = `${b}-${profile.username}`;
+            const fileName = postImage.name;
+            const imageRef = `${filePre}-${fileName}`;
+            function splitExt(filename) {
+              return filename.split(/\.(?=[^.]+$)/);
+            }
+            function thumbnailName(filename) {
+              const filePre = splitExt(filename);
+              return `${filePre[0]}_800x800.${filePre[1]}`;
+            }
 
-              storageRef
-                .child(imageRef)
-                .put(postImage)
-                .then((snapshot) => {
-                  const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
-                    fileName
-                  )}`;
-                  setTimeout(() => {
-                    storageRef
-                      .child(uploadedPath)
-                      .getDownloadURL()
-                      .then(function (url) {
-                        db.collection("communities")
-                          .doc(communityId)
-                          .collection("posts")
-                          .add({
-                            uid: auth.uid,
-                            avatar: profile.avatar,
-                            displayName: profile.displayName,
-                            postImage: url,
-                            username: profile.username,
-                            content: content,
-                            createTime: firebase.firestore.FieldValue.serverTimestamp(),
-                            likeCount: 0,
-                          });
-                        setPosted(true);
-                        setContent("");
-                        setPostImage("");
-                        setPostMsg("投稿が完了しました。");
-                        setOpenSnack(true);
-                      });
-                  }, 5000);
-                })
-                .catch((error) => {
-                  setPosted(true);
-                  setPostImage("");
-                  setPostMsg("10MB以下の画像をお願いします。");
-                  setOpenSnack(true);
-                });
+            storageRef
+              .child(imageRef)
+              .put(postImage)
+              .then((snapshot) => {
+                // const uploadedPath = `thumbnails/${filePre}-${thumbnailName(
+                const uploadedPath = `${filePre}-${thumbnailName(
+                  fileName
+                )}`;
+                setTimeout(() => {
+                  console.log('アップロード開始');
+                  storageRef
+                    .child(uploadedPath)
+                    .getDownloadURL()
+                    .then(function (url) {
+                      db.collection("communities")
+                        .doc(communityId)
+                        .collection("posts")
+                        .add({
+                          uid: auth.uid,
+                          avatar: profile.avatar,
+                          displayName: profile.displayName,
+                          postImage: url,
+                          username: profile.username,
+                          content: content,
+                          createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                          likeCount: 0,
+                          mention: false
+                        });
+                      setPosted(true);
+                      setContent("");
+                      setPostImage("");
+                      setPostMsg("投稿が完了しました。");
+                      setOpenSnack(true);
+                    });
+                }, 5000);
+
+              })
+              .catch((error) => {
+                setPosted(true);
+                setPostImage("");
+                setPostMsg("10MB以下の画像をお願いします。");
+                setOpenSnack(true);
+              });            
             } else {
+              let setid = ''
+              if(id){
+                setid = id
+              } else {
+                setid = 'none'
+              }
               db.collection("communities")
                 .doc(communityId)
                 .collection("posts")
@@ -274,7 +455,9 @@ export default function CommunitiesTimeline() {
                   content: content,
                   createTime: firebase.firestore.FieldValue.serverTimestamp(),
                   likeCount: 0,
+                  mention:setid
                 });
+              // sendMentionEmail(id)
               setPosted(true);
               setContent("");
               setPostMsg("投稿が完了しました。");
@@ -293,6 +476,10 @@ export default function CommunitiesTimeline() {
     setOpenSnack(false);
   };
 
+  const mentionSet = (args) =>{
+    setMentionFlag(true);
+    setMentiondata(args);
+  }
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
@@ -365,6 +552,32 @@ export default function CommunitiesTimeline() {
                     onChange={handleContentChange}
                     value={content}
                   />
+                  {selectUser}
+                  {usersconflict.map((val)=>
+                    <Chip
+                    　className={classes.coflictuserlist}
+                      onClick={() => conflictUserChoice(val.id)}
+                      label={val.profile}
+                      avatar={
+                        <Avatar
+                          src={val.avatar}
+                        />
+                      }/>
+                    )}
+
+                  {/* <MentionsInput
+                    value={content}
+                    onChange={handleContentChange}
+                    style={defaultStyle}
+                    placeholder={"'@'でメンションできます！"}
+                  >
+                    <Mention
+                    data={data.data}
+                    onAdd={mentionSet}
+                    markup='@__display__'
+                    style={defaultMentionStyle}
+                    />
+                  </MentionsInput> */}
                   <div>
                     <Grid container spacing={3}>
                       <Grid

@@ -14,7 +14,8 @@ import { createFirestoreInstance } from "redux-firestore";
 import { useSelector } from "react-redux";
 import configureStore from "./store";
 import { firebase as fbConfig, reduxFirebase as rfConfig } from "./config";
-import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { sampleuser } from "./config";
+import { BrowserRouter, Switch, Route, Redirect, Link } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import PasswordReminder from "./components/PasswordReminder";
@@ -30,6 +31,12 @@ import Notifications from "./components/Notifications";
 import Lp from "./components/Lp";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import { theme } from "./materialui/theme";
+import { PinDropSharp } from "@material-ui/icons";
+import { useFirebase } from "react-redux-firebase";
+import GestCommunities from "./components/GestCommunitiesTimeline/GestCommunities";
+import GestCommunitiesTimeline from "./components/GestCommunitiesTimeline";
+import GestComments from "./components/GestCommunitiesTimeline/GestComments";
+
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
 const store = configureStore(initialState);
@@ -39,24 +46,64 @@ const firestore = firebase.firestore();
 firestore.settings({
   timestampsInSnapshots: true,
 });
-
 firebase.firestore();
+const userData = [
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  },
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  },
+  {
+    id: 'walter',
+    display: 'Walter White',
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman',
+  }
+]
+// メンション用ユーザ情報取得
+const db = firebase.firestore();
+db.collection("profile")
+.get()
+.then(user => {
+  for (let i = 0; i < user.docs.length; i++) {
+    const userId = user.docs[i].id;
+    db.collection('profile')
+    .doc(userId).get().then(displayName => {
+      const displayUserName = displayName.data().displayName;
+      userData.unshift({
+        id: userId,
+        display: displayUserName
+      });
+    })
+  }
+})
 
 function PrivateRoute({ children, ...rest }) {
   const auth = useSelector((state) => state.firebase.auth);
   return (
     <Route
       {...rest}
-      render={({ location }) =>
-        isLoaded(auth) && !isEmpty(auth) ? (
+      render={( location ) =>
+        isLoaded(auth) ? (
           children
         ) : (
-          <Redirect
-            to={{
-              pathname: "/signin",
-              state: { from: location },
-            }}
-          />
+          <Route exact path="/" />
+          // <Redirect
+          // exact path="/gestcommunities/:communityId"
+          // />
         )
       }
     />
@@ -68,9 +115,9 @@ function AuthIsLoaded({ children }) {
   if (!isLoaded(auth))
     return (
       <div>
-        <MuiThemeProvider theme={theme}>
+        <PrivateRoute theme={theme}>
           <Header />
-        </MuiThemeProvider>
+        </PrivateRoute>
       </div>
     );
   return children;
@@ -90,6 +137,12 @@ function App() {
             <MuiThemeProvider theme={theme}>
               <Header />
               <Switch>
+                <Route exact path="/gestcommunities">
+                  <GestCommunities exact path="/gestcommunities" />
+                </Route>
+                <Route exact path="/gestcommunities/:communityId">
+                  <GestCommunitiesTimeline  exact path="/gestcommunities/:communityId"/>
+                </Route>
                 <Route path="/signin" component={SignIn} />
                 <Route path="/signup" component={SignUp} />
                 <Route path="/password_reminder" component={PasswordReminder} />
@@ -99,9 +152,9 @@ function App() {
                 <PrivateRoute exact path="/notifications">
                   <Notifications />
                 </PrivateRoute>
-                <PrivateRoute exact path="/communities">
-                  <Communities />
-                </PrivateRoute>
+                <Route exact path="/communities">
+                  <Communities exact path="/communities" />
+                </Route>
                 <PrivateRoute
                   exact
                   path="/communities/:communityId/posts/:postId"
@@ -114,13 +167,13 @@ function App() {
                 <PrivateRoute exact path="/communities/edit/:communityId">
                   <CommunitiesEdit />
                 </PrivateRoute>
-                <PrivateRoute exact path="/communities/:communityId">
-                  <CommunitiesTimeline />
-                </PrivateRoute>
+                <Route exact path="/communities/:communityId">
+                  <CommunitiesTimeline exact path="/communities/:communityId" data={userData} />
+                </Route>
                 <PrivateRoute exact path="/profile_edit">
                   <ProfileEdit />
                 </PrivateRoute>
-                <PrivateRoute path="/user/:username">
+                <PrivateRoute path="/user/:uid" component={UserPage}>
                   <UserPage />
                 </PrivateRoute>
                 <Route

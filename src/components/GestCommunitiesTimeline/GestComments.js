@@ -22,7 +22,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 
 import Badge from "@material-ui/core/Badge";
-import Comments from "./Comments";
+import Comments from "../CommunitiesTimeline/Comments";
 import Snackbar from "@material-ui/core/Snackbar";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import axios from "axios";
@@ -79,72 +79,7 @@ function dateDisplay(date) {
   }
 }
 
-function PostLike(props) {
-  const classes = useStyles();
-  const firebase = useFirebase();
-  const db = firebase.firestore();
-  const auth = useSelector((state) => state.firebase.auth);
-  firebase.firestore();
-  const [liked, setLiked] = useState("");
-  const likeChange = () => {
-    if (props.id !== "") {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(props.id)
-        .collection("postLikes")
-        .doc(auth.uid)
-        .get()
-        .then(function (doc) {
-          if (doc.exists) {
-            setLiked(true);
-          } else {
-            setLiked(false);
-          }
-        })
-        .catch(function (error) {
-          console.log("Error getting document:", error);
-        });
-    } 
-    
-  };
-
-  const handleClickPostLike = (event) => {
-    if (props.id !== "" && liked === false) {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(props.id)
-        .collection("postLikes")
-        .doc(auth.uid)
-        .set({
-          uid: auth.uid,
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-      likeChange();
-    }
-  };
-  likeChange();
-  return (
-    <div>
-      {liked ? (
-        <Badge badgeContent={props.likeCount} color="error">
-          <FavoriteIcon className={classes.liked} id={props.id} />
-        </Badge>
-      ) : (
-        <Badge badgeContent={props.likeCount} color="error">
-          <FavoriteIcon
-            className={classes.like}
-            onClick={handleClickPostLike}
-            id={props.id}
-          />
-        </Badge>
-      )}
-    </div>
-  );
-}
-
-export default function Posts(props) {
+export default function GestComments(props) {
   const classes = useStyles();
   const firebase = useFirebase();
   const db = firebase.firestore();
@@ -162,33 +97,33 @@ export default function Posts(props) {
     setOpenSnack(false);
   };
 
-  const handleClickOpenDelete = (event) => {
-    setPostDeleteId(event.currentTarget.id);
-    setOpenDelete(true);
-  };
-  const handleCloseDelete = () => {
-    setPostDeleteId("");
-    setOpenDelete(false);
-  };
+  // const handleClickOpenDelete = (event) => {
+  //   setPostDeleteId(event.currentTarget.id);
+  //   setOpenDelete(true);
+  // };
+  // const handleCloseDelete = () => {
+  //   setPostDeleteId("");
+  //   setOpenDelete(false);
+  // };
 
-  const postDelete = () => {
-    if (PostDeleteId !== "") {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(PostDeleteId)
-        .delete()
-        .then(function () {
-          setSnackMsg("投稿を削除しました。");
-          setOpenSnack(true);
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      setPostDeleteId("");
-      setOpenDelete(false);
-    }
-  };
+  // const postDelete = () => {
+  //   if (PostDeleteId !== "") {
+  //     db.collection("communities")
+  //       .doc(props.communityId)
+  //       .collection("posts")
+  //       .doc(PostDeleteId)
+  //       .delete()
+  //       .then(function () {
+  //         setSnackMsg("投稿を削除しました。");
+  //         setOpenSnack(true);
+  //       })
+  //       .catch(function (error) {
+  //         console.error("Error removing document: ", error);
+  //       });
+  //     setPostDeleteId("");
+  //     setOpenDelete(false);
+  //   }
+  // };
 
   const handleClickOpenReport = (event) => {
     setPostReportId(event.currentTarget.id);
@@ -199,28 +134,28 @@ export default function Posts(props) {
     setOpenReport(false);
   };
 
-  const postReport = () => {
-    if (PostReportId !== "") {
-      db.collection("reports")
-        .add({
-          uid: auth.uid,
-          communityId: props.communityId,
-          postId: props.id,
-          content: props.content,
-          type: "communityPost",
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-        })
-        .then(function () {
-          setSnackMsg("通報しました。");
-          setOpenSnack(true);
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      setPostReportId("");
-      setOpenReport(false);
-    }
-  };
+  // const postReport = () => {
+  //   if (PostReportId !== "") {
+  //     db.collection("reports")
+  //       .add({
+  //         uid: auth.uid,
+  //         communityId: props.communityId,
+  //         postId: props.id,
+  //         content: props.content,
+  //         type: "communityPost",
+  //         createTime: firebase.firestore.FieldValue.serverTimestamp(),
+  //       })
+  //       .then(function () {
+  //         setSnackMsg("通報しました。");
+  //         setOpenSnack(true);
+  //       })
+  //       .catch(function (error) {
+  //         console.error("Error removing document: ", error);
+  //       });
+  //     setPostReportId("");
+  //     setOpenReport(false);
+  //   }
+  // };
 
   const [posted, setPosted] = useState(true);
   const [commentOpen, setCommentOpen] = React.useState(false);
@@ -228,62 +163,62 @@ export default function Posts(props) {
   const [commentContent, setCommentContent] = React.useState("");
   const profile = useSelector((state) => state.firebase.profile);
 
-  const handleClickCommentOpen = (event) => {
-    setAddCommentId(event.currentTarget.id);
-    setCommentOpen(true);
-  };
+  // const handleClickCommentOpen = (event) => {
+  //   setAddCommentId(event.currentTarget.id);
+  //   setCommentOpen(true);
+  // };
 
-  const handleCommentContentChange = (event) => {
-    setCommentContent(event.target.value);
-  };
+  // const handleCommentContentChange = (event) => {
+  //   setCommentContent(event.target.value);
+  // };
 
-  const handleCommentClose = () => {
-    setAddCommentId("");
-    setCommentContent("");
-    setCommentOpen(false);
-  };
+  // const handleCommentClose = () => {
+  //   setAddCommentId("");
+  //   setCommentContent("");
+  //   setCommentOpen(false);
+  // };
 
-  const handleCommentContentSubmit = () => {
-    if (
-      !isEmpty(addCommentId) &&
-      isLoaded(addCommentId) &&
-      addCommentId !== "" &&
-      commentContent !== ""
-    ) {
-      setPosted(false);
-      const params = { text: commentContent };
-      const url = "https://myflaskapi1234321.herokuapp.com/";
-      axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+  // const handleCommentContentSubmit = () => {
+  //   if (
+  //     !isEmpty(addCommentId) &&
+  //     isLoaded(addCommentId) &&
+  //     addCommentId !== "" &&
+  //     commentContent !== ""
+  //   ) {
+  //     setPosted(false);
+  //     const params = { text: commentContent };
+  //     const url = "https://myflaskapi1234321.herokuapp.com/";
+  //     axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
-      axios.get(url, { params }).then((results) => {
-        if (results.data.result === "5" || results.data.result === "4") {
-          setOpenSnack(true);
-          setSnackMsg("ポジティブな投稿をお願いします。");
-          setPosted(true);
-        } else {
-          db.collection("communities")
-            .doc(props.communityId)
-            .collection("posts")
-            .doc(addCommentId)
-            .collection("comments")
-            .add({
-              uid: auth.uid,
-              avatar: profile.avatar,
-              displayName: profile.displayName,
-              username: profile.username,
-              content: commentContent,
-              createTime: firebase.firestore.FieldValue.serverTimestamp(),
-              likeCount: 0,
-            });
-          setCommentContent("");
-          setPosted(true);
-          setCommentOpen(false);
-          setSnackMsg("ポジティブなコメントありがとうございます。");
-          setOpenSnack(true);
-        }
-      });
-    }
-  };
+  //     axios.get(url, { params }).then((results) => {
+  //       if (results.data.result === "5" || results.data.result === "4") {
+  //         setOpenSnack(true);
+  //         setSnackMsg("ポジティブな投稿をお願いします。");
+  //         setPosted(true);
+  //       } else {
+  //         db.collection("communities")
+  //           .doc(props.communityId)
+  //           .collection("posts")
+  //           .doc(addCommentId)
+  //           .collection("comments")
+  //           .add({
+  //             uid: auth.uid,
+  //             avatar: profile.avatar,
+  //             displayName: profile.displayName,
+  //             username: profile.username,
+  //             content: commentContent,
+  //             createTime: firebase.firestore.FieldValue.serverTimestamp(),
+  //             likeCount: 0,
+  //           });
+  //         setCommentContent("");
+  //         setPosted(true);
+  //         setCommentOpen(false);
+  //         setSnackMsg("ポジティブなコメントありがとうございます。");
+  //         setOpenSnack(true);
+  //       }
+  //     });
+  //   }
+  // };
 
 
 
@@ -335,21 +270,17 @@ export default function Posts(props) {
         )}
         <CardActions disableSpacing>
           <IconButton aria-label="add to favorites">
-            <PostLike
-              id={props.id}
-              communityId={props.communityId}
-              likeCount={props.likeCount}
-            />
+
           </IconButton>
           <IconButton aria-label="share">
-            <Comment onClick={handleClickCommentOpen} id={props.id} />
+            {/* <Comment onClick={handleClickCommentOpen} id={props.id} /> */}
           </IconButton>
           {(() => {
             if (auth.uid === props.uid) {
               return (
                 <IconButton
                   aria-label="share"
-                  onClick={handleClickOpenDelete}
+                  // onClick={handleClickOpenDelete}
                   id={props.id}
                 >
                   <DeleteOutline />
@@ -361,54 +292,21 @@ export default function Posts(props) {
             <ReportProblemIcon onClick={handleClickOpenReport} id={props.id} />
           </IconButton>
         </CardActions>
-        <Comments id={props.id} communityId={props.communityId} />
       </Card>
 
       <Dialog
         open={OpenDelete}
-        onClose={handleCloseDelete}
+        // onClose={handleCloseDelete}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            投稿を削除してよろしいですか？
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDelete} color="primary">
-            戻る
-          </Button>
-          <Button onClick={postDelete} color="primary" autoFocus>
-            削除する
-          </Button>
-        </DialogActions>
+
       </Dialog>
 
-      <Dialog
-        open={OpenReport}
-        onClose={handleCloseReport}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            通報してよろしいですか？
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseReport} color="primary">
-            戻る
-          </Button>
-          <Button onClick={postReport} color="primary" autoFocus>
-            通報する
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Dialog
         open={commentOpen}
-        onClose={handleCommentClose}
+        // onClose={handleCommentClose}
         aria-labelledby="form-dialog-title"
       >
         <MediaQuery query="(max-width: 499px)">
@@ -422,7 +320,7 @@ export default function Posts(props) {
               multiline={true}
               rows={1}
               rowsMax={5}
-              onChange={handleCommentContentChange}
+              // onChange={handleCommentContentChange}
               value={commentContent}
               style={{ width: "265px" }}
             />
@@ -440,26 +338,11 @@ export default function Posts(props) {
               multiline={true}
               rows={1}
               rowsMax={5}
-              onChange={handleCommentContentChange}
+              // onChange={handleCommentContentChange}
               value={commentContent}
             />
           </DialogContent>
         </MediaQuery>
-
-        <DialogActions>
-          <Button onClick={handleCommentClose} color="primary">
-            戻る
-          </Button>
-          {posted ? (
-            <Button onClick={handleCommentContentSubmit} color="primary">
-              投稿
-            </Button>
-          ) : (
-            <Button color="primary">
-              AI判定中 <CircularProgress size={15} />
-            </Button>
-          )}
-        </DialogActions>
       </Dialog>
 
       <Snackbar

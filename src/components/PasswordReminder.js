@@ -52,7 +52,6 @@ export default function PasswordReminder() {
   };
 
   const handlePasswordReminder = async (e) => {
-    console.log(email);
     var status;
     await firebase
       .auth()
@@ -71,7 +70,6 @@ export default function PasswordReminder() {
     }
   };
   const classes = useStyles();
-  console.log(msg);
   const message = String(msg);
 
   return (

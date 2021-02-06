@@ -43,7 +43,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Communities() {
+export default function GestCommunities() {
   const firebase = useFirebase();
   const db = firebase.firestore();
   const auth = useSelector((state) => state.firebase.auth);
@@ -58,6 +58,7 @@ export default function Communities() {
   const [OpenDelete, setOpenDelete] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
+
   const communities = useSelector(
     (state) => state.firestore.ordered.communities
   );
@@ -93,43 +94,24 @@ export default function Communities() {
     setOpenSnack(false);
   };
 
-
   const classes = useStyles();
-  
-  const cuse = firebase.auth().currentUser;
-  if (cuse != null) {
-    const currentuser= firebase.auth().currentUser.uid;
-    db.collection('profile').doc(currentuser).get().then(val => {
-      if (val.data() === undefined){
-        db.collection('users').doc(currentuser).get().then(val => {
-          const createNewUserProfile = {
-            displayName: val.data().displayName,
-            avatar: "",
-          }
-          db.collection('profile').doc(currentuser).set(createNewUserProfile);
-        });
-      }
-    })
-  }
-
-
   return (
     <Container component="main" maxWidth="sm">
       <Button
-        type="button"
-        fullWidth
-        variant="contained"
-        color="primary"
-        className={classes.submit}
-        href="/communities/new"
+        // type="button"
+        // fullWidth
+        // variant="contained"
+        // color="primary"
+        // className={classes.submit}
+        // href="/communities/new"
       >
-        コミュニティを作成する
+        {/* コミュニティを作成する */}
       </Button>
       {communities &&
         communities.map((community) => (
           <Card className={classes.root} style={{ marginBottom: 20 }}>
             <Link
-              to={`/communities/${community.id}`}
+              to={`/gestcommunities/${community.id}`}
               style={{ textDecoration: "none" }}
             >
               <CardMedia
@@ -141,7 +123,7 @@ export default function Communities() {
             </Link>
             <CardContent>
               <Link
-                to={`/communities/${community.id}`}
+                to={`/gestcommunities/${community.id}`}
                 style={{ textDecoration: "none" }}
               >
                 <Typography
@@ -174,7 +156,7 @@ export default function Communities() {
                     <IconButton
                       onClick=""
                       id=""
-                      href={`/communities/edit/${community.id}`}
+                      href={`/gestcommunities/edit/${community.id}`}
                     >
                       <EditIcon />
                     </IconButton>
@@ -228,3 +210,4 @@ export default function Communities() {
     </Container>
   );
 }
+

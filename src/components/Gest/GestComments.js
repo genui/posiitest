@@ -125,166 +125,8 @@ function dateDisplay(date) {
   }
 }
 
-function CommentLike(props) {
-  const classes = useStyles();
-  const firebase = useFirebase();
-  const db = firebase.firestore();
-  const auth = useSelector((state) => state.firebase.auth);
-  firebase.firestore();
-  const [liked, setLiked] = React.useState("");
-  const likeChange = () => {
-    if (props.id !== "") {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(props.postId)
-        .collection("comments")
-        .doc(props.id)
-        .collection("commentLikes")
-        .doc(auth.uid)
-        .get()
-        .then(function (doc) {
-          if (doc.exists) {
-            setLiked(true);
-          } else {
-            setLiked(false);
-          }
-        })
-        .catch(function (error) {
-          console.log("Error getting document:", error);
-        });
-    }
-  };
-  const handleClickCommentLike = (event) => {
-    if (props.id !== "" && liked === false) {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(props.postId)
-        .collection("comments")
-        .doc(props.id)
-        .collection("commentLikes")
-        .doc(auth.uid)
-        .set({
-          uid: auth.uid,
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-      likeChange();
-    }
-  };
-  likeChange();
-  return (
-    <div>
-      {liked ? (
-        <Badge badgeContent={props.likeCount} color="error">
-          <FavoriteIcon className={classes.liked} id={props.id} />
-        </Badge>
-      ) : (
-        <Badge badgeContent={props.likeCount} color="error">
-          <FavoriteIcon
-            className={classes.like}
-            onClick={handleClickCommentLike}
-            id={props.id}
-          />
-        </Badge>
-      )}
-    </div>
-  );
-}
 
-function CommentReportButton(props) {
-  const firebase = useFirebase();
-  const db = firebase.firestore();
-  const auth = useSelector((state) => state.firebase.auth);
-  firebase.firestore();
-  const [CommentReportId, setCommentReportId] = React.useState("");
-  const [OpenReport, setOpenReport] = React.useState(false);
-  const [openSnack, setOpenSnack] = useState(false);
-  const [snackMsg, setSnackMsg] = useState(false);
-  const classes = useStyles();
-
-  const handleClickOpenReport = (event) => {
-    setCommentReportId(event.currentTarget.id);
-    setOpenReport(true);
-  };
-
-  const handleCloseReport = () => {
-    setCommentReportId("");
-    setOpenReport(false);
-  };
-
-  const handleSnackClose = () => {
-    setOpenSnack(false);
-  };
-
-  const commentReport = () => {
-    if (CommentReportId !== "") {
-      db.collection("reports")
-        .add({
-          uid: auth.uid,
-          postId: props.postId,
-          commentId: props.id,
-          content: props.content,
-          type: "postComment",
-          createTime: firebase.firestore.FieldValue.serverTimestamp(),
-        })
-        .then(function () {
-          setSnackMsg("通報しました。");
-          setOpenSnack(true);
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      setCommentReportId("");
-      setOpenReport(false);
-    }
-  };
-
-  return (
-    <div>
-      <IconButton aria-label="share">
-        <ReportProblemIcon onClick={handleClickOpenReport} id={props.id} />
-      </IconButton>
-      <Dialog
-        open={OpenReport}
-        onClose={handleCloseReport}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            通報してよろしいですか？
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseReport} color="primary">
-            戻る
-          </Button>
-          <Button onClick={commentReport} color="primary" autoFocus>
-            通報する
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        open={openSnack}
-        onClose={handleSnackClose}
-        autoHideDuration={5000}
-        message={<span>{snackMsg}</span>}
-        ContentProps={{
-          classes: {
-            root: classes.snackbar,
-          },
-        }}
-      />
-    </div>
-  );
-}
-
-export default function Comments(props) {
+export default function GestComments(props) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   const auth = useSelector((state) => state.firebase.auth);
@@ -302,7 +144,6 @@ export default function Comments(props) {
       storeAs: `comments-${props.id}`,
     },
   ]);
-
 
   const comments = useSelector(
     (state) => state.firestore.ordered[`comments-${props.id}`]
@@ -326,26 +167,6 @@ export default function Comments(props) {
     setOpenDelete(false);
   };
 
-  const commentDelete = () => {
-    if (CommentDeleteId !== "" && !isEmpty(CommentDeleteId)) {
-      db.collection("communities")
-        .doc(props.communityId)
-        .collection("posts")
-        .doc(props.id)
-        .collection("comments")
-        .doc(CommentDeleteId)
-        .delete()
-        .then(function () {
-          setSnackMsg("コメントを削除しました。");
-          setOpenSnack(true);
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      setCommentDeleteId("");
-      setOpenDelete(false);
-    }
-  };
   return (
     <div>
       {!isLoaded(comments) ? (
@@ -356,7 +177,7 @@ export default function Comments(props) {
         comments.map((comment) => (
           <CardContent>
             <Grid container spacing={3}>
-
+ 
               <Grid item xs={1}>
               <Link to={{ 
                 pathname: `/user/${comment.uid}`, 
@@ -420,14 +241,6 @@ export default function Comments(props) {
                   </div>
                 </div>
                 <CardActions disableSpacing>
-                  <IconButton aria-label="add to favorites">
-                    <CommentLike
-                      postId={props.id}
-                      id={comment.id}
-                      communityId={props.communityId}
-                      likeCount={comment.likeCount}
-                    />
-                  </IconButton>
                   {(() => {
                     if (auth.uid === comment.uid) {
                       return (
@@ -441,38 +254,13 @@ export default function Comments(props) {
                       );
                     }
                   })()}
-                  <CommentReportButton
-                    postId={props.id}
-                    id={comment.id}
-                    content={comment.content}
-                  />
                 </CardActions>
               </Grid>
             </Grid>
           </CardContent>
         ))
       )}
-      <Dialog
-        open={OpenDelete}
-        onClose={handleCloseDelete}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            投稿を削除してよろしいですか？
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDelete} color="primary">
-            戻る
-          </Button>
-          <Button onClick={commentDelete} color="primary" autoFocus>
-            削除する
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
+      {/* <Snackbar
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -486,7 +274,7 @@ export default function Comments(props) {
             root: classes.snackbar,
           },
         }}
-      />
+      /> */}
     </div>
   );
 }
