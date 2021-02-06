@@ -25,6 +25,7 @@ import defaultStyle from './Style/defaultStyle';
 import { Chip } from "@material-ui/core";
 import { useInView } from 'react-intersection-observer';
 
+
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#f8f8f8",
@@ -110,6 +111,7 @@ const useStyles = makeStyles((theme) => ({
   },
   coflictuserlist: {
     marginBottom:10
+
   }
 }));
 
@@ -119,6 +121,7 @@ export default function CommunitiesTimeline(data) {
   const fileInput = useRef(null);
   const firebase = useFirebase();
   const db = firebase.firestore();
+
   firebase.firestore();
   useFirestoreConnect([
     {
@@ -522,6 +525,36 @@ export default function CommunitiesTimeline(data) {
   const handleSnackClose = () => {
     setOpenSnack(false);
   };
+  // let mentionuser = [];
+  // db.collection("profile").get().then(value =>{
+  //   const usercount = value.docs.length;
+  //   for(let i=0; i<usercount; i++){
+  //     let id = value.docs[i].id
+  //     db.collection('profile').doc(id).get().then(val => 
+  //       {
+  //       let displayName = val.data().displayName
+  //       let subusermention = {
+  //         "id": id,
+  //         "display": displayName
+  //       }
+  //       let testarray = [];
+  //       mentionuser.push(
+  //         {
+  //           'id':id,
+  //           'displayName':displayName
+  //         }
+  //       )
+  //       testarray = allusermention.concat(subusermention)
+  //       // console.log(testarray[0]);
+  //       // mentionuser.push(testarray);
+  //       console.log(testarray);
+  //     })
+  //   }
+  // });
+
+  // console.log(mentionuser,'ユーザ取得');
+  // console.log(typeof(mentionuser));
+  
 
   const mentionSet = (args) =>{
     setMentionFlag(true);
@@ -582,9 +615,11 @@ export default function CommunitiesTimeline(data) {
             )}
           </CardContent>
         </Card>
+        
         {communityDisplay && (
           <Card className={classes.card} style={{ marginBottom: 30 }}>
             <CardContent>
+
               <Grid container spacing={3}>
                 <Grid item xs="2">
                   <Avatar
@@ -594,6 +629,7 @@ export default function CommunitiesTimeline(data) {
                     style={{ marginTop: 30 }}
                   />
                 </Grid>
+
                 <Grid item xs="10" style={{ marginTop: 20 }}>
                   <TextField
                     id="standard-basic"
@@ -617,6 +653,7 @@ export default function CommunitiesTimeline(data) {
                         />
                       }/>
                     )}
+
                   <div>
                     <Grid container spacing={3}>
                       <Grid
