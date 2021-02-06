@@ -20,6 +20,7 @@
     "react-dropzone": "^10.2.1",
     "react-helmet": "^6.1.0",
     "react-image-lightbox": "^5.1.1",
+    "react-intersection-observer": "^8.31.0",
     "react-lightbox-component": "^1.2.1",
     "react-linkify": "^1.0.0-alpha",
     "react-material-ui-form-validator": "^2.0.9",
