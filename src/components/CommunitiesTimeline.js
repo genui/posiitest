@@ -22,7 +22,7 @@ import Linkify from "material-ui-linkify";
 import { MentionsInput, Mention } from 'react-mentions';
 import defaultMentionStyle from './Style/defaultMentionStyle';
 import defaultStyle from './Style/defaultStyle';
-import { Chip } from "@material-ui/core";
+import { Checkbox, Chip } from "@material-ui/core";
 import { useInView } from 'react-intersection-observer';
 
 
@@ -111,8 +111,16 @@ const useStyles = makeStyles((theme) => ({
   },
   coflictuserlist: {
     marginBottom:10
-
+  },
+  watchbuttonpotision:{
+    textAlign:"right"
+  },
+  watchbuttontext: {
+    fontWeight: "bold",
+    fontSize: 13,
+    opacity:0.5
   }
+
 }));
 
 
@@ -159,6 +167,38 @@ export default function CommunitiesTimeline(data) {
   const [mentiondata,setMentiondata] = useState("");
   let [usersconflict,setUsersConflict] = useState([]);
   let [selectUser,setSelectUser] = useState("");
+  const [watchstartstatus, setwatchstartstatus] = useState("");
+  let user = firebase.auth().currentUser;
+
+  let watchButtonFlag;
+  let watchFlagStartStatus 
+  const res3 = db
+  .collection("communities")
+  .doc(communityId)
+  .collection("watchmember")
+  .doc(user.uid)
+  .get()
+  .then(val => {
+    if (val.data().watchFlag == true) {
+      // watchstartstatus = true;
+      setwatchstartstatus(
+        <Checkbox
+          onClick={watchButton}
+          color="primary"
+          checked={watchstartstatus}
+        />
+      )
+    } else{
+      setwatchstartstatus(
+        <Checkbox
+          onClick={watchButton}
+          color="primary"
+        />
+      )
+        
+    }
+  })
+
 
 
   db.collection("communities")
@@ -170,7 +210,6 @@ export default function CommunitiesTimeline(data) {
       setCommunityPublic(doc.data().public);
     });
 
-    let user = firebase.auth().currentUser;
   if (user) {
     db.collection("communities")
       .doc(communityId)
@@ -221,7 +260,6 @@ export default function CommunitiesTimeline(data) {
     const file = event.target.files;
     console.log(file);
     if(file[0].name.match('.HEIC') || file[0].name.match('.HEUC')) {
-      setPostImage("");
       setPostImage("");
       setPostMsg("アップロードできませんでした。拡張子がHEIC（iPhone1で撮った写真等）の場合はアップロードできません。");
       setOpenSnack(true);
@@ -564,6 +602,28 @@ export default function CommunitiesTimeline(data) {
   const [ref, inView] = useInView({
     threshold:0,
   });
+  const watchButton = () => {
+    if (watchButtonFlag === true) {
+      watchButtonFlag = false;
+      // db.collection("communities")
+      // .doc(communityId)
+      // .collection("watchmember")
+      // .doc(auth.uid)
+      // .set({
+      //   watchFlag: false 
+      // });
+    } else {
+      watchButtonFlag = true;
+      // db.collection("communities")
+      // .doc(communityId)
+      // .collection("watchmember")
+      // .doc(auth.uid)
+      // .set({
+      //   watchFlag: true 
+      // });
+    }
+    console.log(watchButtonFlag);
+  }
 
 
   return (
@@ -592,6 +652,12 @@ export default function CommunitiesTimeline(data) {
                 {communityText}
               </Typography>
             </Linkify>
+            <div className={classes.watchbuttonpotision}>
+            {watchstartstatus}
+              <span className={classes.watchbuttontext}>
+                このコミュニティをウォッチする！
+              </span>
+            </div>
             {!communityDisplay && (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">

@@ -323,7 +323,35 @@ exports.CommunityPostUpdate = functions.firestore
             });
       })
     })
-    return res1, res2;
+    const res3 = db
+    .collection("communities")
+    .doc(communityId)
+    .collection("watchmember")
+    .get()
+    .then(val => {
+      for (let i = 0; i < val.docs.length; i++) {
+        db
+        .collection("communities")
+        .doc(communityId)
+        .collection("watchmember")
+        .doc(val.docs[i].id)
+        .get()
+        .then(valFlag => {
+          if (valFlag.data().watchFlag){
+            db.collection('users').doc(val.docs[i].id).get().then(function (doc3){
+              db.collection('mail').add({
+                  to: doc3.data().email,
+                  message: {
+                    subject: 'POSIIからのお知らせです!!',
+                    html: 'ウォッチしてるコミュニティで誰かがお話ししてます！posiiを見にいきましょう！https://posii.ai/communities',
+                    },
+                  });
+            })
+          }
+        })
+      }
+    })
+    return res1, res2, res3;
   });
 
 exports.CommunityPostMention = functions.firestore
