@@ -24,6 +24,7 @@ import defaultMentionStyle from './Style/defaultMentionStyle';
 import defaultStyle from './Style/defaultStyle';
 import { Checkbox, Chip } from "@material-ui/core";
 import { useInView } from 'react-intersection-observer';
+import WatchCommunity from "./WatchCommunity";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -111,14 +112,6 @@ const useStyles = makeStyles((theme) => ({
   },
   coflictuserlist: {
     marginBottom:10
-  },
-  watchbuttonpotision:{
-    textAlign:"right"
-  },
-  watchbuttontext: {
-    fontWeight: "bold",
-    fontSize: 13,
-    opacity:0.5
   }
 
 }));
@@ -167,38 +160,8 @@ export default function CommunitiesTimeline(data) {
   const [mentiondata,setMentiondata] = useState("");
   let [usersconflict,setUsersConflict] = useState([]);
   let [selectUser,setSelectUser] = useState("");
-  const [watchstartstatus, setwatchstartstatus] = useState("");
   let user = firebase.auth().currentUser;
-
-  let watchButtonFlag;
-  let watchFlagStartStatus 
-  const res3 = db
-  .collection("communities")
-  .doc(communityId)
-  .collection("watchmember")
-  .doc(user.uid)
-  .get()
-  .then(val => {
-    if (val.data().watchFlag == true) {
-      // watchstartstatus = true;
-      setwatchstartstatus(
-        <Checkbox
-          onClick={watchButton}
-          color="primary"
-          checked={watchstartstatus}
-        />
-      )
-    } else{
-      setwatchstartstatus(
-        <Checkbox
-          onClick={watchButton}
-          color="primary"
-        />
-      )
-        
-    }
-  })
-
+  let watchlist = '';
 
 
   db.collection("communities")
@@ -208,6 +171,15 @@ export default function CommunitiesTimeline(data) {
       setCommunityName(doc.data().name);
       setCommunityText(doc.data().text);
       setCommunityPublic(doc.data().public);
+    });
+
+  db.collection("communities")
+    .doc(communityId)
+    .collection("watchmember")
+    .get()
+    .then(function (doc) {
+      watchlist = doc.docs
+      // setwatchlist(doc.docs)
     });
 
   if (user) {
@@ -358,51 +330,6 @@ export default function CommunitiesTimeline(data) {
       }
     } else {
       handleContentSubmit2()
-    }
-  }
-  const sendMentionEmail = (id) => {
-    const date = new Date()
-    let user = firebase.auth().currentUser;
-    console.log('Collection登録');
-    db.collection("mentionmail")
-    .doc(user.uid)
-    .set({
-      mention: true,
-      uid: id,
-      date:date
-    });
-    try {
-      // console.log(id,i,communityId);
-      // if (id === null) {
-      //   setMentiondata(data.data[i].id)
-      // }
-
-      // setTimeout(() => {
-      //   db.collection("communities")
-      //   .doc(communityId)
-      //   .collection("posts")
-      //   .add({
-      //     mention: true
-      //   });
-      // }, 1000);
-      // db.collection('mentionmail').add({
-      //   to: 'deragentogasi@ezweb.ne.jp',
-      //   message: {
-      //     subject: 'POSIIからのお知らせです!!',
-      //     html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-      //     },
-      //   });
-      // db.collection('users').doc(id).get().then(function (doc3){
-      //   db.collection('mail').add({
-      //       to: 'deragentogasi@ezweb.ne.jp',
-      //       message: {
-      //         subject: 'POSIIからのお知らせです!!',
-      //         html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-      //         },
-      //       });
-      // })
-    } catch(e) {
-      console.log('存在しないユーザ。');
     }
   }
 
@@ -602,28 +529,6 @@ export default function CommunitiesTimeline(data) {
   const [ref, inView] = useInView({
     threshold:0,
   });
-  const watchButton = () => {
-    if (watchButtonFlag === true) {
-      watchButtonFlag = false;
-      // db.collection("communities")
-      // .doc(communityId)
-      // .collection("watchmember")
-      // .doc(auth.uid)
-      // .set({
-      //   watchFlag: false 
-      // });
-    } else {
-      watchButtonFlag = true;
-      // db.collection("communities")
-      // .doc(communityId)
-      // .collection("watchmember")
-      // .doc(auth.uid)
-      // .set({
-      //   watchFlag: true 
-      // });
-    }
-    console.log(watchButtonFlag);
-  }
 
 
   return (
@@ -652,12 +557,7 @@ export default function CommunitiesTimeline(data) {
                 {communityText}
               </Typography>
             </Linkify>
-            <div className={classes.watchbuttonpotision}>
-            {watchstartstatus}
-              <span className={classes.watchbuttontext}>
-                このコミュニティをウォッチする！
-              </span>
-            </div>
+            <WatchCommunity data={watchlist} />
             {!communityDisplay && (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
