@@ -1,5 +1,5 @@
 import { Checkbox, makeStyles } from "@material-ui/core";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useFirebase } from "react-redux-firebase";
 import { useParams } from "react-router-dom";
 
@@ -32,45 +32,47 @@ export default function WatchCommunity(data) {
     let [watchButtonFlag,setwatchButtonFlag] = useState("");
 
 
-    db
-    .collection("communities")
-    .doc(communityId)
-    .collection("watchmember")
-    .doc(user.uid)
-    .get()
-    .then(val => {
+    useEffect(() => {
+      db
+      .collection("communities")
+      .doc(communityId)
+      .collection("watchmember")
+      .doc(user.uid)
+      .get()
+      .then(val => {
         if (val.data().watchFlag === true) {
-        console.log('こっちきたよ');
-        setwatchButtonFlag(true);
-    } else{
-        console.log('こっちきたよ！');
-        setwatchButtonFlag(false)
-    }
-    })
+          setwatchButtonFlag(true);
+      } else{
+          setwatchButtonFlag(false)
+      }
+      })
+      }, 1);
+
 
 
     const watchButton = () => {
-        console.log(watchButtonFlag);
         if (watchButtonFlag === true) {
+          setwatchButtonFlag(false)
             watchButtonFlag = false;
-          // db.collection("communities")
-          // .doc(communityId)
-          // .collection("watchmember")
-          // .doc(auth.uid)
-          // .set({
-          //   watchFlag: false 
-          // });
+          db.collection("communities")
+          .doc(communityId)
+          .collection("watchmember")
+          .doc(data.data.uid)
+          .set({
+            watchFlag: false 
+          });
         } else {
+          setwatchButtonFlag(true)
           watchButtonFlag = true;
-          // db.collection("communities")
-          // .doc(communityId)
-          // .collection("watchmember")
-          // .doc(auth.uid)
-          // .set({
-          //   watchFlag: true 
-          // });
+          db.collection("communities")
+          .doc(communityId)
+          .collection("watchmember")
+          .doc(data.data.uid)
+          .set({
+            watchFlag: true 
+          });
         }
-        // console.log(watchButtonFlag);
+        console.log(watchButtonFlag);
       }
     
 
@@ -79,6 +81,7 @@ export default function WatchCommunity(data) {
         <Checkbox
           onClick={watchButton}
           color="primary"
+          checked={watchButtonFlag}
         />
           <span className={classes.watchbuttontext}>
             このコミュニティをウォッチする！

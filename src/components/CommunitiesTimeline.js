@@ -557,7 +557,7 @@ export default function CommunitiesTimeline(data) {
                 {communityText}
               </Typography>
             </Linkify>
-            <WatchCommunity data={watchlist} />
+            <WatchCommunity data={auth} />
             {!communityDisplay && (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
