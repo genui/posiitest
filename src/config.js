@@ -1,4 +1,4 @@
-// 本番環境
+// // 本番環境
 export const firebase = {
   apiKey: "AIzaSyAGJYOgpwcDI-1XlRN16l-FJtnJbDmAcUk",
   authDomain: "posiidev.firebaseapp.com",
@@ -10,7 +10,7 @@ export const firebase = {
   measurementId: "G-8FFYJ89XR2"
 };
 
-// // // 検証環境
+// // 検証環境
 
 // export const firebase = {
 //   apiKey: "AIzaSyCZ2vG51z38Ut9kFvUKbwjxtbpHi0B50Aw",

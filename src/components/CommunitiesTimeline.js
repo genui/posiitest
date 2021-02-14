@@ -22,8 +22,9 @@ import Linkify from "material-ui-linkify";
 import { MentionsInput, Mention } from 'react-mentions';
 import defaultMentionStyle from './Style/defaultMentionStyle';
 import defaultStyle from './Style/defaultStyle';
-import { Chip } from "@material-ui/core";
+import { Checkbox, Chip } from "@material-ui/core";
 import { useInView } from 'react-intersection-observer';
+import WatchCommunity from "./WatchCommunity";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -111,8 +112,8 @@ const useStyles = makeStyles((theme) => ({
   },
   coflictuserlist: {
     marginBottom:10
-
   }
+
 }));
 
 
@@ -159,6 +160,8 @@ export default function CommunitiesTimeline(data) {
   const [mentiondata,setMentiondata] = useState("");
   let [usersconflict,setUsersConflict] = useState([]);
   let [selectUser,setSelectUser] = useState("");
+  let user = firebase.auth().currentUser;
+  let watchlist = '';
 
 
   db.collection("communities")
@@ -170,7 +173,15 @@ export default function CommunitiesTimeline(data) {
       setCommunityPublic(doc.data().public);
     });
 
-    let user = firebase.auth().currentUser;
+  db.collection("communities")
+    .doc(communityId)
+    .collection("watchmember")
+    .get()
+    .then(function (doc) {
+      watchlist = doc.docs
+      // setwatchlist(doc.docs)
+    });
+
   if (user) {
     db.collection("communities")
       .doc(communityId)
@@ -201,10 +212,8 @@ export default function CommunitiesTimeline(data) {
     if(event.target.value.match(/@/)) {
 
       if(event.target.value.match(/ /) || event.target.value.match(/　/)){
-        console.log('キャンセルテスト');
         setMentioncontentflag(false)
       } else {
-        console.log('@テスト');
         setMentioncontentflag(true)
         setMentioncontent(event.target.value)
       }
@@ -219,9 +228,7 @@ export default function CommunitiesTimeline(data) {
 
   const handleImageChange = (event) => {
     const file = event.target.files;
-    console.log(file);
     if(file[0].name.match('.HEIC') || file[0].name.match('.HEUC')) {
-      setPostImage("");
       setPostImage("");
       setPostMsg("アップロードできませんでした。拡張子がHEIC（iPhone1で撮った写真等）の場合はアップロードできません。");
       setOpenSnack(true);
@@ -256,7 +263,6 @@ export default function CommunitiesTimeline(data) {
       userDisplayName = mentioncontent.slice(1)
 
       for (let i = 0; i < data.data.length; i++){
-        console.log(data.data[i].display);
         if (data.data[i].display === userDisplayName){
           userCount += 1;
           setdataId(data.data[i].id);
@@ -283,20 +289,10 @@ export default function CommunitiesTimeline(data) {
                   profile:profileComment+'...'
                 })
             }
-            console.log(userconflict);
-            console.log(userconflict[0].id);
-            // userAvatar.push(
-              // <Avatar
-              // aria-label="recipe"
-              // src={doc.data().avatar}
-              // className={classes.middle}
-              // style={{ marginTop: 30 }} />
-            // )
           })
         }
       }
 
-      // setAvatarImg(userAvatar);
       if (userCount >= 2) {
         setSelectUser(
           <div className={classes.coflictuser}>
@@ -320,51 +316,6 @@ export default function CommunitiesTimeline(data) {
       }
     } else {
       handleContentSubmit2()
-    }
-  }
-  const sendMentionEmail = (id) => {
-    const date = new Date()
-    let user = firebase.auth().currentUser;
-    console.log('Collection登録');
-    db.collection("mentionmail")
-    .doc(user.uid)
-    .set({
-      mention: true,
-      uid: id,
-      date:date
-    });
-    try {
-      // console.log(id,i,communityId);
-      // if (id === null) {
-      //   setMentiondata(data.data[i].id)
-      // }
-
-      // setTimeout(() => {
-      //   db.collection("communities")
-      //   .doc(communityId)
-      //   .collection("posts")
-      //   .add({
-      //     mention: true
-      //   });
-      // }, 1000);
-      // db.collection('mentionmail').add({
-      //   to: 'deragentogasi@ezweb.ne.jp',
-      //   message: {
-      //     subject: 'POSIIからのお知らせです!!',
-      //     html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-      //     },
-      //   });
-      // db.collection('users').doc(id).get().then(function (doc3){
-      //   db.collection('mail').add({
-      //       to: 'deragentogasi@ezweb.ne.jp',
-      //       message: {
-      //         subject: 'POSIIからのお知らせです!!',
-      //         html: 'あなたにメッセージがあります！！posiiを見にいきましょう！https://sample-posii.web.app/communities/' + communityId,
-      //         },
-      //       });
-      // })
-    } catch(e) {
-      console.log('存在しないユーザ。');
     }
   }
 
@@ -592,6 +543,7 @@ export default function CommunitiesTimeline(data) {
                 {communityText}
               </Typography>
             </Linkify>
+            <WatchCommunity data={auth} />
             {!communityDisplay && (
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
