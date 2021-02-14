@@ -1,4 +1,5 @@
 import { Checkbox, makeStyles } from "@material-ui/core";
+import { de } from "date-fns/locale";
 import React, { useState, useRef, useEffect } from "react";
 import { useFirebase } from "react-redux-firebase";
 import { useParams } from "react-router-dom";
@@ -33,19 +34,43 @@ export default function WatchCommunity(data) {
 
 
     useEffect(() => {
-      db
-      .collection("communities")
+      db.collection('communities')
       .doc(communityId)
-      .collection("watchmember")
-      .doc(user.uid)
+      .collection('watchmember')
       .get()
-      .then(val => {
-        if (val.data().watchFlag === true) {
-          setwatchButtonFlag(true);
-      } else{
-          setwatchButtonFlag(false)
-      }
+      .then((valwatch) => {
+        if(valwatch.docs.length===0){
+          db.collection('communities')
+          .doc(communityId)
+          .collection('watchmember')
+          .doc(user.uid)
+          .set({
+            watchFlag:false
+          })
+        } else {
+          try {
+            db
+            .collection("communities")
+            .doc(communityId)
+            .collection("watchmember")
+            .doc(user.uid)
+            .get()
+            .then(val => {
+              if(val.exists){
+                  if (val.data().watchFlag === true) {
+                    setwatchButtonFlag(true);
+                } else{
+                    setwatchButtonFlag(false)
+                }
+
+              }
+            })
+          } catch(e){
+            console.log('error');
+          }
+        }
       })
+
       }, 1);
 
 
@@ -72,7 +97,6 @@ export default function WatchCommunity(data) {
             watchFlag: true 
           });
         }
-        console.log(watchButtonFlag);
       }
     
 

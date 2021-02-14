@@ -343,7 +343,7 @@ exports.CommunityPostUpdate = functions.firestore
                   to: doc3.data().email,
                   message: {
                     subject: 'POSIIからのお知らせです!!',
-                    html: 'ウォッチしてるコミュニティで誰かがお話ししてます！posiiを見にいきましょう！https://posii.ai/communities',
+                    html: `ウォッチしてるコミュニティで誰かがお話ししてます！posiiを見にいきましょう！https://posii.ai/communities/${communityId}`,
                     },
                   });
             })

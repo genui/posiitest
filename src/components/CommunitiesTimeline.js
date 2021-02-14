@@ -212,10 +212,8 @@ export default function CommunitiesTimeline(data) {
     if(event.target.value.match(/@/)) {
 
       if(event.target.value.match(/ /) || event.target.value.match(/　/)){
-        console.log('キャンセルテスト');
         setMentioncontentflag(false)
       } else {
-        console.log('@テスト');
         setMentioncontentflag(true)
         setMentioncontent(event.target.value)
       }
@@ -230,7 +228,6 @@ export default function CommunitiesTimeline(data) {
 
   const handleImageChange = (event) => {
     const file = event.target.files;
-    console.log(file);
     if(file[0].name.match('.HEIC') || file[0].name.match('.HEUC')) {
       setPostImage("");
       setPostMsg("アップロードできませんでした。拡張子がHEIC（iPhone1で撮った写真等）の場合はアップロードできません。");
@@ -266,7 +263,6 @@ export default function CommunitiesTimeline(data) {
       userDisplayName = mentioncontent.slice(1)
 
       for (let i = 0; i < data.data.length; i++){
-        console.log(data.data[i].display);
         if (data.data[i].display === userDisplayName){
           userCount += 1;
           setdataId(data.data[i].id);
@@ -293,20 +289,10 @@ export default function CommunitiesTimeline(data) {
                   profile:profileComment+'...'
                 })
             }
-            console.log(userconflict);
-            console.log(userconflict[0].id);
-            // userAvatar.push(
-              // <Avatar
-              // aria-label="recipe"
-              // src={doc.data().avatar}
-              // className={classes.middle}
-              // style={{ marginTop: 30 }} />
-            // )
           })
         }
       }
 
-      // setAvatarImg(userAvatar);
       if (userCount >= 2) {
         setSelectUser(
           <div className={classes.coflictuser}>
