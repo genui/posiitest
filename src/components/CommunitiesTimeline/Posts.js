@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useFirebase, isLoaded, isEmpty } from "react-redux-firebase";
 import { useSelector } from "react-redux";
@@ -149,6 +149,7 @@ export default function Posts(props) {
   const firebase = useFirebase();
   const db = firebase.firestore();
   const auth = useSelector((state) => state.firebase.auth);
+  const heic2any = require("heic2any");
 
   const [PostDeleteId, setPostDeleteId] = useState("");
   const [OpenDelete, setOpenDelete] = useState(false);
@@ -286,6 +287,29 @@ export default function Posts(props) {
   };
 
 
+  useEffect(() => {
+    if (props.heif){
+      console.log(props);
+      let img = 'https://firebasestorage.googleapis.com/v0/b/sample-posii.appspot.com/o/postImage%2F1613547423-IMG_4102.HEIC?alt=media&token=293a2cdc-2ed7-4386-ad90-f29bfd068708'
+      fetch(img,{
+        headers:{
+          "Access-Control-Allow-Origin": "*"
+        }
+      })
+        .then((res) => {
+          res.blob()
+        })
+        .then((blob) => heic2any({ blob }))
+        .then((conversionResult) => {
+            // conversionResult is a BLOB
+            // of the PNG formatted image
+            console.log(conversionResult);
+        })
+        .catch((e) => {
+            // see error handling section
+        });
+        }
+  }, 1)
 
   return (
     <div>

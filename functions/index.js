@@ -323,7 +323,7 @@ exports.CommunityPostUpdate = functions.firestore
             });
       })
     })
-    const res3 = db
+    db
     .collection("communities")
     .doc(communityId)
     .collection("watchmember")
@@ -351,7 +351,7 @@ exports.CommunityPostUpdate = functions.firestore
         })
       }
     })
-    return res1, res2, res3;
+    return res1, res2;
   });
 
 exports.CommunityPostMention = functions.firestore

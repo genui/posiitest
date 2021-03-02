@@ -36,6 +36,7 @@ import { useFirebase } from "react-redux-firebase";
 import GestCommunities from "./components/GestCommunitiesTimeline/GestCommunities";
 import GestCommunitiesTimeline from "./components/GestCommunitiesTimeline";
 import GestComments from "./components/GestCommunitiesTimeline/GestComments";
+import Timeline from "./components/Timeline/Timline";
 
 
 const initialState = window && window.__INITIAL_STATE__; // set initial state here
@@ -51,26 +52,6 @@ const userData = [
   {
     id: 'walter',
     display: 'Walter White',
-  },
-  {
-    id: 'jesse',
-    display: 'Jesse Pinkman',
-  },
-  {
-    id: 'walter',
-    display: 'Walter White',
-  },
-  {
-    id: 'jesse',
-    display: 'Jesse Pinkman',
-  },
-  {
-    id: 'walter',
-    display: 'Walter White',
-  },
-  {
-    id: 'jesse',
-    display: 'Jesse Pinkman',
   }
 ]
 // メンション用ユーザ情報取得
@@ -138,6 +119,9 @@ function App() {
             <MuiThemeProvider theme={theme}>
               <Header />
               <Switch>
+                <Route exact path="/Timeline/Timeline">
+                  <Timeline exact path="/Timeline/Timeline" />
+                </Route>
                 <Route exact path="/gestcommunities">
                   <GestCommunities exact path="/gestcommunities" />
                 </Route>

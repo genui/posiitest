@@ -94,6 +94,11 @@ export default function SignedInMenu() {
             </Link>
           </MenuItem>
           <MenuItem className={classes.menuItem}>
+            <Link to="/Timeline/Timeline" className={classes.link}>
+              タイムライン
+            </Link>
+          </MenuItem>
+          <MenuItem className={classes.menuItem}>
             <Link to="/profile_edit" className={classes.link}>
               プロフィール編集
             </Link>
