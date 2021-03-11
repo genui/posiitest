@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useFirebase, useFirestoreConnect } from "react-redux-firebase";
+import { isEmpty, isLoaded, useFirebase, useFirestoreConnect } from "react-redux-firebase";
 import { useSelector } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
@@ -10,12 +10,12 @@ import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { AddAPhoto } from "@material-ui/icons";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
 import { useParams } from "react-router-dom";
-import { Chip } from "@material-ui/core";
-
+import { Chip, CircularProgress, Grow } from "@material-ui/core";
+import Posts from "./Posts";
+import color from "@material-ui/core/colors/amber";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -102,8 +102,14 @@ const useStyles = makeStyles((theme) => ({
   },
   coflictuserlist: {
     marginBottom:10
+  },
+  postButton:{
+    color:'white',
+    fontWeight:'bold'
+  },
+  timelineColor:{
+    color:'#00E4E8'
   }
-
 }));
 
 
@@ -113,16 +119,16 @@ export default function PostTimeline(data) {
   const firebase = useFirebase();
   const db = firebase.firestore();
 
-//   firebase.firestore();
-//   useFirestoreConnect([
-//     {
-//       collection: "communities",
-//       doc: communityId,
-//       subcollections: [{ collection: "posts" }],
-//       orderBy: ["createTime", "desc"],
-//       storeAs: `posts-${communityId}`,
-//     },
-//   ]);
+  firebase.firestore();
+  useFirestoreConnect([
+    {
+      collection: "timeline",
+      doc: "timelineDoc",
+      subcollections: [{ collection: "posts" }],
+      orderBy: ["createTime", "desc"],
+      storeAs: `posts-${communityId}`,
+    },
+  ]);
 
 
   const auth = useSelector((state) => state.firebase.auth);
@@ -140,15 +146,9 @@ export default function PostTimeline(data) {
   const [flagHEIC, setflagHEIC] = useState(false)
   let [usersconflict,setUsersConflict] = useState([]);
   let [selectUser,setSelectUser] = useState("");
-  let user = firebase.auth().currentUser;
-
-
-
-
-
-
-
-
+  const posts = useSelector(
+    (state) => state.firestore.ordered[`posts-${communityId}`]
+  );
   const handleContentChange = (event) => {
     setContent(event.target.value);
     // if(event.target.value.match(/@/)) {
@@ -259,7 +259,6 @@ export default function PostTimeline(data) {
       axios
       .get(url, { params })
       .then((results) => {
-        
         setPosted(false);
         //   setMentionFlag(false);
         //   setMentiondata('')
@@ -352,7 +351,6 @@ export default function PostTimeline(data) {
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="sm">
-        
         {communityDisplay && (
           <Card className={classes.card} style={{ marginBottom: 30 }}>
             <CardContent>
@@ -420,14 +418,21 @@ export default function PostTimeline(data) {
                         sm="6"
                         style={{ marginTop: 20, textAlign: "right" }}
                       >
+                        {posted ? (
                           <Button
-                            type="button"
-                            variant="contained"
-                            color="primary"
-                            onClick={handleContentSubmit}
-                          >
-                            投稿
+                          type="button"
+                          variant="contained"
+                          className={classes.postButton}
+                          color='primary'
+                          onClick={handleContentSubmit}
+                        >
+                          投稿
+                        </Button>
+                        ) : (
+                          <Button color='primary'>
+                            投稿中 <CircularProgress size={15} />
                           </Button>
+                        )}
                       </Grid>
                     </Grid>
                   </div>
@@ -435,6 +440,30 @@ export default function PostTimeline(data) {
               </Grid>
             </CardContent>
           </Card>
+        )}
+        {!isLoaded(posts) ? (
+          <div></div>
+        ) : isEmpty(posts) ? (
+          <div></div>
+        ) : (
+          posts.map((post) => (
+            <div>
+              <Grow in={true} timeout={{ enter: 1000 }}>
+                <Posts
+                  id={post.id}
+                  communityId={communityId}
+                  uid={post.uid}
+                  createTime={post.createTime}
+                  avatar={post.avatar}
+                  displayName={post.displayName}
+                  content={post.content}
+                  postImage={post.postImage}
+                  likeCount={post.likeCount}
+                  heif={post.heif}
+                />
+              </Grow>
+            </div>
+          ))
         )}
       </Container>
       <Snackbar

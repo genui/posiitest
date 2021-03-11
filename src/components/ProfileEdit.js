@@ -16,6 +16,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Snackbar from "@material-ui/core/Snackbar";
+import { Chip, Modal } from "@material-ui/core";
 
 function Copyright() {
   return (
@@ -54,6 +55,14 @@ const useStyles = makeStyles((theme) => ({
   },
   snackbar: {
     backgroundColor: "#fa9200",
+  },
+  snsIconGroup: {
+    textAlign: 'center',
+  },
+  snsIconCss: {
+    margin: 10,
+    width: theme.spacing(28),
+    height: theme.spacing(7),
   },
 }));
 
@@ -214,8 +223,62 @@ export default function ProfileEdit() {
       setSnackMsg("プロフィールを更新しました");
       setOpenSnack(true);
     }
-
   };
+  // const open = () => {
+  //   console.log();
+  // }
+  // const close = () => {
+  //   console.log();
+  // }
+
+
+  // const snsIcon = 
+  // <div className={classes.snsIconGroup}>
+  //   <Chip
+  //     label='Instagram'
+  //     className={classes.snsIconCss}
+  //     avatar={
+  //       <Avatar
+  //         className={classes.iconSize}
+  //         src='/instagram.png'
+  //       />
+  //     }/>
+    
+  //   <Chip
+  //     label='Twitter'
+  //     className={classes.snsIconCss}
+  //     avatar={
+  //       <Avatar
+  //         src='/instagram.png'
+  //       />
+  //     }/>
+    
+  //   <Chip
+  //     label='TikTok'
+  //     className={classes.snsIconCss}
+  //     avatar={
+  //       <Avatar
+  //         src='/instagram.png'
+  //       />
+  //     }/>
+    
+  //   <Chip
+  //     label='LINE'
+  //     className={classes.snsIconCss}
+  //     avatar={
+  //       <Avatar
+  //         src='/instagram.png'
+  //       />
+  //     }/>
+    
+  //   <Modal
+  //     open={open}
+  //     onClose={close}>
+  //     'test'
+  //   </Modal>
+  // </div> 
+
+
 
   if (isLoaded(profile)) {
     return (
@@ -314,6 +377,7 @@ export default function ProfileEdit() {
                         maxLength: 2000,
                       }}
                     />
+                    {/* {snsIcon} */}
                     <Button
                       type="button"
                       fullWidth
