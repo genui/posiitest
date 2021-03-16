@@ -117,6 +117,7 @@ export default function UserPage(props) {
       }
     }
 
+    console.log(profileText);
 
   return (
     <Grow in={true} timeout={{ enter: 1000 }}>
@@ -152,9 +153,7 @@ export default function UserPage(props) {
             <Typography className={classes.profileTextPaper}>
               Profile
             </Typography>
-            <Typography>
               {profileText}
-            </Typography>
           </Box>
         </Grid>
       </div>

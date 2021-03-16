@@ -16,7 +16,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Snackbar from "@material-ui/core/Snackbar";
-import { Chip, Modal } from "@material-ui/core";
+import { Chip, List, ListItem, ListItemText, Modal } from "@material-ui/core";
 
 function Copyright() {
   return (
@@ -56,8 +56,8 @@ const useStyles = makeStyles((theme) => ({
   snackbar: {
     backgroundColor: "#fa9200",
   },
-  snsIconGroup: {
-    textAlign: 'center',
+  iconText: {
+    paddingLeft: 10
   },
   snsIconCss: {
     margin: 10,
@@ -75,6 +75,9 @@ export default function ProfileEdit() {
   const [displayName, setDisplayName] = useState("");
   const [profileText, setProfileText] = useState("");
   const [usernameMsg, setUsernameMsg] = useState("");
+  const [twitterAccount, settwitterAccount] = useState("");
+  const [instagramAccount, setinstagramAccount] = useState("");
+  const [facebookAccount, setfacebookAccount] = useState("");
   const [uploaded, setUploaded] = useState(true);
   const [openSnack, setOpenSnack] = useState(false);
   const [snackMsg, setSnackMsg] = useState(false);
@@ -224,60 +227,41 @@ export default function ProfileEdit() {
       setOpenSnack(true);
     }
   };
-  // const open = () => {
-  //   console.log();
-  // }
-  // const close = () => {
-  //   console.log();
-  // }
-
-
-  // const snsIcon = 
-  // <div className={classes.snsIconGroup}>
-  //   <Chip
-  //     label='Instagram'
-  //     className={classes.snsIconCss}
-  //     avatar={
-  //       <Avatar
-  //         className={classes.iconSize}
-  //         src='/instagram.png'
-  //       />
-  //     }/>
-    
-  //   <Chip
-  //     label='Twitter'
-  //     className={classes.snsIconCss}
-  //     avatar={
-  //       <Avatar
-  //         src='/instagram.png'
-  //       />
-  //     }/>
-    
-  //   <Chip
-  //     label='TikTok'
-  //     className={classes.snsIconCss}
-  //     avatar={
-  //       <Avatar
-  //         src='/instagram.png'
-  //       />
-  //     }/>
-    
-  //   <Chip
-  //     label='LINE'
-  //     className={classes.snsIconCss}
-  //     avatar={
-  //       <Avatar
-  //         src='/instagram.png'
-  //       />
-  //     }/>
-    
-  //   <Modal
-  //     open={open}
-  //     onClose={close}>
-  //     'test'
-  //   </Modal>
-  // </div> 
-
+  const handleTwitter = (event) => {
+    console.log(event.target.value);
+    settwitterAccount(event.target.value);
+  };
+  const handleInstagram = (event) => {
+    console.log(event.target.value);
+    setinstagramAccount(event.target.value);
+  };
+  const handleFacebook = (event) => {
+    console.log(event.target.value);
+    setfacebookAccount(event.target.value);
+  };
+  const snsIcon = 
+  <div>
+    <List>
+      {/* https://twitter.com  の後にユーザ名を入れて登録する。*/}
+      <ListItem>
+        <Avatar src='/twitter.png'></Avatar>
+        <ListItemText className={classes.iconText}>Twitter</ListItemText>
+        <TextField onChange={handleTwitter} label='ユーザ名を入力'></TextField>
+      </ListItem>
+      {/* http://www.instagram.com/  の後にユーザ名を入れて登録する。*/}
+      <ListItem>
+        <Avatar src='/instagram.png'></Avatar>
+        <ListItemText className={classes.iconText}>Instagram</ListItemText>
+        <TextField onChange={handleInstagram} label='ユーザ名を入力'></TextField>
+      </ListItem>
+      {/* facebookのプロフィール設定より、リンクを貼る*/}
+      <ListItem>
+        <Avatar src='/facebook.png'></Avatar>
+        <ListItemText className={classes.iconText}>Facebook</ListItemText>
+        <TextField onChange={handleFacebook} label='リンクを入力'></TextField>
+      </ListItem>
+    </List>
+  </div>
 
 
   if (isLoaded(profile)) {
@@ -377,7 +361,7 @@ export default function ProfileEdit() {
                         maxLength: 2000,
                       }}
                     />
-                    {/* {snsIcon} */}
+                    {snsIcon}
                     <Button
                       type="button"
                       fullWidth
